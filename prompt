@@ -1,0 +1,98 @@
+sekarang mari kita buat cartnya dulu
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+
+class CartController extends Controller
+{
+    public function index()
+    {
+        $cart = session()->get('cart', []);
+        $cartItems = [];
+        $subtotal = 0;
+
+        foreach ($cart as $productId => $item) {
+            $product = Product::find($productId);
+            if ($product && $product->is_active) {
+                $itemTotal = $product->price * $item['quantity'];
+                $cartItems[] = [
+                    'product' => $product,
+                    'quantity' => $item['quantity'],
+                    'total' => $itemTotal
+                ];
+                $subtotal += $itemTotal;
+            }
+        }
+
+        return view('cart.index', compact('cartItems', 'subtotal'));
+    }
+
+    public function add(Request $request, Product $product)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:' . $product->stock
+        ]);
+
+        $cart = session()->get('cart', []);
+        $quantity = $request->quantity;
+
+        if (isset($cart[$product->id])) {
+            $cart[$product->id]['quantity'] += $quantity;
+        } else {
+            $cart[$product->id] = [
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'added_at' => now()
+            ];
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+    }
+
+    public function update(Request $request, $productId)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$productId])) {
+            $product = Product::find($productId);
+            if ($request->quantity <= $product->stock) {
+                $cart[$productId]['quantity'] = $request->quantity;
+                session()->put('cart', $cart);
+                return redirect()->route('cart.index')->with('success', 'Keranjang berhasil diperbarui.');
+            }
+        }
+
+        return redirect()->route('cart.index')->with('error', 'Produk tidak ditemukan di keranjang.');
+    }
+
+    public function remove($productId)
+    {
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$productId])) {
+            unset($cart[$productId]);
+            session()->put('cart', $cart);
+            return redirect()->route('cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
+        }
+
+        return redirect()->route('cart.index')->with('error', 'Produk tidak ditemukan di keranjang.');
+    }
+
+    public function clear()
+    {
+        session()->forget('cart');
+        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil dikosongkan.');
+    }
+}
+
+buatkan juga models serta tabel databsenya, soalnya belum ada

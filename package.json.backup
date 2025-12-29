@@ -1,0 +1,28 @@
+{
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.3",
+        "autoprefixer": "^10.4.23",
+        "axios": "^1.13.2",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.1",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^3.4.19",
+        "vite": "^7.2.7"
+    },
+    "dependencies": {
+        "@alpinejs/focus": "^3.15.2",
+        "@googlemaps/js-api-loader": "^2.0.2",
+        "alpinejs": "^3.15.2",
+        "sweetalert2": "^11.26.10",
+        "vue": "^3.5.25",
+        "vue-qrcode": "^2.2.2",
+        "vue-router": "^4.6.4"
+    }
+}

@@ -1,0 +1,791 @@
+saya akan menjelaskan dlu apa yang sedang saya kerjakan, soalnya di chat sebelumnya sudah habis limitnya, jadi saya sedang membuat project bernama ciptaimaji, dan saya menggunakan laravel, ciptaimaji ini adalah perusahaan printing digital gitu, dan saya sedang membuatkan webnya agar bisa di perjual belikan si produk cipta imaji ini, ini adalah list yang di berikan kepada saya oleh cipta imaji
+
+
+1. Autentikasi Pengguna
+Website menyediakan fitur login menggunakan akun Google (Gmail Login).
+
+
+Tidak diperlukan registrasi manual menggunakan email dan password.
+
+
+
+2. Sistem Pembayaran
+Metode pembayaran menggunakan QRIS.
+
+
+Hanya menggunakan 1 (satu) Payment Gateway.
+
+
+Sistem QRIS harus:
+
+
+Bersifat dynamic
+
+
+Nominal otomatis sesuai total pembayaran yang harus dibayarkan
+
+
+Tidak memperbolehkan pembayaran dengan nominal berbeda dari tagihan.
+
+
+
+3. Notifikasi Pembayaran
+Setelah pembayaran sukses:
+
+
+Sistem mengirimkan notifikasi otomatis ke WhatsApp Admin.
+
+
+Notifikasi digunakan sebagai dasar konfirmasi pembayaran secara manual oleh admin.
+
+
+
+
+
+
+4. Fitur Lokasi
+Website terintegrasi dengan Google Maps.
+
+
+Lokasi pengguna dapat:
+
+
+Dipilih secara manual
+
+
+Ditentukan secara otomatis melalui GPS / lokasi perangkat
+
+
+
+5. Kurasi & Kategori Produk
+Produk dikurasi berdasarkan metode pengerjaan, dibagi menjadi:
+
+
+Produk Instan
+
+
+Produk Non-Instan
+
+
+Kategori ditampilkan secara jelas pada halaman produk untuk memisahkan yang dapat dikirim instan atau tidak.
+
+
+
+6. Sistem QR Pembayaran
+QR pembayaran dibuat otomatis per transaksi.
+
+
+Nominal QR tidak dapat diubah oleh pengguna.
+
+
+Digunakan sebagai kontrol validasi pembayaran.
+
+
+
+
+
+
+7. Integrasi WhatsApp Chat
+Website menyediakan tombol Chat WhatsApp.
+
+
+Chat terintegrasi dengan:
+
+
+Template pesan otomatis (pre-filled message)
+
+
+Berisi pertanyaan terkait produk yang dipilih
+
+
+
+8. Sistem Diskon & Kode Promo
+Diskon menggunakan kode promo.
+
+
+Kode promo dapat diatur dengan batasan:
+
+
+Jumlah pemakaian (quota)
+
+
+Masa berlaku
+
+
+Nilai diskon (nominal / persentase)
+
+
+
+
+
+
+
+
+
+Requirement untuk Kick-Off Development
+A. Aset & Konten
+Logo Website Ciptaimaji
+
+
+Brand Guideline (warna, font, logo usage, dll)
+
+
+Data produk lengkap:
+
+
+Nama produk
+
+
+Deskripsi
+
+
+Harga
+
+
+Kategori (instan / non-instan)
+
+
+Nomor WhatsApp Admin
+
+
+Akun Google Developer (untuk OAuth)
+
+
+Akun Payment Gateway (QRIS)
+
+
+
+B. Kebutuhan Teknis
+Flow proses pembayaran
+
+
+Flow notifikasi & konfirmasi pembayaran
+
+
+Template pesan WhatsApp
+
+
+Aturan penggunaan kode promo
+
+
+API key Google Maps
+
+
+
+
+DRAFT USER FLOW DIAGRAM (Deskriptif)
+User Journey Utama
+User membuka Website Ciptaimaji
+
+
+User dapat Login dengan Google
+
+
+Sistem:
+
+
+Validasi akun Google
+
+
+User berhasil login
+
+
+User masuk ke Homepage
+
+
+User memilih Produk
+
+
+Sistem menampilkan:
+
+
+Detail produk
+
+
+User klik Pesan / Beli
+
+
+User:
+
+
+Mengisi / konfirmasi Lokasi (Maps auto / manual)
+
+
+User klik Checkout
+
+
+(Optional) User input Kode Promo
+
+
+Sistem menghitung:
+
+
+Harga
+
+
+Diskon (jika ada)
+
+
+Total bayar
+
+
+Sistem generate QRIS Dynamic
+
+
+User melakukan Pembayaran
+
+
+Sistem:
+
+
+Menerima callback/payment status
+
+
+Kirim Notifikasi WA
+
+
+Admin melakukan Konfirmasi
+
+
+Status order berubah:
+
+
+Instan → langsung diproses
+
+
+Non-instan → masuk antrian
+
+
+User bisa klik Chat WhatsApp (auto template)
+
+
+
+2. TECHNICAL REQUIREMENT DOCUMENT (TRD)
+2.1 Frontend
+Teknologi (Contoh):
+Framework: React
+
+
+Responsive (Mobile-first)
+
+
+
+
+
+
+Fitur:
+Google OAuth Login
+
+
+Product listing + filtering
+
+
+Checkout page
+
+
+Promo code input
+
+
+QRIS payment display
+
+
+WhatsApp chat integration (deep link)
+
+
+Google Maps integration
+
+
+Status transaksi
+
+
+
+2.2 Backend
+Fungsi Utama:
+User management (OAuth token handling)
+
+
+Product & category management
+
+
+Order & transaction management
+
+
+Promo code validation
+
+
+Payment gateway integration (QRIS)
+
+
+WhatsApp notification trigger
+
+
+
+
+
+
+API yang Dibutuhkan:
+Auth API (Google OAuth)
+
+
+Product API
+
+
+Order API
+
+
+Promo API
+
+
+Payment API
+
+
+Notification API (WA)
+
+
+
+2.3 Database (High Level)
+Tabel utama:
+users
+
+
+products
+
+
+product_categories
+
+
+orders
+
+
+order_items
+
+
+payments
+
+
+promo_codes
+
+
+locations
+
+
+
+
+
+2.4 Integrasi Pihak Ketiga
+Google OAuth
+
+
+Google Maps API
+
+
+Payment Gateway QRIS
+
+
+WhatsApp API / WhatsApp Deep Link
+
+
+
+2.5 Security & Validation
+Token-based authentication
+
+
+Server-side harga & promo validation
+
+
+Callback validation dari payment gateway
+
+
+Tidak ada manipulasi nominal QR
+
+
+
+3. SCOPE OF WORK (SOW) DEVELOPER
+3.1 Scope Included
+ Setup project & environment
+ Frontend UI/UX implementation
+ Google Login (OAuth)
+ Payment QRIS Dynamic
+ Promo code system
+ WhatsApp integration
+ Maps & location handling
+ Admin order confirmation flow
+ Basic security & validation
+ Deployment (basic)
+
+3.2 Scope Excluded
+Mobile Apps (Android / iOS)
+Advanced analytics
+CRM system
+Automated fulfillment
+Customer support system
+(Dapat masuk fase selanjutnya)
+
+3.3 Deliverables
+Source code (frontend + backend)
+
+
+Database schema
+
+
+API documentation
+
+
+Deployment guide
+
+
+User manual (basic)
+
+
+
+
+
+
+
+4. WIREFRAME STRUKTUR HALAMAN WEBSITE
+
+
+4.1 Homepage
+Header:
+
+
+Logo
+
+
+Login / Profile
+
+
+Section:
+
+
+Hero Banner
+
+
+Produk
+
+
+CTA:
+
+
+Pesan Sekarang
+
+
+Chat WhatsApp
+
+
+
+4.2 Login Page
+Login dengan Google button
+
+
+Info singkat benefit login
+
+
+
+
+
+4.3 Product Listing Page
+Filter:
+
+
+Kategori setiap Produk
+
+
+Card:
+
+
+Nama produk
+
+
+Harga
+
+
+Category badge
+
+
+
+4.4 Product Detail Page
+Nama Produk
+
+
+Deskripsi
+
+
+Harga
+
+
+Info kategori
+
+
+Button:
+
+
+Pesan Sekarang
+
+
+Chat WhatsApp (pre-filled text)
+
+
+
+
+
+
+4.5 Checkout Page
+Order summary
+
+
+Lokasi (Maps auto/manual)
+
+
+Input kode promo
+
+
+Total pembayaran
+
+
+Button: Bayar Sekarang
+
+
+
+4.6 Payment Page
+QRIS Dynamic
+
+
+Instruksi pembayaran
+
+
+Status menunggu pembayaran
+
+
+
+4.7 Order Status Page
+Status:
+
+
+Menunggu pembayaran
+
+
+Dibayar
+
+
+Diproses
+
+
+Selesai
+
+
+Button Chat WhatsApp
+
+
+
+NEXT STEP 1 — ESTIMASI TIMELINE PER FITUR
+Estimasi untuk 1 tim kecil (1 FE, 1 BE, 1 PM/QA)
+Sprint 0 – Persiapan (1 Minggu)
+Requirement finalization
+
+
+Setup repository & environment
+
+
+Database schema awal
+
+
+Payment gateway & Google setup
+
+
+
+Sprint 1 – Core System (2 Minggu)
+Google Login (OAuth)
+Product listing & detail
+Kategori instan / non-instan
+Basic UI homepage
+
+Sprint 2 – Transaction Flow (2 Minggu)
+Checkout flow
+Maps integration (auto/manual)
+QRIS dynamic payment
+Order & payment status
+
+
+
+
+Sprint 3 – Support System (2 Minggu)
+Promo code system
+WhatsApp integration
+Admin order confirmation
+Validation & error handling
+
+Sprint 4 – Finalization (1 Minggu)
+Bug fixing
+UAT
+Deployment
+Basic documentation
+Total Estimasi: ±8 Minggu
+
+NEXT STEP 2 — MVP vs PHASE 2
+MVP (WAJIB ADA SAAT LAUNCH)
+Login Google
+Browse produk
+Checkout + QRIS
+WA notification ke admin
+Maps lokasi
+Produk instan & non-instan
+QR otomatis nominal
+Chat WhatsApp
+
+
+
+
+PHASE 2 (SETELAH LAUNCH)
+Admin dashboard advanced
+History order user
+Notifikasi WhatsApp ke user
+Multiple payment gateway
+Voucher & campaign automation
+Review & rating produk
+CMS konten
+
+NEXT STEP 3 — ADMIN PANEL WIREFRAME (STRUKTUR)
+3.1 Admin Login
+Login Admin (manual / Google Admin account)
+
+
+
+3.2 Dashboard
+Ringkasan:
+
+
+Total order
+
+
+Paid / unpaid
+
+
+Produk instan vs non-instan
+
+
+Status pembayaran terbaru
+
+
+
+
+3.3 Order Management
+List order:
+
+
+Order ID
+
+
+User
+
+
+Produk
+
+
+Total bayar
+
+
+Status
+
+
+Action:
+
+
+Confirm payment
+
+
+Update status (processed / done)
+
+
+Open chat WhatsApp user
+
+
+
+3.4 Product Management
+Tambah / edit produk
+
+
+Atur kategori:
+
+
+Instan
+
+
+Non-instan
+
+
+Harga produk
+
+
+Status aktif / non-aktif
+
+
+
+
+3.5 Promo Code Management
+Buat kode promo
+
+
+Atur:
+
+
+Diskon (% / nominal)
+
+
+Kuota
+
+
+Expiry date
+
+
+Aktif / nonaktif
+
+
+
+3.6 Location Management
+View lokasi user di Maps
+
+
+Validasi alamat jika diperlukan
+
+
+
+NEXT STEP 4 — RISK & EDGE CASE CHECKLIST
+A. Payment Risks
+User bayar tapi callback delay
+Solusi: status “pending” + manual confirm
+User scan QR tapi tidak bayar
+Solusi: QR expiry
+Double payment
+Solusi: order lock per QR
+B. Promo Edge Case
+Promo stacking (double diskon)
+Solusi : Only 1 promo per order
+Promo abuse
+Solusi : Limit per user
+
+C. Location Edge Case
+Lokasi tidak terdeteksi
+Solusi : Fallback ke manual input
+Lokasi tidak valid
+Solusi : Admin validation
+
+D. WhatsApp Risks
+WA tidak terkirim
+Solusi : Deep link fallback
+Nomor admin berubah
+Solusi : Configurable admin number
+
+E. Security
+Manipulasi harga di FE
+Solusi : Backend recalculation
+Fake payment callback
+Solusi : Signature verification
+
+
+
+
+
+
+dan saya sedang dalam pengerjaan membuat web itu, bantu saya melanjutkannya, dan sebelum membantu saya melanjutkannya saya ingin kamu mengecek apa saja yang sudah saya kerjakan lewat perintah cmd, seperti bagaimana struktur foldernya dan apa saja yang sudah di install di dalam laravel project ininya, agar mengurangi kesalahan dan memudahkan mu untuk ke depannya saat membantu saya.
+
