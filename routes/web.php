@@ -303,3 +303,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 // Fallback for Vue SPA - tampilkan halaman home juga
 Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
+
+// Admin Routes
+Route::get('/admin/dashboard', function () {
+    return view('pages.admin.dashboard');
+});
+
