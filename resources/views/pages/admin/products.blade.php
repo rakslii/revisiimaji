@@ -1,8 +1,3 @@
-@extends('admin.layout')
-
-@section('title', 'Products')
-
-@section('content')
 <div class="space-y-6">
     <div class="flex justify-between items-center">
         <div>
@@ -10,7 +5,7 @@
             <p class="text-gray-600 mt-1">Kelola produk Anda</p>
         </div>
         <button class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            <i data-lucide="plus" class="w-5 h-5"></i>
+            <i class="fas fa-plus w-5 h-5"></i>
             Add Product
         </button>
     </div>
@@ -29,38 +24,35 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    @foreach($products as $product)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $product->id }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ $product->name }}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                {{ $product->category == 'instant' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800' }}">
-                                {{ $product->category }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                {{ $product->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                {{ $product->status }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex gap-2">
-                                <button class="p-2 text-blue-600 hover:bg-blue-50 rounded" title="Edit">
-                                    <i data-lucide="edit" class="w-5 h-5"></i>
-                                </button>
-                                <button class="p-2 text-red-600 hover:bg-red-50 rounded" title="Delete">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
+                    <template x-for="product in products" :key="product.id">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900" x-text="product.id"></td>
+                            <td class="px-6 py-4 text-sm text-gray-900" x-text="product.name"></td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full" 
+                                      :class="product.category === 'instant' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800'"
+                                      x-text="product.category"></span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">Rp <span x-text="formatCurrency(product.price)"></span></td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full" 
+                                      :class="product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
+                                      x-text="product.status"></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex gap-2">
+                                    <button class="p-2 text-blue-600 hover:bg-blue-50 rounded" title="Edit">
+                                        <i class="fas fa-edit w-5 h-5"></i>
+                                    </button>
+                                    <button class="p-2 text-red-600 hover:bg-red-50 rounded" title="Delete">
+                                        <i class="fas fa-trash-alt w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-@endsection
