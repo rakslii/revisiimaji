@@ -68,8 +68,7 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::delete('/locations/{location}', [ProfileController::class, 'deleteLocation'])->name('locations.delete');
 });
 
-// Fallback for Vue SPA
-Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
+// ... kode sebelumnya ...
 
 // Logout route
 Route::post('/logout', function() {
@@ -78,3 +77,6 @@ Route::post('/logout', function() {
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('logout');
+
+// Fallback for Vue SPA
+Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
