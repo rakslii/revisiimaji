@@ -6,16 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia; // ✅ Import Interface
 use Spatie\MediaLibrary\InteractsWithMedia; // ✅ Import Trait
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia // ✅ Implement Interface
 {
     use SoftDeletes, InteractsWithMedia; // ✅ Tambahkan Trait
+    
 
     protected $fillable = [
         'name', 'description', 'short_description', 'price', 'discount_percent',
         'category', 'is_active', 'image', 'category_id', 'stock', 'sales_count',
         'rating', 'min_order', 'specifications'
     ];
+    
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -24,6 +27,12 @@ class Product extends Model implements HasMedia // ✅ Implement Interface
         'rating' => 'decimal:1'
     ];
 
+    public function getMediaModel(): string
+    {
+        return Media::class;
+    }
+
+    
     // Accessor untuk memastikan specifications selalu array
     public function getSpecificationsAttribute($value)
     {
@@ -82,4 +91,6 @@ class Product extends Model implements HasMedia // ✅ Implement Interface
         }
         return $this->price;
     }
+
+    
 }
