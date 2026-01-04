@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -12,35 +14,61 @@ use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 |--------------------------------------------------------------------------
 */
 
+// =======================
+// LOGIN PROCESS (POST)
+// =======================
+Route::post('/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->route('admin.dashboard');
+    }
+
+    return back()->withErrors([
+        'email' => 'Email atau password salah',
+    ]);
+})->name('login.post');
+
+
+// =======================
+// ADMIN ROUTES
+// =======================
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Admin Login Page
+
+    // LOGIN ADMIN (GET)
     Route::get('/login', function () {
-        return view('admin.login');
+        return view('pages.admin.login');
     })->name('login');
 
-    // Admin Dashboard & Routes (protected)
-    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    // PROTECTED ADMIN
+    Route::middleware(['auth', 'admin'])->group(function () {
 
-        // Order Management
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])
+            ->name('dashboard');
+
+        // Orders
         Route::get('/orders', [AdminOrderController::class, 'orders'])->name('orders');
         Route::get('/orders/{id}', [AdminOrderController::class, 'orderDetail'])->name('orders.show');
         Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateOrderStatus'])->name('orders.update-status');
         Route::post('/orders/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
 
-        // Product Management
+        // Products
         Route::get('/products', [AdminProductController::class, 'products'])->name('products');
         Route::post('/products', [AdminProductController::class, 'storeProduct'])->name('products.store');
         Route::put('/products/{id}', [AdminProductController::class, 'updateProduct'])->name('products.update');
         Route::delete('/products/{id}', [AdminProductController::class, 'deleteProduct'])->name('products.delete');
 
-        // Promo Code Management
+        // Promo Codes
         Route::get('/promo-codes', [AdminPromoCodeController::class, 'promoCodes'])->name('promo-codes');
         Route::post('/promo-codes', [AdminPromoCodeController::class, 'storePromoCode'])->name('promo-codes.store');
         Route::put('/promo-codes/{id}', [AdminPromoCodeController::class, 'updatePromoCode'])->name('promo-codes.update');
         Route::delete('/promo-codes/{id}', [AdminPromoCodeController::class, 'deletePromoCode'])->name('promo-codes.delete');
 
-        // Customer Management
+        // Customers
         Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
         Route::get('/customers/{id}', [AdminController::class, 'customerDetail'])->name('customers.show');
 

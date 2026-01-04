@@ -4,10 +4,6 @@
             <h1 class="text-3xl font-bold text-gray-900">Product Management</h1>
             <p class="text-gray-600 mt-1">Kelola produk Anda</p>
         </div>
-        <button class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-            <i class="fas fa-plus w-5 h-5"></i>
-            Add Product
-        </button>
     </div>
 
     <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -23,35 +19,44 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
+
                 <tbody class="divide-y divide-gray-200">
-                    <template x-for="product in products" :key="product.id">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900" x-text="product.id"></td>
-                            <td class="px-6 py-4 text-sm text-gray-900" x-text="product.name"></td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full" 
-                                      :class="product.category === 'instant' ? 'bg-purple-100 text-purple-800' : 'bg-orange-100 text-orange-800'"
-                                      x-text="product.category"></span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">Rp <span x-text="formatCurrency(product.price)"></span></td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full" 
-                                      :class="product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
-                                      x-text="product.status"></span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex gap-2">
-                                    <button class="p-2 text-blue-600 hover:bg-blue-50 rounded" title="Edit">
-                                        <i class="fas fa-edit w-5 h-5"></i>
-                                    </button>
-                                    <button class="p-2 text-red-600 hover:bg-red-50 rounded" title="Delete">
-                                        <i class="fas fa-trash-alt w-5 h-5"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
+                @foreach ($products as $product)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium">{{ $product->id }}</td>
+
+                        <td class="px-6 py-4">{{ $product->name }}</td>
+
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full
+                                {{ $product->category === 'instan'
+                                    ? 'bg-purple-100 text-purple-800'
+                                    : 'bg-orange-100 text-orange-800' }}">
+                                {{ $product->category }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 text-xs rounded-full
+                                {{ $product->is_active
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800' }}">
+                                {{ $product->is_active ? 'active' : 'inactive' }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 flex gap-2">
+                            <button class="text-blue-600">✏️</button>
+                            <button class="text-red-600">🗑️</button>
+                        </td>
+                    </tr>
+                @endforeach
                 </tbody>
+
             </table>
         </div>
     </div>
