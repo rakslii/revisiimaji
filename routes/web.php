@@ -78,14 +78,16 @@ Route::post('/logout', function() {
     return redirect('/');
 })->name('logout');
 
-// Fallback for Vue SPA
-Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
-
 // Admin Routes
 Route::get('/admin/dashboard', function () {
     return view('pages.admin.dashboard');
 });
 
+
+
 require __DIR__.'/auth.php';
+
+// Fallback for Vue SPA
+Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
 
 
