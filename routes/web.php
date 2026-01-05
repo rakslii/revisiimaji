@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderController as FrontOrderController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -49,10 +49,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
 });
 
-// Orders Routes
+// Orders Routes (PUBLIC)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{id}', [OrderController::class, 'showOrder'])->name('orders.show');
+    Route::get('/orders', [FrontOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [FrontOrderController::class, 'showOrder'])->name('orders.show');
 });
 
 // Profile Routes
@@ -68,8 +68,6 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::delete('/locations/{location}', [ProfileController::class, 'deleteLocation'])->name('locations.delete');
 });
 
-// ... kode sebelumnya ...
-
 // Logout route
 Route::post('/logout', function() {
     auth()->logout();
@@ -78,16 +76,9 @@ Route::post('/logout', function() {
     return redirect('/');
 })->name('logout');
 
-// Admin Routes
-Route::get('/admin/dashboard', function () {
-    return view('pages.admin.dashboard');
-});
-
-
-
+// Include admin routes
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
 
 // Fallback for Vue SPA
 Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
-
-
