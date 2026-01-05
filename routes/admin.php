@@ -21,9 +21,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     
     // Protected admin routes
     Route::middleware(['auth'])->group(function () {
+        // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Customers
         Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
         Route::get('/customers/{id}', [AdminController::class, 'customerDetail'])->name('customers.show');
+        
+        // Settings
         Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
         Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
         

@@ -6,39 +6,73 @@ use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController as FrontOrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\GoogleLoginController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| WEB ROUTES
 |--------------------------------------------------------------------------
 */
 
-// Homepage
+// =======================
+// LOGIN (CUSTOM POST)
+// =======================
+Route::post('/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->route('admin.dashboard');
+    }
+
+    return back()->withErrors([
+        'email' => 'Email atau password salah',
+    ]);
+})->name('login.post');
+
+
+// =======================
+// PUBLIC
+// =======================
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// PUBLIC PAGES
 Route::get('/products', [FrontProductController::class, 'index'])->name('products.index');
 Route::get('/products/{id}', [FrontProductController::class, 'show'])->name('products.show');
 Route::get('/categories', [FrontProductController::class, 'categories'])->name('products.categories');
 
-// WhatsApp Route
-Route::get('/whatsapp', function() {
+Route::get('/whatsapp', function () {
     $number = env('WHATSAPP_NUMBER', '6281234567890');
     $message = env('WHATSAPP_MESSAGE', 'Halo Cipta Imaji, saya ingin konsultasi');
     return redirect()->away("https://wa.me/{$number}?text={$message}");
 })->name('whatsapp.chat');
 
-// Cart Route
-Route::get('/cart', function() {
+Route::get('/cart', function () {
     return view('pages.cart.index');
 })->name('cart.index');
 
-// Track Order Route
-Route::get('/track-order', function() {
+Route::get('/track-order', function () {
     return view('pages.orders.track');
 })->name('orders.track');
 
-// Cart Routes
+
+// =======================
+// GOOGLE LOGIN
+// =======================
+Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])
+    ->name('google.login');
+
+Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])
+    ->name('google.callback');
+
+
+// =======================
+// CART
+// =======================
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
@@ -46,6 +80,8 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+
+    // 🔥 INI YANG DIBUTUHIN
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
 });
 
@@ -55,12 +91,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders/{id}', [FrontOrderController::class, 'showOrder'])->name('orders.show');
 });
 
-// Profile Routes
+
+// =======================
+// PROFILE
+// =======================
 Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
     Route::put('/', [ProfileController::class, 'update'])->name('update');
 
-    // Location Routes
     Route::post('/locations', [ProfileController::class, 'storeLocation'])->name('locations.store');
     Route::put('/locations/{location}', [ProfileController::class, 'updateLocation'])->name('locations.update');
     Route::get('/locations/{location}/edit', [ProfileController::class, 'editLocation'])->name('locations.edit');
