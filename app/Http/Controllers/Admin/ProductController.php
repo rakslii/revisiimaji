@@ -9,13 +9,11 @@ use App\Models\Category;
 
 class ProductController extends Controller
 {
-    public function products()
-    {
-        $products = Product::with('category')->latest()->paginate(10);
-        $categories = Category::all();
-        
-        return view('pages.admin.products.index', compact('products', 'categories'));
-    }
+public function products()
+{
+    $products = Product::with('category')->latest()->paginate(10);
+    return view('pages.admin.products.index', compact('products'));
+}
     
     public function storeProduct(Request $request)
     {

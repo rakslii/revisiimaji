@@ -1,18 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\GoogleLoginController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderController as FrontOrderController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,24 +38,6 @@ Route::get('/track-order', function() {
     return view('pages.orders.track');
 })->name('orders.track');
 
-// Login/Register Pages
-Route::get('/login', function() {
-    return view('auth.login');
-})->name('login');
-
-Route::get('/register', function() {
-    return view('auth.register');
-})->name('register');
-
-// Google OAuth Routes
-Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])
-    ->name('google.login');
-Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])
-    ->name('google.callback');
-
-// Web Logout
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
 // Cart Routes
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
@@ -74,10 +49,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
 });
 
-// Orders Routes
+// Orders Routes (PUBLIC)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{id}', [OrderController::class, 'showOrder'])->name('orders.show');
+    Route::get('/orders', [FrontOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [FrontOrderController::class, 'showOrder'])->name('orders.show');
 });
 
 // Profile Routes
@@ -93,41 +68,17 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::delete('/locations/{location}', [ProfileController::class, 'deleteLocation'])->name('locations.delete');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-*/
+// Logout route
+Route::post('/logout', function() {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/');
+})->name('logout');
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    // Login routes
-    Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
-    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
- 
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
-        Route::get('/customers/{id}', [AdminController::class, 'customerDetail'])->name('customers.show');
-        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-        Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
-        
-        // Orders
-        Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
-        Route::get('/orders/{id}', [OrderController::class, 'orderDetail'])->name('orders.show');
-        Route::put('/orders/{id}/status', [OrderController::class, 'updateOrderStatus'])->name('orders.update-status');
-        Route::post('/orders/{id}/confirm-payment', [OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
-        
-        // Products
-        Route::get('/products', [ProductController::class, 'products'])->name('products');
-        Route::post('/products', [ProductController::class, 'storeProduct'])->name('products.store');
-        Route::put('/products/{id}', [ProductController::class, 'updateProduct'])->name('products.update');
-        Route::delete('/products/{id}', [ProductController::class, 'deleteProduct'])->name('products.delete');
-        
-        // Promo Codes
-        Route::get('/promo-codes', [PromoCodeController::class, 'promoCodes'])->name('promo-codes');
-        Route::post('/promo-codes', [PromoCodeController::class, 'storePromoCode'])->name('promo-codes.store');
-        Route::put('/promo-codes/{id}', [PromoCodeController::class, 'updatePromoCode'])->name('promo-codes.update');
-        Route::delete('/promo-codes/{id}', [PromoCodeController::class, 'deletePromoCode'])->name('promo-codes.delete');
-    });
+// Include admin routes
+require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
+
 // Fallback for Vue SPA
 Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
