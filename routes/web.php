@@ -9,17 +9,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| WEB ROUTES
 |--------------------------------------------------------------------------
 */
 
 // =======================
-// LOGIN ALIAS (WAJIB)
+// LOGIN (CUSTOM POST)
 // =======================
-
-// PROSES LOGIN (POST)
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate([
         'email' => ['required', 'email'],
@@ -40,7 +39,6 @@ Route::post('/login', function (Request $request) {
 // =======================
 // PUBLIC
 // =======================
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [FrontProductController::class, 'index'])->name('products.index');
@@ -65,7 +63,6 @@ Route::get('/track-order', function () {
 // =======================
 // GOOGLE LOGIN
 // =======================
-
 Route::get('/auth/google', [GoogleLoginController::class, 'redirectToGoogle'])
     ->name('google.login');
 
@@ -76,7 +73,6 @@ Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogle
 // =======================
 // CART
 // =======================
-
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
@@ -84,19 +80,31 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+
+    // 🔥 INI YANG DIBUTUHIN
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
 });
 
 
-// =======================
-// AUTH USER
-// =======================
 
+// =======================
+// CHECKOUT / ORDER (INI FIX ERROR)
+// =======================
 Route::middleware(['auth'])->group(function () {
+
+    // PROSES CHECKOUT (POST)
+    Route::post('/checkout/now', [OrderController::class, 'store'])
+        ->name('checkout.now');
+
+    // ORDERS
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'showOrder'])->name('orders.show');
 });
 
+
+// =======================
+// PROFILE
+// =======================
 Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
     Route::put('/', [ProfileController::class, 'update'])->name('update');
@@ -112,7 +120,6 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
 // =======================
 // LOGOUT
 // =======================
-
 Route::post('/logout', function () {
     auth()->logout();
     request()->session()->invalidate();
@@ -122,15 +129,18 @@ Route::post('/logout', function () {
 
 
 // =======================
-// ADMIN ROUTES
+// ADMIN
 // =======================
+Route::get('/admin/dashboard', function () {
+    return view('pages.admin.dashboard');
+})->name('admin.dashboard');
 
-require __DIR__.'/admin.php';
+
+// AUTH DEFAULT
+require __DIR__.'/auth.php';
 
 
 // =======================
-// FALLBACK (HARUS PALING BAWAH)
+// FALLBACK (SPA)
 // =======================
-
-Route::get('/{any}', [HomeController::class, 'index'])
-    ->where('any', '.*');
+Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
