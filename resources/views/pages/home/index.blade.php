@@ -3,250 +3,332 @@
 @section('title', 'Cipta Imaji - Digital Printing Terpercaya')
 
 @section('content')
-<!-- Hero Section dengan gambar background -->
-<section class="relative bg-gradient-to-r from-blue-700 to-blue-900 text-white overflow-hidden">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-black opacity-10"></div>
-    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full -mt-32 -mr-32 opacity-20"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full -mb-48 -ml-48 opacity-20"></div>
+<!-- Hero Section dengan desain modern -->
+<section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white overflow-hidden min-h-screen flex items-center">
+    <!-- Decorative Elements -->
+    <div class="absolute top-20 right-20 w-96 h-96 bg-yellow-400 rounded-full opacity-20 blur-3xl"></div>
+    <div class="absolute bottom-20 left-20 w-96 h-96 bg-purple-500 rounded-full opacity-20 blur-3xl"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-4 border-yellow-400 rounded-full opacity-10"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-4 border-yellow-400 rounded-full opacity-10"></div>
     
-    <div class="container mx-auto px-4 py-16 md:py-24 relative z-10">
-        <div class="max-w-3xl">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Cetak Karya, <span class="text-yellow-300">Wujudkan Imajinasi</span>
-            </h1>
-            <p class="text-xl md:text-2xl mb-8 opacity-90">
-                Layanan digital printing lengkap untuk kebutuhan bisnis, acara, dan personal dengan kualitas premium.
-            </p>
-            
-            <!-- Search Bar (inspirasi Shopee) -->
-            <div class="bg-white rounded-lg p-1 shadow-xl mb-8 max-w-2xl">
-                <div class="flex">
-                    <input type="text" 
-                           placeholder="Cari produk printing yang Anda butuhkan..."
-                           class="flex-grow px-6 py-4 text-gray-800 rounded-l-lg focus:outline-none text-lg">
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-r-lg font-semibold transition duration-300">
-                        <i class="fas fa-search mr-2"></i>Cari
-                    </button>
-                </div>
-            </div>
-            
-            <div class="flex flex-col md:flex-row gap-4">
-                <a href="{{ route('products.index') }}" 
-                   class="bg-yellow-400 text-blue-900 px-8 py-4 rounded-lg font-bold hover:bg-yellow-300 transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center text-lg">
-                    <i class="fas fa-shopping-bag mr-3"></i> Belanja Sekarang
-                </a>
-                <a href="{{ route('whatsapp.chat') }}" target="_blank" 
-                   class="bg-green-500 text-white px-8 py-4 rounded-lg font-bold hover:bg-green-600 transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center text-lg">
-                    <i class="fab fa-whatsapp mr-3"></i> Konsultasi Gratis
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Promo Banner (inspirasi Shopee) -->
-<section class="bg-gradient-to-r from-red-500 to-pink-500 text-white py-6">
-    <div class="container mx-auto px-4">
-        <div class="flex items-center justify-center space-x-4">
-            <i class="fas fa-gift text-2xl"></i>
-            <span class="text-lg font-semibold">🎁 PROMO SPESIAL: Dapatkan Diskon 20% untuk Order Pertama!</span>
-            <a href="{{ route('products.index') }}" class="bg-white text-red-500 px-4 py-1 rounded-full font-bold hover:bg-gray-100 ml-4">
-                Klaim Sekarang
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- Features Grid -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-4">Mengapa Memilih <span class="text-blue-600">Cipta Imaji</span>?</h2>
-        <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Kami memberikan pengalaman terbaik dalam layanan digital printing</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Feature 1 -->
-            <div class="bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-blue-100">
-                <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-5">
-                    <i class="fas fa-shipping-fast text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Gratis Ongkir</h3>
-                <p class="text-gray-600">Gratis ongkir untuk order minimal Rp 500.000 di area Jabodetabek</p>
-            </div>
-            
-            <!-- Feature 2 -->
-            <div class="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-green-100">
-                <div class="w-14 h-14 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mb-5">
-                    <i class="fas fa-shield-alt text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Garansi 100%</h3>
-                <p class="text-gray-600">Uang kembali 100% jika produk tidak sesuai dengan pesanan</p>
-            </div>
-            
-            <!-- Feature 3 -->
-            <div class="bg-gradient-to-br from-purple-50 to-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-purple-100">
-                <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mb-5">
-                    <i class="fas fa-headset text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Support 24/7</h3>
-                <p class="text-gray-600">Tim customer service siap membantu 24 jam via WhatsApp</p>
-            </div>
-            
-            <!-- Feature 4 -->
-            <div class="bg-gradient-to-br from-orange-50 to-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-orange-100">
-                <div class="w-14 h-14 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mb-5">
-                    <i class="fas fa-qrcode text-white text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Pembayaran Lengkap</h3>
-                <p class="text-gray-600">Bayar dengan QRIS, Transfer Bank, E-Wallet & COD (Jabodetabek)</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Product Categories dengan gambar -->
-<section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center mb-10">
+    <div class="container mx-auto px-4 py-20 relative z-10">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <!-- Left Content -->
             <div>
-                <h2 class="text-3xl font-bold">Kategori <span class="text-blue-600">Produk</span></h2>
-                <p class="text-gray-600 mt-2">Temukan produk printing sesuai kebutuhan Anda</p>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                    Creative<br>
+                    <span class="text-yellow-400">solutions</span>
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
+                    Wujudkan ide kreatif Anda dengan layanan digital printing berkualitas premium. Dari konsep hingga hasil cetak yang memukau.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 mb-12">
+                    <a href="{{ route('products.index') }}" 
+                       class="bg-yellow-400 text-blue-900 px-8 py-4 rounded-full font-bold hover:bg-yellow-300 transition duration-300 shadow-2xl hover:shadow-yellow-400/50 flex items-center text-lg">
+                        Mulai Sekarang
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                    <a href="{{ route('whatsapp.chat') }}" target="_blank" 
+                       class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition duration-300 flex items-center text-lg">
+                        <i class="fab fa-whatsapp mr-3"></i> Konsultasi
+                    </a>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-3 gap-6">
+                    <div>
+                        <div class="text-3xl font-bold text-yellow-400 mb-1">5000+</div>
+                        <div class="text-sm text-gray-300">Produk Terjual</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-yellow-400 mb-1">98%</div>
+                        <div class="text-sm text-gray-300">Kepuasan</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-yellow-400 mb-1">24h</div>
+                        <div class="text-sm text-gray-300">Produksi</div>
+                    </div>
+                </div>
             </div>
-            <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
-                Lihat Semua <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+
+            <!-- Right Content - Visual Element -->
+            <div class="relative">
+                <div class="relative w-full h-[500px]">
+                    <!-- Large Circle -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-8 border-yellow-400 rounded-full"></div>
+                    
+                    <!-- Floating Cards -->
+                    <div class="absolute top-10 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-print text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Fast Print</div>
+                                <div class="font-bold text-gray-900">24 Jam</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-20 left-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float-delayed">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shield-alt text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Guarantee</div>
+                                <div class="font-bold text-gray-900">100%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absolute top-1/2 right-0 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float-slow">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-star text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Rating</div>
+                                <div class="font-bold text-gray-900">4.9/5</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Category 1 -->
-            <a href="{{ route('products.index') }}?category=instan" 
-               class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
-                <div class="h-64 bg-gradient-to-r from-blue-500 to-blue-700 relative">
-                    <div class="absolute inset-0 bg-black opacity-20"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-print text-white text-8xl opacity-30"></i>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center">
+        <div class="text-sm text-gray-300 mb-2">Scroll untuk lebih lanjut</div>
+        <div class="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center">
+            <div class="w-1 h-3 bg-gray-300 rounded-full mt-2 animate-bounce"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Categories Grid -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Kategori <span class="text-blue-600">Produk</span>
+            </h2>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Pilihan lengkap untuk semua kebutuhan printing Anda
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Category Card 1 -->
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+                <div class="h-80 bg-gradient-to-br from-blue-500 to-blue-700 p-8 flex flex-col justify-between relative">
+                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-bolt text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Produk Instan</h3>
+                        <p class="text-blue-100">Cetak cepat dalam 24 jam</p>
                     </div>
-                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                        <h3 class="text-2xl font-bold mb-2">Produk Instan</h3>
-                        <p class="opacity-90">Siap cetak dalam 24 jam</p>
-                        <div class="mt-3 flex items-center">
-                            <span class="bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-bold">
-                                Mulai Rp 25.000
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-white text-blue-700 px-4 py-2 rounded-full text-sm font-bold">
+                                Mulai 25K
                             </span>
-                            <span class="ml-auto group-hover:translate-x-2 transition-transform">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-arrow-right text-white group-hover:text-blue-700"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </a>
-            
-            <!-- Category 2 -->
-            <a href="{{ route('products.index') }}?category=non-instan" 
-               class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
-                <div class="h-64 bg-gradient-to-r from-purple-500 to-purple-700 relative">
-                    <div class="absolute inset-0 bg-black opacity-20"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-paint-brush text-white text-8xl opacity-30"></i>
+            </div>
+
+            <!-- Category Card 2 -->
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+                <div class="h-80 bg-gradient-to-br from-purple-500 to-purple-700 p-8 flex flex-col justify-between relative">
+                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-palette text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Custom Design</h3>
+                        <p class="text-purple-100">Desain sesuai keinginan</p>
                     </div>
-                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                        <h3 class="text-2xl font-bold mb-2">Produk Custom</h3>
-                        <p class="opacity-90">Desain sesuai kebutuhan Anda</p>
-                        <div class="mt-3 flex items-center">
-                            <span class="bg-white text-purple-600 px-3 py-1 rounded-full text-sm font-bold">
-                                Konsultasi Gratis
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-white text-purple-700 px-4 py-2 rounded-full text-sm font-bold">
+                                Konsultasi
                             </span>
-                            <span class="ml-auto group-hover:translate-x-2 transition-transform">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-arrow-right text-white group-hover:text-purple-700"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </a>
-            
-            <!-- Category 3 -->
-            <a href="{{ route('whatsapp.chat') }}" target="_blank"
-               class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition duration-300">
-                <div class="h-64 bg-gradient-to-r from-green-500 to-green-700 relative">
-                    <div class="absolute inset-0 bg-black opacity-20"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-gem text-white text-8xl opacity-30"></i>
+            </div>
+
+            <!-- Category Card 3 -->
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+                <div class="h-80 bg-gradient-to-br from-pink-500 to-pink-700 p-8 flex flex-col justify-between relative">
+                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-briefcase text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Corporate</h3>
+                        <p class="text-pink-100">Paket branding perusahaan</p>
                     </div>
-                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                        <h3 class="text-2xl font-bold mb-2">Premium Package</h3>
-                        <p class="opacity-90">Kebutuhan branding & perusahaan</p>
-                        <div class="mt-3 flex items-center">
-                            <span class="bg-white text-green-600 px-3 py-1 rounded-full text-sm font-bold">
-                                Spesial Diskon
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-white text-pink-700 px-4 py-2 rounded-full text-sm font-bold">
+                                Spesial
                             </span>
-                            <span class="ml-auto group-hover:translate-x-2 transition-transform">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-arrow-right text-white group-hover:text-pink-700"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </a>
+            </div>
+
+            <!-- Category Card 4 -->
+            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
+                <div class="h-80 bg-gradient-to-br from-orange-500 to-orange-700 p-8 flex flex-col justify-between relative">
+                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
+                            <i class="fas fa-gift text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Event Package</h3>
+                        <p class="text-orange-100">Solusi acara & event</p>
+                    </div>
+
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="bg-white text-orange-700 px-4 py-2 rounded-full text-sm font-bold">
+                                Promo
+                            </span>
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-arrow-right text-white group-hover:text-orange-700"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Banner Manajemen -->
+<section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <!-- Left Content -->
+                <div class="p-12">
+                    <h2 class="text-4xl font-bold mb-6 text-gray-900">
+                        Banner Management
+                    </h2>
+                    <p class="text-gray-600 text-lg mb-8">
+                        Kelola semua kebutuhan banner untuk bisnis dan event Anda dengan mudah. Dari desain hingga pemasangan.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <div class="text-3xl font-bold text-blue-600 mb-2">100+</div>
+                            <div class="text-sm text-gray-600">Desain Template</div>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <div class="text-3xl font-bold text-purple-600 mb-2">24h</div>
+                            <div class="text-sm text-gray-600">Pengerjaan</div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('products.index') }}" 
+                       class="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold hover:shadow-2xl transition-all duration-300">
+                        Lihat Katalog
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                </div>
+
+                <!-- Right Visual -->
+                <div class="bg-gradient-to-br from-blue-500 to-purple-600 h-full min-h-[400px] flex items-center justify-center relative">
+                    <div class="absolute inset-0 bg-black opacity-10"></div>
+                    <i class="fas fa-image text-white text-9xl opacity-20"></i>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- Best Selling Products -->
 @if($products->isNotEmpty())
-<section class="py-16 bg-white">
+<section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center mb-10">
-            <div>
-                <h2 class="text-3xl font-bold">Produk <span class="text-blue-600">Terlaris</span></h2>
-                <p class="text-gray-600 mt-2">Produk paling banyak dibeli oleh pelanggan kami</p>
-            </div>
-            <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
-                Lihat Semua <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Produk <span class="text-blue-600">Terlaris</span>
+            </h2>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Pilihan favorit pelanggan kami
+            </p>
         </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             @foreach($products->take(4) as $product)
-            <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 border border-gray-100 overflow-hidden group">
-                <!-- Product Image Placeholder -->
-                <div class="h-48 bg-gradient-to-r from-blue-100 to-blue-50 flex items-center justify-center relative overflow-hidden">
-                    <i class="fas fa-print text-blue-300 text-6xl"></i>
-                    <!-- Sale Badge -->
+            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <!-- Image -->
+                <div class="h-64 bg-gradient-to-br from-blue-100 to-purple-100 relative overflow-hidden">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <i class="fas fa-print text-blue-300 text-7xl group-hover:scale-110 transition-transform duration-500"></i>
+                    </div>
                     @if($loop->first)
-                    <div class="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                    <div class="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold">
                         TERLARIS
                     </div>
                     @endif
                 </div>
-                
-                <div class="p-4">
-                    <h3 class="font-bold text-lg mb-2 group-hover:text-blue-600 transition">{{ $product->name }}</h3>
-                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ Str::limit($product->description, 60) }}</p>
-                    
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="font-bold text-blue-600 text-lg">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                            @if($product->old_price)
-                            <span class="text-gray-400 text-sm line-through ml-2">Rp {{ number_format($product->old_price, 0, ',', '.') }}</span>
-                            @endif
-                        </div>
-                        <a href="{{ route('products.show', $product->id) }}" 
-                           class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-full flex items-center justify-center">
-                            <i class="fas fa-shopping-cart"></i>
-                        </a>
-                    </div>
-                    
+
+                <!-- Content -->
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-3 group-hover:text-blue-600 transition-colors">
+                        {{ $product->name }}
+                    </h3>
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {{ Str::limit($product->description, 60) }}
+                    </p>
+
                     <!-- Rating -->
-                    <div class="flex items-center mt-3">
-                        <div class="flex text-yellow-400">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400 mr-2">
                             @for($i = 1; $i <= 5; $i++)
-                                @if($i <= 4)
-                                    <i class="fas fa-star"></i>
-                                @else
-                                    <i class="far fa-star"></i>
-                                @endif
+                                <i class="fas fa-star text-xs"></i>
                             @endfor
                         </div>
-                        <span class="text-gray-500 text-sm ml-2">({{ rand(10, 99) }})</span>
+                        <span class="text-gray-500 text-sm">({{ rand(50, 150) }})</span>
+                    </div>
+
+                    <!-- Price & Button -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-2xl text-blue-600">
+                                {{ number_format($product->price / 1000, 0) }}K
+                            </div>
+                            <div class="text-xs text-gray-500">per item</div>
+                        </div>
+                        <a href="{{ route('products.show', $product->id) }}" 
+                           class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -256,181 +338,147 @@
 </section>
 @endif
 
-<!-- How It Works -->
-<section class="py-16 bg-gradient-to-b from-gray-50 to-white">
+<!-- Process Steps -->
+<section class="py-20 bg-white">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-4">Cara <span class="text-blue-600">Pemesanan</span></h2>
-        <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Hanya 4 langkah mudah untuk mendapatkan produk printing Anda</p>
-        
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Cara <span class="text-blue-600">Kerja</span>
+            </h2>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Proses mudah dan cepat
+            </p>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <!-- Step 1 -->
+            @php
+            $steps = [
+                ['icon' => 'fa-mouse-pointer', 'title' => 'Pilih Produk', 'desc' => 'Browse katalog dan pilih produk'],
+                ['icon' => 'fa-file-upload', 'title' => 'Upload Desain', 'desc' => 'Upload file atau minta bantuan'],
+                ['icon' => 'fa-credit-card', 'title' => 'Bayar', 'desc' => 'Pilih metode pembayaran'],
+                ['icon' => 'fa-shipping-fast', 'title' => 'Terima', 'desc' => 'Produk dikirim ke alamat']
+            ];
+            @endphp
+
+            @foreach($steps as $index => $step)
             <div class="text-center relative">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-lg">
-                    <span class="text-white text-2xl font-bold">1</span>
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg relative z-10">
+                    <i class="fas {{ $step['icon'] }} text-white text-3xl"></i>
                 </div>
-                <div class="absolute top-10 left-1/2 w-full h-1 bg-blue-200 transform translate-x-1/2 md:block hidden"></div>
-                <h3 class="text-xl font-bold mb-3">Pilih Produk</h3>
-                <p class="text-gray-600">Cari produk yang Anda butuhkan di katalog kami</p>
-            </div>
-            
-            <!-- Step 2 -->
-            <div class="text-center relative">
-                <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-lg">
-                    <span class="text-white text-2xl font-bold">2</span>
+                
+                @if($index < 3)
+                <div class="hidden md:block absolute top-10 left-[60%] w-[80%] h-1 bg-gradient-to-r from-blue-500 to-purple-600 opacity-20"></div>
+                @endif
+
+                <div class="absolute -top-2 -left-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center font-bold text-blue-900 shadow-lg">
+                    {{ $index + 1 }}
                 </div>
-                <div class="absolute top-10 left-1/2 w-full h-1 bg-purple-200 transform translate-x-1/2 md:block hidden"></div>
-                <h3 class="text-xl font-bold mb-3">Custom Desain</h3>
-                <p class="text-gray-600">Upload desain atau konsultasi dengan tim kami</p>
+
+                <h3 class="text-xl font-bold mb-2">{{ $step['title'] }}</h3>
+                <p class="text-gray-600">{{ $step['desc'] }}</p>
             </div>
-            
-            <!-- Step 3 -->
-            <div class="text-center relative">
-                <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 relative z-10 shadow-lg">
-                    <span class="text-white text-2xl font-bold">3</span>
-                </div>
-                <div class="absolute top-10 left-1/2 w-full h-1 bg-green-200 transform translate-x-1/2 md:block hidden"></div>
-                <h3 class="text-xl font-bold mb-3">Pembayaran</h3>
-                <p class="text-gray-600">Bayar dengan metode pembayaran yang tersedia</p>
-            </div>
-            
-            <!-- Step 4 -->
-            <div class="text-center">
-                <div class="w-20 h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <span class="text-white text-2xl font-bold">4</span>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Produk Dikirim</h3>
-                <p class="text-gray-600">Produk dikirim dan Anda bisa lacak pesanan</p>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
 
 <!-- Testimonials -->
-<section class="py-16 bg-white">
+<section class="py-20 bg-gradient-to-b from-gray-50 to-white">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-4">Apa Kata <span class="text-blue-600">Pelanggan</span> Kami?</h2>
-        <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">Ribuan pelanggan telah mempercayai kebutuhan printing mereka kepada kami</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Testimonial 1 -->
-            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
-                        AS
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Kata <span class="text-blue-600">Mereka</span>
+            </h2>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Testimoni dari pelanggan setia kami
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            @php
+            $testimonials = [
+                ['name' => 'Ahmad Surya', 'role' => 'CEO Startup', 'initial' => 'AS', 'color' => 'blue'],
+                ['name' => 'Rina Wijaya', 'role' => 'Event Organizer', 'initial' => 'RW', 'color' => 'purple'],
+                ['name' => 'Dewi Fitri', 'role' => 'Marketing Manager', 'initial' => 'DF', 'color' => 'pink']
+            ];
+            @endphp
+
+            @foreach($testimonials as $testimonial)
+            <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-{{ $testimonial['color'] }}-400 to-{{ $testimonial['color'] }}-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mr-4">
+                        {{ $testimonial['initial'] }}
                     </div>
                     <div>
-                        <h4 class="font-bold">Ahmad Surya</h4>
-                        <p class="text-gray-500 text-sm">Pemilik UMKM</p>
+                        <h4 class="font-bold text-lg">{{ $testimonial['name'] }}</h4>
+                        <p class="text-gray-500 text-sm">{{ $testimonial['role'] }}</p>
                     </div>
                 </div>
-                <div class="flex text-yellow-400 mb-3">
+
+                <div class="flex text-yellow-400 mb-4">
+                    @for($i = 0; $i < 5; $i++)
                     <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+                    @endfor
                 </div>
-                <p class="text-gray-700 italic">"Kualitas cetakan brosur untuk usaha saya sangat bagus. Proses cepat dan harganya terjangkau. Recommended banget!"</p>
+
+                <p class="text-gray-700 leading-relaxed">
+                    "Pelayanan sangat memuaskan! Hasil cetakan berkualitas tinggi dan pengerjaan cepat. Sangat recommended untuk kebutuhan printing."
+                </p>
             </div>
-            
-            <!-- Testimonial 2 -->
-            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
-                        RW
-                    </div>
-                    <div>
-                        <h4 class="font-bold">Rina Wijaya</h4>
-                        <p class="text-gray-500 text-sm">Event Organizer</p>
-                    </div>
-                </div>
-                <div class="flex text-yellow-400 mb-3">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <p class="text-gray-700 italic">"Untuk kebutuhan banner event, selalu order di Cipta Imaji. Desainnya kreatif dan selalu ready sebelum deadline."</p>
-            </div>
-            
-            <!-- Testimonial 3 -->
-            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
-                        DF
-                    </div>
-                    <div>
-                        <h4 class="font-bold">Dewi Fitri</h4>
-                        <p class="text-gray-500 text-sm">Mahasiswa</p>
-                    </div>
-                </div>
-                <div class="flex text-yellow-400 mb-3">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-alt"></i>
-                </div>
-                <p class="text-gray-700 italic">"Order kartu nama untuk keperluan magang, hasilnya premium. Pelayanannya ramah dan fast respon via WhatsApp."</p>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
 
-<!-- Final CTA -->
-<section class="py-16 bg-gradient-to-r from-blue-800 to-blue-900 text-white">
-    <div class="container mx-auto px-4 text-center">
-        <h2 class="text-4xl font-bold mb-6">Siap Mewujudkan Kreativitas Anda?</h2>
-        <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Bergabung dengan ribuan pelanggan puas yang telah mempercayai printing mereka kepada kami
-        </p>
-        
-        <div class="flex flex-col md:flex-row justify-center gap-6 max-w-2xl mx-auto">
-            <!-- WhatsApp Button -->
-            <a href="{{ route('whatsapp.chat') }}" target="_blank" 
-               class="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl font-bold transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center text-lg group">
-                <div class="w-12 h-12 bg-white text-green-500 rounded-full flex items-center justify-center mr-4">
-                    <i class="fab fa-whatsapp text-2xl"></i>
-                </div>
-                <div class="text-left">
-                    <div class="font-bold text-lg">Chat via WhatsApp</div>
-                    <div class="text-sm opacity-90">Respon cepat 24 jam</div>
-                </div>
-                <i class="fas fa-arrow-right ml-4 group-hover:translate-x-2 transition-transform"></i>
-            </a>
-            
-            <!-- Call Button -->
-            <a href="tel:{{ env('SITE_PHONE', '+6281234567890') }}" 
-               class="bg-white hover:bg-gray-100 text-blue-800 px-8 py-4 rounded-xl font-bold transition duration-300 shadow-lg hover:shadow-xl flex items-center justify-center text-lg group">
-                <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mr-4">
-                    <i class="fas fa-phone text-2xl"></i>
-                </div>
-                <div class="text-left">
-                    <div class="font-bold text-lg">Telepon Kami</div>
-                    <div class="text-sm">{{ env('SITE_PHONE', '+62 812-3456-7890') }}</div>
-                </div>
-                <i class="fas fa-arrow-right ml-4 group-hover:translate-x-2 transition-transform"></i>
-            </a>
-        </div>
-        
-        <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-3xl mx-auto">
-            <div class="text-center">
-                <div class="text-4xl font-bold mb-2">5000+</div>
-                <div class="text-blue-200">Produk Terjual</div>
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-blue-900 text-white relative overflow-hidden">
+    <!-- Decorative Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-400 rounded-full opacity-10 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl md:text-6xl font-bold mb-6">
+                Siap Mulai Proyek Anda?
+            </h2>
+            <p class="text-xl mb-12 text-gray-200">
+                Hubungi kami sekarang dan dapatkan konsultasi gratis untuk kebutuhan printing Anda
+            </p>
+
+            <div class="flex flex-col md:flex-row justify-center gap-6 mb-16">
+                <a href="{{ route('whatsapp.chat') }}" target="_blank"
+                   class="group bg-green-500 hover:bg-green-600 text-white px-10 py-5 rounded-full font-bold transition-all duration-300 shadow-2xl hover:shadow-green-500/50 flex items-center justify-center text-lg">
+                    <i class="fab fa-whatsapp text-2xl mr-3"></i>
+                    Chat WhatsApp
+                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
+                </a>
+
+                <a href="tel:{{ env('SITE_PHONE', '+6281234567890') }}"
+                   class="group bg-white hover:bg-gray-100 text-blue-900 px-10 py-5 rounded-full font-bold transition-all duration-300 shadow-2xl flex items-center justify-center text-lg">
+                    <i class="fas fa-phone text-2xl mr-3"></i>
+                    Telepon Kami
+                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
+                </a>
             </div>
-            <div class="text-center">
-                <div class="text-4xl font-bold mb-2">98%</div>
-                <div class="text-blue-200">Kepuasan Pelanggan</div>
-            </div>
-            <div class="text-center">
-                <div class="text-4xl font-bold mb-2">24<span class="text-2xl">jam</span></div>
-                <div class="text-blue-200">Waktu Produksi</div>
-            </div>
-            <div class="text-center">
-                <div class="text-4xl font-bold mb-2">1000+</div>
-                <div class="text-blue-200">Pelanggan Setia</div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 text-yellow-400">5K+</div>
+                    <div class="text-gray-300">Produk Terjual</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 text-yellow-400">98%</div>
+                    <div class="text-gray-300">Kepuasan</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 text-yellow-400">24h</div>
+                    <div class="text-gray-300">Produksi</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl font-bold mb-2 text-yellow-400">1K+</div>
+                    <div class="text-gray-300">Pelanggan</div>
+                </div>
             </div>
         </div>
     </div>
@@ -446,18 +494,29 @@
     overflow: hidden;
 }
 
-.group:hover .group-hover\:translate-x-2 {
-    transform: translateX(0.5rem);
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
 }
 
-/* Animasi untuk steps */
-@keyframes pulse-ring {
-    0% { transform: scale(0.8); opacity: 0.8; }
-    100% { transform: scale(1.2); opacity: 0; }
+@keyframes float-delayed {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
 }
 
-.animate-pulse-ring {
-    animation: pulse-ring 2s infinite;
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float-delayed 4s ease-in-out infinite;
+}
+.animate-float-slow {
+    animation: float-slow 5s ease-in-out infinite;
 }
 </style>
-@endpush

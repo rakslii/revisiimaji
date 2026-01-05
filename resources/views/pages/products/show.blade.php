@@ -3,122 +3,143 @@
 @section('title', $product->name . ' - Cipta Imaji')
 
 @section('content')
-<div class="bg-gray-50 min-h-screen py-8">
+<div class="bg-gradient-to-b from-gray-50 to-white min-h-screen py-8">
     <div class="container mx-auto px-4">
-        <!-- Breadcrumb -->
-        <nav class="mb-6">
-            <ol class="flex items-center space-x-2 text-sm text-gray-600">
+        <!-- Breadcrumb Modern -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm">
                 <li>
-                    <a href="{{ route('home') }}" class="hover:text-blue-600">Beranda</a>
+                    <a href="{{ route('home') }}" class="text-gray-500 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-home mr-1"></i> Beranda
+                    </a>
                 </li>
+                <li><i class="fas fa-chevron-right text-gray-300 text-xs"></i></li>
                 <li>
-                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    <a href="{{ route('products.index') }}" class="text-gray-500 hover:text-blue-600 transition-colors">Produk</a>
                 </li>
-                <li>
-                    <a href="{{ route('products.index') }}" class="hover:text-blue-600">Produk</a>
-                </li>
-                <li>
-                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
-                </li>
-                <li class="font-semibold text-gray-800 truncate max-w-xs">
-                    {{ $product->name }}
-                </li>
+                <li><i class="fas fa-chevron-right text-gray-300 text-xs"></i></li>
+                <li class="font-semibold text-blue-600 truncate max-w-xs">{{ $product->name }}</li>
             </ol>
         </nav>
 
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
-                <!-- Product Images -->
-                <div>
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                <!-- Product Images Section -->
+                <div class="p-8 lg:p-12 bg-gradient-to-br from-gray-50 to-white">
                     <!-- Main Image -->
-                    <div class="bg-gradient-to-br from-blue-50 to-gray-100 rounded-xl h-96 flex items-center justify-center mb-4">
-                        <i class="fas fa-print text-blue-200 text-8xl"></i>
+                    <div class="bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 rounded-3xl h-[450px] flex items-center justify-center mb-6 relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+                        <i class="fas fa-print text-blue-200 text-9xl relative z-10 group-hover:scale-110 transition-transform duration-500"></i>
+                        
+                        <!-- Badges -->
+                        <div class="absolute top-4 left-4 flex flex-col gap-2">
+                            @if($product->discount_percent > 0)
+                                <span class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                                    -{{ $product->discount_percent }}% OFF
+                                </span>
+                            @endif
+                            @if($product->category === 'instan')
+                                <span class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                                    <i class="fas fa-bolt mr-1"></i> Instan
+                                </span>
+                            @endif
+                        </div>
                     </div>
                     
-                    <!-- Thumbnails (placeholder) -->
+                    <!-- Thumbnails -->
                     <div class="grid grid-cols-4 gap-3">
                         @for($i = 0; $i < 4; $i++)
-                        <div class="bg-gray-100 rounded-lg h-20 flex items-center justify-center">
-                            <i class="fas fa-image text-gray-300 text-xl"></i>
+                        <div class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl h-24 flex items-center justify-center cursor-pointer hover:ring-4 ring-blue-500 transition-all duration-300 group">
+                            <i class="fas fa-image text-gray-300 text-2xl group-hover:text-blue-500 transition-colors"></i>
                         </div>
                         @endfor
                     </div>
+
+                    <!-- Share & Wishlist -->
+                    <div class="flex gap-3 mt-6">
+                        <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center">
+                            <i class="fas fa-heart mr-2"></i> Wishlist
+                        </button>
+                        <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-full font-semibold transition-all duration-300 flex items-center justify-center">
+                            <i class="fas fa-share-alt mr-2"></i> Bagikan
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Product Info -->
-                <div>
-                    <!-- Category & Badges -->
-                    <div class="flex items-center gap-3 mb-4">
+                <!-- Product Info Section -->
+                <div class="p-8 lg:p-12">
+                    <!-- Category Badges -->
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
                         @if($product->category)
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                                {{ $product->category === 'instan' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600' }}">
-                                {{ $product->category === 'instan' ? 'Produk Instan' : 'Produk Custom' }}
+                            <span class="px-4 py-2 text-xs font-bold rounded-full {{ $product->category === 'instan' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600' }}">
+                                {{ $product->category === 'instan' ? 'PRODUK INSTAN' : 'PRODUK CUSTOM' }}
                             </span>
                         @endif
                         
                         @if($productCategory)
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
-                                {{ $productCategory->name }}
-                            </span>
-                        @endif
-                        
-                        @if($product->discount_percent > 0)
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-600">
-                                -{{ $product->discount_percent }}% OFF
+                            <span class="px-4 py-2 text-xs font-bold rounded-full bg-gray-100 text-gray-700">
+                                {{ strtoupper($productCategory->name) }}
                             </span>
                         @endif
                     </div>
 
                     <!-- Product Name -->
-                    <h1 class="text-3xl font-bold text-gray-800 mb-3">{{ $product->name }}</h1>
+                    <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+                        {{ $product->name }}
+                    </h1>
                     
                     <!-- Short Description -->
                     @if($product->short_description)
-                        <p class="text-gray-600 text-lg mb-6">{{ $product->short_description }}</p>
+                        <p class="text-gray-600 text-lg mb-6 leading-relaxed">{{ $product->short_description }}</p>
                     @endif
 
-                    <!-- Rating -->
-                    <div class="flex items-center mb-6">
-                        <div class="flex text-yellow-400 mr-2">
-                            @php
-                                $rating = $product->rating ?? 0;
-                            @endphp
-                            @for($i = 1; $i <= 5; $i++)
-                                @if($i <= floor($rating))
-                                    <i class="fas fa-star"></i>
-                                @elseif($i == ceil($rating) && $rating - floor($rating) >= 0.3)
-                                    <i class="fas fa-star-half-alt"></i>
-                                @else
-                                    <i class="far fa-star"></i>
-                                @endif
-                            @endfor
+                    <!-- Rating & Sales -->
+                    <div class="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <div class="flex text-yellow-400 mr-2">
+                                @php $rating = $product->rating ?? 4.5; @endphp
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= floor($rating) ? '' : 'text-gray-300' }}"></i>
+                                @endfor
+                            </div>
+                            <span class="text-gray-700 font-semibold">{{ number_format($rating, 1) }}</span>
                         </div>
-                        <span class="text-gray-600 mr-4">{{ number_format($rating, 1) }} ({{ $product->sales_count ?? 0 }} terjual)</span>
-                        <span class="text-green-600 font-semibold">
-                            <i class="fas fa-check-circle mr-1"></i>
-                            Stok: {{ $product->stock }}
-                        </span>
+                        
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            <span><strong>{{ $product->sales_count ?? 127 }}</strong> Terjual</span>
+                        </div>
+                        
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                            <span class="text-green-600 font-semibold">Stok: {{ $product->stock }}</span>
+                        </div>
                     </div>
 
-                    <!-- Price -->
+                    <!-- Price Section -->
                     <div class="mb-8">
                         @if($product->discount_percent > 0)
                             @php
                                 $discountedPrice = $product->price - ($product->price * $product->discount_percent / 100);
                             @endphp
-                            <div class="flex items-center gap-4">
-                                <span class="text-4xl font-bold text-red-600">
+                            <div class="flex items-end gap-4 mb-3">
+                                <span class="text-5xl font-bold text-red-600">
                                     Rp {{ number_format($discountedPrice, 0, ',', '.') }}
                                 </span>
-                                <span class="text-2xl text-gray-400 line-through">
+                                <span class="text-2xl text-gray-400 line-through mb-1">
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
                                 </span>
-                                <span class="text-lg font-semibold text-red-600">
-                                    Hemat {{ number_format($product->price * $product->discount_percent / 100, 0, ',', '.') }}
-                                </span>
+                            </div>
+                            <div class="inline-flex items-center bg-red-100 text-red-600 px-4 py-2 rounded-full">
+                                <i class="fas fa-tag mr-2"></i>
+                                <span class="font-bold">Hemat Rp {{ number_format($product->price * $product->discount_percent / 100, 0, ',', '.') }}</span>
                             </div>
                         @else
-                            <span class="text-4xl font-bold text-blue-600">
+                            <span class="text-5xl font-bold text-blue-600">
                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                             </span>
                         @endif
@@ -126,11 +147,13 @@
 
                     <!-- Specifications -->
                     @if($product->specifications && !empty($product->specifications))
-                        <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Spesifikasi Produk</h3>
-                            <div class="grid grid-cols-2 gap-3">
+                        <div class="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                Spesifikasi Produk
+                            </h3>
+                            <div class="space-y-3">
                                 @php
-                                    // Handle both array and JSON string
                                     $specs = is_array($product->specifications) 
                                         ? $product->specifications 
                                         : (is_string($product->specifications) ? json_decode($product->specifications, true) : []);
@@ -138,11 +161,11 @@
                                 
                                 @if(is_array($specs) && count($specs) > 0)
                                     @foreach($specs as $key => $value)
-                                        <div class="flex">
-                                            <span class="font-medium text-gray-600 min-w-32">
-                                                {{ ucfirst(str_replace('_', ' ', $key)) }}:
+                                        <div class="flex items-center">
+                                            <span class="font-semibold text-gray-700 min-w-[140px]">
+                                                {{ ucfirst(str_replace('_', ' ', $key)) }}
                                             </span>
-                                            <span class="text-gray-800">{{ $value }}</span>
+                                            <span class="text-gray-600">: {{ $value }}</span>
                                         </div>
                                     @endforeach
                                 @endif
@@ -151,94 +174,210 @@
                     @endif
 
                     <!-- Order Form -->
-                    <div class="bg-gray-50 rounded-xl p-6 mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Pesan Sekarang</h3>
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 mb-8 border-2 border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-shopping-cart text-blue-600 mr-2"></i>
+                            Atur Pesanan
+                        </h3>
                         
                         <!-- Quantity Selector -->
                         <div class="mb-6">
-                            <label class="block text-gray-700 mb-2">Jumlah Pesanan</label>
-                            <div class="flex items-center">
-                                <button type="button" class="w-10 h-10 bg-gray-200 rounded-l-lg flex items-center justify-center hover:bg-gray-300">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <input type="number" 
-                                       id="quantity"
-                                       value="{{ $product->min_order }}"
-                                       min="{{ $product->min_order }}"
-                                       class="w-16 h-10 text-center border-y border-gray-300">
-                                <button type="button" class="w-10 h-10 bg-gray-200 rounded-r-lg flex items-center justify-center hover:bg-gray-300">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                                <span class="ml-4 text-gray-600">Min. order: {{ $product->min_order }} pcs</span>
+                            <label class="block text-gray-700 font-semibold mb-3">Jumlah</label>
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+                                    <button type="button" class="w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" 
+                                           id="quantity"
+                                           value="{{ $product->min_order }}"
+                                           min="{{ $product->min_order }}"
+                                           class="w-20 h-12 text-center border-none font-bold text-xl focus:outline-none">
+                                    <button type="button" class="w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <span class="text-gray-600">Min. order: <strong>{{ $product->min_order }} pcs</strong></span>
                             </div>
                         </div>
 
-                        <!-- Total Price -->
-                        <div class="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+                        <!-- Total Price Display -->
+                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white mb-6">
                             <div class="flex justify-between items-center">
-                                <span class="font-semibold text-gray-700">Total:</span>
-                                <span id="total-price" class="text-2xl font-bold text-blue-600">
-                                    @if($product->discount_percent > 0)
-                                        Rp {{ number_format(($product->price - ($product->price * $product->discount_percent / 100)) * $product->min_order, 0, ',', '.') }}
-                                    @else
-                                        Rp {{ number_format($product->price * $product->min_order, 0, ',', '.') }}
-                                    @endif
-                                </span>
+                                <div>
+                                    <div class="text-sm opacity-90 mb-1">Total Harga</div>
+                                    <div id="total-price" class="text-3xl font-bold">
+                                        @if($product->discount_percent > 0)
+                                            Rp {{ number_format(($product->price - ($product->price * $product->discount_percent / 100)) * $product->min_order, 0, ',', '.') }}
+                                        @else
+                                            Rp {{ number_format($product->price * $product->min_order, 0, ',', '.') }}
+                                        @endif
+                                    </div>
+                                </div>
+                                <i class="fas fa-calculator text-5xl opacity-20"></i>
                             </div>
                         </div>
-<!-- Action Buttons -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <form action="{{ route('cart.add', $product->id) }}" method="POST" id="add-to-cart-form" class="w-full">
-        @csrf
-        <input type="hidden" name="quantity" id="form-quantity" value="{{ $product->min_order }}">
-        <button type="submit" 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center transition-colors">
-            <i class="fas fa-shopping-cart mr-3"></i>
-            Tambah ke Keranjang
-        </button>
-    </form>
-    
-    <a href="{{ route('whatsapp.chat') }}" target="_blank"
-       class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center transition-colors">
-        <i class="fab fa-whatsapp mr-3 text-xl"></i>
-        Konsultasi via WA
-    </a>
-</div>
 
-                    <!-- Additional Info -->
-                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div class="flex items-center">
-                            <i class="fas fa-shipping-fast text-blue-500 mr-2"></i>
-                            <span>Gratis ongkir min. Rp 500.000</span>
+                        <!-- Action Buttons -->
+                        <div class="grid grid-cols-1 gap-4">
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST" id="add-to-cart-form" class="w-full">
+                                @csrf
+                                <input type="hidden" name="quantity" id="form-quantity" value="{{ $product->min_order }}">
+                                <button type="submit" 
+                                        class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                                    <i class="fas fa-shopping-cart mr-3 text-xl"></i>
+                                    <span class="text-lg">Tambah ke Keranjang</span>
+                                </button>
+                            </form>
+                            
+                            <button onclick="buyNow()" 
+                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                                <i class="fas fa-bolt mr-3 text-xl"></i>
+                                <span class="text-lg">Beli Sekarang</span>
+                            </button>
+                            
+                            <a href="{{ route('whatsapp.chat') }}" target="_blank"
+                               class="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                                <i class="fab fa-whatsapp mr-3 text-2xl"></i>
+                                <span class="text-lg">Konsultasi via WhatsApp</span>
+                            </a>
                         </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-undo text-blue-500 mr-2"></i>
-                            <span>Garansi kualitas 100%</span>
+                    </div>
+
+                    <!-- Features Grid -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 rounded-xl p-4 flex items-center">
+                            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-shipping-fast text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-600">Pengiriman</div>
+                                <div class="font-bold text-gray-800 text-sm">Gratis Ongkir*</div>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-clock text-blue-500 mr-2"></i>
-                            <span>
-                                @if($product->category === 'instan')
-                                    Siap dalam 24 jam
-                                @else
-                                    Proses 3-7 hari
-                                @endif
-                            </span>
+                        
+                        <div class="bg-green-50 rounded-xl p-4 flex items-center">
+                            <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-shield-alt text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-600">Garansi</div>
+                                <div class="font-bold text-gray-800 text-sm">100% Original</div>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-headset text-blue-500 mr-2"></i>
-                            <span>Support 24/7 via WhatsApp</span>
+                        
+                        <div class="bg-purple-50 rounded-xl p-4 flex items-center">
+                            <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-clock text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-600">Waktu</div>
+                                <div class="font-bold text-gray-800 text-sm">
+                                    @if($product->category === 'instan')
+                                        24 Jam
+                                    @else
+                                        3-7 Hari
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-orange-50 rounded-xl p-4 flex items-center">
+                            <div class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-headset text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-600">Support</div>
+                                <div class="font-bold text-gray-800 text-sm">24/7 Online</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Description Tab -->
+            <!-- Tabs Section -->
             <div class="border-t border-gray-200">
-                <div class="p-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Deskripsi Produk</h2>
-                    <div class="prose max-w-none text-gray-700 whitespace-pre-line">
-                        {{ $product->description }}
+                <div class="flex border-b border-gray-200">
+                    <button class="tab-button active px-8 py-4 font-bold text-blue-600 border-b-4 border-blue-600 transition-colors" data-tab="description">
+                        Deskripsi
+                    </button>
+                    <button class="tab-button px-8 py-4 font-bold text-gray-600 hover:text-blue-600 transition-colors" data-tab="reviews">
+                        Ulasan ({{ rand(10, 50) }})
+                    </button>
+                    <button class="tab-button px-8 py-4 font-bold text-gray-600 hover:text-blue-600 transition-colors" data-tab="shipping">
+                        Pengiriman
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-8 lg:p-12">
+                    <!-- Description Tab -->
+                    <div id="description-tab" class="tab-content">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Deskripsi Produk</h2>
+                        <div class="prose max-w-none text-gray-700 text-lg leading-relaxed whitespace-pre-line">
+                            {{ $product->description }}
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div id="reviews-tab" class="tab-content hidden">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Ulasan Pelanggan</h2>
+                        <div class="space-y-6">
+                            @for($i = 0; $i < 3; $i++)
+                            <div class="bg-gray-50 rounded-2xl p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                                        {{ chr(65 + $i) }}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">Pelanggan {{ $i + 1 }}</h4>
+                                        <div class="flex text-yellow-400 text-sm">
+                                            @for($j = 0; $j < 5; $j++)
+                                            <i class="fas fa-star"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700">Produk sangat bagus, kualitas cetakan tajam dan warna sesuai dengan ekspektasi. Pengiriman cepat dan packing rapi. Recommended!</p>
+                            </div>
+                            @endfor
+                        </div>
+                    </div>
+
+                    <!-- Shipping Tab -->
+                    <div id="shipping-tab" class="tab-content hidden">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Informasi Pengiriman</h2>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 rounded-2xl p-6">
+                                <h3 class="font-bold text-xl mb-4">Gratis Ongkir</h3>
+                                <p class="text-gray-700 mb-4">Untuk pembelian minimal Rp 500.000 ke seluruh area Jabodetabek</p>
+                                <ul class="space-y-2 text-gray-600">
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Jakarta</li>
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Bogor</li>
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Depok</li>
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Tangerang</li>
+                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Bekasi</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-purple-50 rounded-2xl p-6">
+                                <h3 class="font-bold text-xl mb-4">Estimasi Pengiriman</h3>
+                                <ul class="space-y-3">
+                                    <li class="flex items-center">
+                                        <i class="fas fa-shipping-fast text-purple-600 mr-3"></i>
+                                        <span class="text-gray-700"><strong>Same Day:</strong> Order sebelum 12:00</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-truck text-purple-600 mr-3"></i>
+                                        <span class="text-gray-700"><strong>Next Day:</strong> 1-2 hari kerja</span>
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-box text-purple-600 mr-3"></i>
+                                        <span class="text-gray-700"><strong>Regular:</strong> 2-3 hari kerja</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -246,8 +385,17 @@
 
         <!-- Related Products -->
         @if($relatedProducts->isNotEmpty())
-            <div class="mt-12">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Produk Terkait</h2>
+            <div class="mt-16">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800">Produk Terkait</h2>
+                        <p class="text-gray-600 mt-2">Pelanggan juga melihat produk ini</p>
+                    </div>
+                    <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
+                        Lihat Semua <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @foreach($relatedProducts as $relatedProduct)
                         <x-ui.product-card :product="$relatedProduct" />
@@ -256,22 +404,26 @@
             </div>
         @endif
 
-        <!-- CTA Section -->
-        <div class="mt-12 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl p-8 text-center">
-            <h3 class="text-2xl font-bold mb-4">Butuh Produk Custom?</h3>
-            <p class="text-lg mb-6 opacity-90 max-w-2xl mx-auto">
-                Kami siap membantu mendesain produk sesuai kebutuhan spesifik Anda. 
-                Konsultasi gratis dengan tim desainer kami.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('whatsapp.chat') }}" target="_blank"
-                   class="bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8 py-3 rounded-lg transition-colors">
-                    <i class="fab fa-whatsapp mr-2"></i> Konsultasi Sekarang
-                </a>
-                <a href="{{ route('products.index') }}"
-                   class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3 rounded-lg transition-colors">
-                    <i class="fas fa-shopping-bag mr-2"></i> Lihat Produk Lainnya
-                </a>
+        <!-- CTA Banner -->
+        <div class="mt-16 bg-gradient-to-r from-blue-900 via-purple-900 to-blue-900 text-white rounded-3xl p-12 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-400 rounded-full opacity-10 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+            
+            <div class="relative z-10">
+                <h3 class="text-4xl font-bold mb-4">Butuh Desain Custom?</h3>
+                <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+                    Tim desainer profesional kami siap membantu mewujudkan ide kreatif Anda
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ route('whatsapp.chat') }}" target="_blank"
+                       class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center">
+                        <i class="fab fa-whatsapp mr-3 text-xl"></i> Konsultasi Gratis
+                    </a>
+                    <a href="{{ route('products.index') }}"
+                       class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white text-white font-bold px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center">
+                        <i class="fas fa-th mr-3"></i> Lihat Katalog
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -286,8 +438,9 @@
 .prose p {
     margin-bottom: 1rem;
 }
-.whitespace-pre-line {
-    white-space: pre-line;
+.tab-button.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
 }
 </style>
 @endpush
@@ -295,7 +448,33 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Quantity selector functionality
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+            
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'text-blue-600', 'border-b-4', 'border-blue-600');
+                btn.classList.add('text-gray-600');
+            });
+            
+            // Add active class to clicked button
+            button.classList.add('active', 'text-blue-600', 'border-b-4', 'border-blue-600');
+            button.classList.remove('text-gray-600');
+            
+            // Hide all tab contents
+            tabContents.forEach(content => content.classList.add('hidden'));
+            
+            // Show selected tab content
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+        });
+    });
+
+    // Quantity selector
     const minusBtn = document.querySelector('button:nth-of-type(1)');
     const plusBtn = document.querySelector('button:nth-of-type(2)');
     const quantityInput = document.getElementById('quantity');
@@ -304,30 +483,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const addToCartForm = document.getElementById('add-to-cart-form');
     const addToCartBtn = addToCartForm?.querySelector('button[type="submit"]');
     
-    // Product price data
     const unitPrice = {{ $product->discount_percent > 0 ? 
         $product->price - ($product->price * $product->discount_percent / 100) : 
         $product->price }};
     const minOrder = {{ $product->min_order }};
     
-    // Format currency
     function formatCurrency(amount) {
         return 'Rp ' + amount.toLocaleString('id-ID');
     }
     
-    // Update total price and form quantity
     function updateTotalPrice() {
         const quantity = parseInt(quantityInput.value);
         const total = unitPrice * quantity;
         totalPriceEl.textContent = formatCurrency(total);
         
-        // Sync dengan form hidden input
         if (formQuantityInput) {
             formQuantityInput.value = quantity;
         }
     }
     
-    // Minus button
     minusBtn?.addEventListener('click', function() {
         let current = parseInt(quantityInput.value);
         if (current > minOrder) {
@@ -336,14 +510,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Plus button
     plusBtn?.addEventListener('click', function() {
         let current = parseInt(quantityInput.value);
         quantityInput.value = current + 1;
         updateTotalPrice();
     });
     
-    // Input change
     quantityInput?.addEventListener('change', function() {
         let value = parseInt(this.value);
         if (value < minOrder) {
@@ -357,84 +529,32 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         const quantity = parseInt(quantityInput.value);
+        const originalText = addToCartBtn.innerHTML;
         
-        // Show loading state
-        if (addToCartBtn) {
-            const originalText = addToCartBtn.innerHTML;
-            addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menambahkan...';
-            addToCartBtn.disabled = true;
-        }
-        
-        // Submit form via AJAX atau langsung submit
+        addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menambahkan...';
         fetch(this.action, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: new URLSearchParams(new FormData(this))
+            body: JSON.stringify({ quantity: quantity })
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Network response was not ok.');
-        })
+        .then(response => response.json())
         .then(data => {
-            // Show success message
-            showNotification(`✅ ${quantity} pcs "${@json($product->name)}" telah ditambahkan ke keranjang!`, 'success');
-            
-            // Update cart counter if exists
-            updateCartCounter();
+            addToCartBtn.innerHTML = originalText;
+            alert('Produk berhasil ditambahkan ke keranjang!');
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('❌ Gagal menambahkan ke keranjang. Silakan coba lagi.', 'error');
-        })
-        .finally(() => {
-            // Reset button
-            if (addToCartBtn) {
-                addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart mr-3"></i> Tambah ke Keranjang';
-                addToCartBtn.disabled = false;
-            }
+            addToCartBtn.innerHTML = originalText;
+            alert('Terjadi kesalahan. Silakan coba lagi.');
         });
     });
-    
-    // Notification function
-    function showNotification(message, type = 'success') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-semibold transform transition-transform duration-300 ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`;
-        notification.innerHTML = `
-            <div class="flex items-center">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-3"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-    
-    // Update cart counter (if you have one)
-    function updateCartCounter() {
-        const cartCounter = document.querySelector('.cart-counter');
-        if (cartCounter) {
-            const current = parseInt(cartCounter.textContent) || 0;
-            cartCounter.textContent = current + 1;
-            cartCounter.classList.remove('hidden');
-        }
-    }
-    
-    // Initialize total price
-    updateTotalPrice();
 });
+function buyNow() {
+    const quantity = document.getElementById('quantity').value;
+    const buyNowUrl = "{{ route('checkout.now', $product->id) }}?quantity=" + quantity;
+    window.location.href = buyNowUrl;
+}
 </script>
 @endpush
