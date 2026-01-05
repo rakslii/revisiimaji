@@ -3,33 +3,79 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
-    // GET /admin/products
-    public function products()
-    {
-        $products = Product::latest()->get();
-        return view('pages.admin.products', compact('products'));
-    }
-
+public function products()
+{
+    $products = Product::with('category')->latest()->paginate(10);
+    return view('pages.admin.products.index', compact('products'));
+}
+    
     public function storeProduct(Request $request)
     {
-        Product::create($request->all());
-        return back()->with('success', 'Product added');
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'stock' => 'required|integer|min:0',
+            'image' => 'nullable|image|max:2048',
+        ]);
+        
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $validated['image'] = $path;
+        }
+        
+        Product::create($validated);
+        
+        return back()->with('success', 'Product created successfully');
     }
-
+    
     public function updateProduct(Request $request, $id)
     {
-        Product::findOrFail($id)->update($request->all());
-        return back()->with('success', 'Product updated');
+        $product = Product::findOrFail($id);
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'stock' => 'required|integer|min:0',
+            'image' => 'nullable|image|max:2048',
+        ]);
+        
+        if ($request->hasFile('image')) {
+            // Delete old image jika ada
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            
+            $path = $request->file('image')->store('products', 'public');
+            $validated['image'] = $path;
+        }
+        
+        $product->update($validated);
+        
+        return back()->with('success', 'Product updated successfully');
     }
-
+    
     public function deleteProduct($id)
     {
-        Product::findOrFail($id)->delete();
-        return back()->with('success', 'Product deleted');
+        $product = Product::findOrFail($id);
+        
+        // Delete image jika ada
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+        
+        $product->delete();
+        
+        return back()->with('success', 'Product deleted successfully');
     }
+
 }

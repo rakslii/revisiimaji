@@ -4,62 +4,62 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\PromoCode;
 
 class PromoCodeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function promoCodes()
     {
-        //
+        $promoCodes = PromoCode::latest()->paginate(10);
+        return view('pages.admin.promos.index', compact('promoCodes'));
+    }
+    
+    public function storePromoCode(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|unique:promo_codes,code',
+            'discount_percent' => 'required|numeric|min:0|max:100',
+            'max_discount' => 'nullable|numeric|min:0',
+            'min_purchase' => 'nullable|numeric|min:0',
+            'usage_limit' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date|after:now',
+            'is_active' => 'boolean',
+        ]);
+        
+        $validated['is_active'] = $request->has('is_active');
+        
+        PromoCode::create($validated);
+        
+        return back()->with('success', 'Promo code created successfully');
+    }
+    
+    public function updatePromoCode(Request $request, $id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        
+        $validated = $request->validate([
+            'code' => 'required|string|unique:promo_codes,code,' . $id,
+            'discount_percent' => 'required|numeric|min:0|max:100',
+            'max_discount' => 'nullable|numeric|min:0',
+            'min_purchase' => 'nullable|numeric|min:0',
+            'usage_limit' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date',
+            'is_active' => 'boolean',
+        ]);
+        
+        $validated['is_active'] = $request->has('is_active');
+        
+        $promoCode->update($validated);
+        
+        return back()->with('success', 'Promo code updated successfully');
+    }
+    
+    public function deletePromoCode($id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        $promoCode->delete();
+        
+        return back()->with('success', 'Promo code deleted successfully');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }
