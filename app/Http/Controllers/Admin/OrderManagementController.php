@@ -4,62 +4,52 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Order;
 
 class OrderManagementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $orders = Order::with('user')->latest()->paginate(15);
+        return view('admin.orders.index', compact('orders'));
+    }
+    
+    public function show($id)
+    {
+        $order = Order::with(['user', 'items.product'])->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
+    }
+    
+    public function updateStatus(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        
+        $validated = $request->validate([
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled'
+        ]);
+        
+        $order->update($validated);
+        
+        // Log activity
+        activity()
+            ->performedOn($order)
+            ->causedBy(auth()->user())
+            ->log("Order status changed to {$request->status}");
+            
+        return response()->json([
+            'success' => true,
+            'message' => 'Order status updated'
+        ]);
+    }
+    
+    public function destroy($id)
+    {
+        $order = Order::findOrFail($id);
+        
+        // Soft delete jika ada, atau langsung delete
+        $order->delete();
+        
+        return back()->with('success', 'Order deleted successfully');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }
