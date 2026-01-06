@@ -3,13 +3,13 @@
 @section('title', 'Cipta Imaji - Digital Printing Terpercaya')
 
 @section('content')
-<!-- Hero Section dengan desain modern -->
+<!-- Hero Section dengan image 3D -->
 <section class="relative bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white overflow-hidden min-h-screen flex items-center">
     <!-- Decorative Elements -->
     <div class="absolute top-20 right-20 w-96 h-96 bg-yellow-400 rounded-full opacity-20 blur-3xl"></div>
     <div class="absolute bottom-20 left-20 w-96 h-96 bg-purple-500 rounded-full opacity-20 blur-3xl"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-4 border-yellow-400 rounded-full opacity-10"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-4 border-yellow-400 rounded-full opacity-10"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-4 border-yellow-400/10 rounded-full"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-4 border-yellow-400/10 rounded-full"></div>
     
     <div class="container mx-auto px-4 py-20 relative z-10">
         <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -52,14 +52,19 @@
                 </div>
             </div>
 
-            <!-- Right Content - Visual Element -->
+            <!-- Right Content - 3D Image sebagai pengganti circle -->
             <div class="relative">
-                <div class="relative w-full h-[500px]">
-                    <!-- Large Circle -->
-                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-8 border-yellow-400 rounded-full"></div>
+                <div class="relative w-full h-[500px] flex items-center justify-center">
+                    <!-- Main 3D Image -->
+                    <div class="relative z-20 animate-float-slow">
+                        <img src="{{ asset('img/MASKOT.png') }}" 
+                             alt="Creative 3D Design" 
+                             class="w-full max-w-[450px] h-auto object-contain"
+                             style="filter: drop-shadow(0 25px 50px rgba(0,0,0,0.4));">
+                    </div>
                     
                     <!-- Floating Cards -->
-                    <div class="absolute top-10 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float">
+                    <div class="absolute top-10 right-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float z-30">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-print text-white text-xl"></i>
@@ -71,7 +76,7 @@
                         </div>
                     </div>
 
-                    <div class="absolute bottom-20 left-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float-delayed">
+                    <div class="absolute bottom-20 left-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float-delayed z-30">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-shield-alt text-white text-xl"></i>
@@ -83,7 +88,7 @@
                         </div>
                     </div>
 
-                    <div class="absolute top-1/2 right-0 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float-slow">
+                    <div class="absolute top-1/2 right-0 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-2xl animate-float-slow z-30">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-star text-white text-xl"></i>
@@ -108,6 +113,34 @@
     </div>
 </section>
 
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes float-delayed {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float-delayed 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+}
+</style>
 <!-- Product Categories Grid -->
 <section class="py-20 bg-white">
     <div class="container mx-auto px-4">
