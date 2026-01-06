@@ -1,16 +1,16 @@
 <nav class="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-2xl sticky top-0 z-50 border-b border-blue-700">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
-            <!-- Logo -->
-            <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-all duration-300">
-                    <i class="fas fa-print text-blue-900 text-xl"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-bold text-white">Cipta Imaji</span>
-                    <div class="text-xs text-blue-200">Digital Printing</div>
-                </div>
-            </a>
+<!-- Logo -->
+<a href="{{ route('home') }}" class="flex items-center group">
+    <img src="{{ asset('img/LOGO.png') }}" 
+         alt="Cipta Imaji Logo" 
+         class="w-24 h-24 object-contain transform group-hover:scale-110 transition-all duration-300 -my-4 ml-6 mr-5">
+    <div>
+        <span class="text-xl font-bold text-white">Cipta Imaji</span>
+        <div class="text-xs text-blue-200">Digital Printing</div>
+    </div>
+</a>
 
             <!-- Center Search Bar (Desktop) -->
             <div class="hidden lg:flex flex-1 max-w-2xl mx-8">
