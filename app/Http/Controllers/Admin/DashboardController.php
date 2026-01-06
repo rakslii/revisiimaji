@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $recentOrders = Order::with('user')->latest()->take(5)->get();
         $recentUsers = User::latest()->take(5)->get();
         
-        return view('admin.dashboard', compact(
+        return view('admin.dashboard.index', compact(
             'totalUsers', 
             'totalOrders', 
             'totalProducts', 

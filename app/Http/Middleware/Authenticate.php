@@ -23,19 +23,12 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        // ⚡ JIKA AKSES ROUTE ADMIN, REDIRECT KE ADMIN LOGIN
-        if ($request->is('admin/*') || $request->routeIs('admin.*')) {
-            return route('admin.login'); // Ini bener, ke pages.admin.login
+        // ⚡ JIKA AKSES ADMIN ROUTE, REDIRECT KE ADMIN LOGIN
+        if ($request->is('admin/*')) {
+            return route('admin.login'); // ⚡ INI YANG BENAR!
         }
         
-        // ⚡ Default redirect ke CUSTOMER LOGIN (lu gak punya ini)
-        // Tapi di routes lu ada Route::get('/login', function() { return view('auth.login'); })
-        // Tapi view auth.login gak ada!
-        
-        // ⚡ SOLUSI 1: Redirect ke home atau buat customer login
-        return $request->expectsJson() ? null : url('/');
-        
-        // ⚡ ATAU SOLUSI 2: Buat simple login page dulu
-        // return $request->expectsJson() ? null : route('home');
+        // ⚡ UNTUK PUBLIC ROUTES, REDIRECT KE GOOGLE OAUTH
+        return route('google.login');
     }
 }
