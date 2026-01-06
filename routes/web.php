@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderController as FrontOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use Illuminate\Http\Request;
@@ -85,20 +85,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
 });
 
-
-
-// =======================
-// CHECKOUT / ORDER (INI FIX ERROR)
-// =======================
+// Orders Routes (PUBLIC)
 Route::middleware(['auth'])->group(function () {
-
-    // PROSES CHECKOUT (POST)
-    Route::post('/checkout/now', [OrderController::class, 'store'])
-        ->name('checkout.now');
-
-    // ORDERS
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{id}', [OrderController::class, 'showOrder'])->name('orders.show');
+    Route::get('/orders', [FrontOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [FrontOrderController::class, 'showOrder'])->name('orders.show');
 });
 
 
@@ -116,31 +106,17 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::delete('/locations/{location}', [ProfileController::class, 'deleteLocation'])->name('locations.delete');
 });
 
-
-// =======================
-// LOGOUT
-// =======================
-Route::post('/logout', function () {
+// Logout route
+Route::post('/logout', function() {
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('logout');
 
-
-// =======================
-// ADMIN
-// =======================
-Route::get('/admin/dashboard', function () {
-    return view('pages.admin.dashboard');
-})->name('admin.dashboard');
-
-
-// AUTH DEFAULT
+// Include admin routes
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
 
-
-// =======================
-// FALLBACK (SPA)
-// =======================
+// Fallback for Vue SPA
 Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
