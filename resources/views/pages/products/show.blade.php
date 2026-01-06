@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 function buyNow() {
     const quantity = document.getElementById('quantity').value;
-    const buyNowUrl = "{{ route('checkout.now', $product->id) }}?quantity=" + quantity;
+    const buyNowUrl = "{{ route('cart.checkout', $product->id) }}?quantity=" + quantity;
     window.location.href = buyNowUrl;
 }
 </script>
