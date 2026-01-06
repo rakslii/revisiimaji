@@ -13,14 +13,12 @@ use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 |--------------------------------------------------------------------------
 */
 
+// Di routes/admin.php, HAPUS middleware:
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Login routes
+    // Login routes (TANPA middleware)
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-    
-    // Protected admin routes
-    Route::middleware(['auth'])->group(function () {
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         
@@ -50,4 +48,3 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/promo-codes/{id}', [AdminPromoCodeController::class, 'updatePromoCode'])->name('promo-codes.update');
         Route::delete('/promo-codes/{id}', [AdminPromoCodeController::class, 'deletePromoCode'])->name('promo-codes.delete');
     });
-});
