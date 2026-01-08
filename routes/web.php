@@ -67,16 +67,22 @@ Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogle
 
 
 // =======================
-// CART (SATU-SATUNYA ROUTE CART, GA DOUBEL)
+// CART ROUTES
 // =======================
 Route::prefix('cart')->name('cart.')->group(function () {
+    // View cart
     Route::get('/', [CartController::class, 'index'])->name('index');
+    
+    // Cart operations
     Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
     Route::post('/{item}', [CartController::class, 'update'])->name('update');
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
+    
+    // Checkout routes
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+    Route::post('/process', [CartController::class, 'processCheckout'])->name('process');
 });
 
 

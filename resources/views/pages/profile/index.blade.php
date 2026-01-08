@@ -277,16 +277,15 @@
     </div>
 
     <!-- Address Modal -->
-    <div id="addressModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title"
+    <div id="addressModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title"
         role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <!-- Background overlay -->
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
                 onclick="closeAddressModal()"></div>
 
             <!-- Modal content -->
-            <div
-                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-visible shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <form method="POST" action="{{ route('profile.locations.store') }}" id="addressForm">
                     @csrf
                     <input type="hidden" name="_method" id="formMethod" value="POST">
@@ -420,7 +419,10 @@
     <script>
         // Address Modal Functions
         function openAddressModal() {
-            document.getElementById('addressModal').classList.remove('hidden');
+            const modal = document.getElementById('addressModal');
+            modal.classList.remove('hidden');
+            
+            // Reset form untuk mode tambah baru
             document.getElementById('modalTitle').textContent = 'Tambah Alamat Baru';
             document.getElementById('addressForm').action = "{{ route('profile.locations.store') }}";
             document.getElementById('formMethod').value = 'POST';
@@ -430,8 +432,11 @@
             document.getElementById('addressForm').reset();
             document.getElementById('recipient_name').value = "{{ $user->name }}";
             document.getElementById('recipient_phone').value = "{{ $user->phone ?? '' }}";
+            document.getElementById('latitude').value = "-6.2088";
+            document.getElementById('longitude').value = "106.8456";
 
-            document.body.classList.add('overflow-hidden');
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
         }
 
         function editAddress(locationId) {
@@ -439,7 +444,9 @@
             fetch(`/profile/locations/${locationId}/edit`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('addressModal').classList.remove('hidden');
+                    const modal = document.getElementById('addressModal');
+                    modal.classList.remove('hidden');
+                    
                     document.getElementById('modalTitle').textContent = 'Edit Alamat';
                     document.getElementById('addressForm').action = `/profile/locations/${locationId}`;
                     document.getElementById('formMethod').value = 'PUT';
@@ -457,7 +464,8 @@
                     document.getElementById('longitude').value = data.longitude;
                     document.getElementById('is_primary').checked = data.is_primary;
 
-                    document.body.classList.add('overflow-hidden');
+                    // Prevent body scroll
+                    document.body.style.overflow = 'hidden';
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -466,8 +474,11 @@
         }
 
         function closeAddressModal() {
-            document.getElementById('addressModal').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
+            const modal = document.getElementById('addressModal');
+            modal.classList.add('hidden');
+            
+            // Restore body scroll
+            document.body.style.overflow = '';
         }
 
         // Close modal with Escape key
@@ -477,12 +488,13 @@
             }
         });
 
-        // Auto-fill address for Google users
+        // Prevent closing modal when clicking inside the modal content
         document.addEventListener('DOMContentLoaded', function() {
-            // Auto-fill for new addresses if user has phone number
-            const userPhone = "{{ $user->phone ?? '' }}";
-            if (userPhone) {
-                document.getElementById('recipient_phone').value = userPhone;
+            const modalContent = document.querySelector('#addressModal > div > div:last-child');
+            if (modalContent) {
+                modalContent.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                });
             }
         });
     </script>
