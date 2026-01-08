@@ -72,23 +72,21 @@ class Product extends Model implements HasMedia
     }
 
     // Helper method untuk mendapatkan nama kategori
-    public function getCategoryNameAttribute()
-    {
-        // Prioritaskan relationship jika ada
-        if ($this->category_id && $this->category) {
-            return $this->category->name;
-        }
-
-        // Fallback ke enum category
-        return $this->category === 'instan' ? 'Produk Instan' : 'Produk Custom';
+public function getCategoryNameAttribute()
+{
+    // Jika ada relationship category (object)
+    if ($this->category_id && $this->categoryRelation) {
+        return $this->categoryRelation->name;
     }
-
-    // Helper untuk mendapatkan harga diskon
-    public function getDiscountedPriceAttribute()
-    {
-        if ($this->discount_percent > 0) {
-            return $this->price - ($this->price * $this->discount_percent / 100);
-        }
-        return $this->price;
+    // Jika menggunakan property category (string ENUM)
+    elseif ($this->category && is_string($this->category)) {
+        return ucfirst($this->category);
     }
+    // Jika category ada tapi null/empty
+    elseif ($this->category && is_object($this->category)) {
+        return $this->category->name ?? 'No Category';
+    }
+    
+    return 'No Category';
+}
 }

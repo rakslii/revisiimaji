@@ -21,27 +21,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        
+
         // Customers
         Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
         Route::get('/customers/{id}', [AdminController::class, 'customerDetail'])->name('customers.show');
-        
+
         // Settings
         Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
         Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
-        
+
         // Orders
         Route::get('/orders', [AdminOrderController::class, 'orders'])->name('orders');
         Route::get('/orders/{id}', [AdminOrderController::class, 'orderDetail'])->name('orders.show');
         Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateOrderStatus'])->name('orders.update-status');
         Route::post('/orders/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
-        
-        // Products
-        Route::get('/products', [AdminProductController::class, 'products'])->name('products');
-        Route::post('/products', [AdminProductController::class, 'storeProduct'])->name('products.store');
-        Route::put('/products/{id}', [AdminProductController::class, 'updateProduct'])->name('products.update');
-        Route::delete('/products/{id}', [AdminProductController::class, 'deleteProduct'])->name('products.delete');
-        
+
+// Products - RESTful routes
+Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
+Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
+Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
+Route::get('/products/{id}', [AdminProductController::class, 'show'])->name('products.show');
+Route::get('/products/{id}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
+Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
+Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+
         // Promo Codes
         Route::get('/promo-codes', [AdminPromoCodeController::class, 'promoCodes'])->name('promo-codes');
         Route::post('/promo-codes', [AdminPromoCodeController::class, 'storePromoCode'])->name('promo-codes.store');

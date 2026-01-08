@@ -1,4 +1,4 @@
-@props(['type' => 'success', 'message'])
+@props(['type' => 'success'])
 
 @php
     $styles = [
@@ -14,11 +14,22 @@
         'warning' => 'fas fa-exclamation-triangle',
         'info' => 'fas fa-info-circle',
     ];
+    
+    // Get message from session
+    $message = session('success') ?? session('error') ?? session('warning') ?? session('info') ?? null;
+    
+    // Determine type from session
+    if (session('success')) $type = 'success';
+    if (session('error')) $type = 'error';
+    if (session('warning')) $type = 'warning';
+    if (session('info')) $type = 'info';
 @endphp
 
-<div class="p-4 rounded-lg border {{ $styles[$type] }} mb-4">
+@if($message)
+<div class="p-4 rounded-lg border {{ $styles[$type] ?? $styles['success'] }} mb-4">
     <div class="flex items-center">
-        <i class="{{ $icons[$type] }} mr-3"></i>
+        <i class="{{ $icons[$type] ?? $icons['success'] }} mr-3"></i>
         <span>{{ $message }}</span>
     </div>
 </div>
+@endif
