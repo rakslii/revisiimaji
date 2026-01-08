@@ -185,17 +185,22 @@
                             <label class="block text-gray-700 font-semibold mb-3">Jumlah</label>
                             <div class="flex items-center gap-4">
                                 <div class="flex items-center bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
-                                    <button type="button" class="w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <input type="number" 
-                                           id="quantity"
-                                           value="{{ $product->min_order }}"
-                                           min="{{ $product->min_order }}"
-                                           class="w-20 h-12 text-center border-none font-bold text-xl focus:outline-none">
-                                    <button type="button" class="w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
+                                    <button type="button"
+    class="qty-minus w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
+    <i class="fas fa-minus"></i>
+</button>
+
+<input type="number"
+    id="quantity"
+    value="{{ $product->min_order }}"
+    min="{{ $product->min_order }}"
+    class="w-20 h-12 text-center border-none font-bold text-xl focus:outline-none">
+
+<button type="button"
+    class="qty-plus w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
+    <i class="fas fa-plus"></i>
+</button>
+
                                 </div>
                                 <span class="text-gray-600">Min. order: <strong>{{ $product->min_order }} pcs</strong></span>
                             </div>
@@ -447,114 +452,53 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Tab functionality
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabName = button.dataset.tab;
-            
-            // Remove active class from all buttons
-            tabButtons.forEach(btn => {
-                btn.classList.remove('active', 'text-blue-600', 'border-b-4', 'border-blue-600');
-                btn.classList.add('text-gray-600');
-            });
-            
-            // Add active class to clicked button
-            button.classList.add('active', 'text-blue-600', 'border-b-4', 'border-blue-600');
-            button.classList.remove('text-gray-600');
-            
-            // Hide all tab contents
-            tabContents.forEach(content => content.classList.add('hidden'));
-            
-            // Show selected tab content
-            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
-        });
+document.addEventListener('DOMContentLoaded', function () {
+
+    const minusBtn = document.querySelector('.qty-minus');
+    const plusBtn  = document.querySelector('.qty-plus');
+    const qtyInput = document.getElementById('quantity');
+    const formQty  = document.getElementById('form-quantity');
+    const totalEl  = document.getElementById('total-price');
+
+    const unitPrice = {{ $product->discount_percent > 0
+        ? $product->price - ($product->price * $product->discount_percent / 100)
+        : $product->price }};
+    const minOrder = {{ $product->min_order }};
+
+    function formatRupiah(val) {
+        return 'Rp ' + val.toLocaleString('id-ID');
+    }
+
+    function updateTotal() {
+        let qty = parseInt(qtyInput.value);
+        if (qty < minOrder) qty = minOrder;
+
+        qtyInput.value = qty;
+        formQty.value = qty;
+        totalEl.textContent = formatRupiah(unitPrice * qty);
+    }
+
+    minusBtn.addEventListener('click', () => {
+        let qty = parseInt(qtyInput.value);
+        if (qty > minOrder) {
+            qtyInput.value = qty - 1;
+            updateTotal();
+        }
     });
 
-    // Quantity selector
-    const minusBtn = document.querySelector('button:nth-of-type(1)');
-    const plusBtn = document.querySelector('button:nth-of-type(2)');
-    const quantityInput = document.getElementById('quantity');
-    const formQuantityInput = document.getElementById('form-quantity');
-    const totalPriceEl = document.getElementById('total-price');
-    const addToCartForm = document.getElementById('add-to-cart-form');
-    const addToCartBtn = addToCartForm?.querySelector('button[type="submit"]');
-    
-    const unitPrice = {{ $product->discount_percent > 0 ? 
-        $product->price - ($product->price * $product->discount_percent / 100) : 
-        $product->price }};
-    const minOrder = {{ $product->min_order }};
-    
-    function formatCurrency(amount) {
-        return 'Rp ' + amount.toLocaleString('id-ID');
-    }
-    
-    function updateTotalPrice() {
-        const quantity = parseInt(quantityInput.value);
-        const total = unitPrice * quantity;
-        totalPriceEl.textContent = formatCurrency(total);
-        
-        if (formQuantityInput) {
-            formQuantityInput.value = quantity;
-        }
-    }
-    
-    minusBtn?.addEventListener('click', function() {
-        let current = parseInt(quantityInput.value);
-        if (current > minOrder) {
-            quantityInput.value = current - 1;
-            updateTotalPrice();
-        }
+    plusBtn.addEventListener('click', () => {
+        qtyInput.value = parseInt(qtyInput.value) + 1;
+        updateTotal();
     });
-    
-    plusBtn?.addEventListener('click', function() {
-        let current = parseInt(quantityInput.value);
-        quantityInput.value = current + 1;
-        updateTotalPrice();
-    });
-    
-    quantityInput?.addEventListener('change', function() {
-        let value = parseInt(this.value);
-        if (value < minOrder) {
-            this.value = minOrder;
-        }
-        updateTotalPrice();
-    });
-    
-    // Form submission
-    addToCartForm?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const quantity = parseInt(quantityInput.value);
-        const originalText = addToCartBtn.innerHTML;
-        
-        addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menambahkan...';
-        fetch(this.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ quantity: quantity })
-        })
-        .then(response => response.json())
-        .then(data => {
-            addToCartBtn.innerHTML = originalText;
-            alert('Produk berhasil ditambahkan ke keranjang!');
-        })
-        .catch(error => {
-            addToCartBtn.innerHTML = originalText;
-            alert('Terjadi kesalahan. Silakan coba lagi.');
-        });
-    });
+
+    qtyInput.addEventListener('change', updateTotal);
+
+    updateTotal();
 });
+
 function buyNow() {
-    const quantity = document.getElementById('quantity').value;
-    const buyNowUrl = "{{ route('cart.checkout', $product->id) }}?quantity=" + quantity;
-    window.location.href = buyNowUrl;
+    const qty = document.getElementById('quantity').value;
+    window.location.href = "{{ route('cart.checkout') }}?quantity=" + qty;
 }
 </script>
 @endpush

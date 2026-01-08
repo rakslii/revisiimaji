@@ -16,30 +16,31 @@ class CartController extends Controller
     }
 
     public function index()
-    {
-        $cart = Cart::getCurrentCart();
-        $items = $cart->items()->with('product')->get();
-        
-        $subtotal = 0;
-        $cartItems = [];
-        
-        foreach ($items as $item) {
-            if ($item->product && $item->product->is_active) {
-                $itemTotal = $item->price * $item->quantity;
-                $cartItems[] = [
-                    'item' => $item,
-                    'product' => $item->product,
-                    'quantity' => $item->quantity,
-                    'total' => $itemTotal,
-                    'available' => $item->isAvailable(),
-                    'message' => $item->getAvailabilityMessage()
-                ];
-                $subtotal += $itemTotal;
-            }
+{
+    $cart = Cart::getCurrentCart();
+    $items = $cart->items()->with('product')->get();
+    
+    $subtotal = 0;
+    $cartItems = [];
+    
+    foreach ($items as $item) {
+        if ($item->product && $item->product->is_active) {
+            $itemTotal = $item->price * $item->quantity;
+            $cartItems[] = [
+                'item' => $item,
+                'product' => $item->product,
+                'quantity' => $item->quantity,
+                'total' => $itemTotal,
+                'available' => $item->isAvailable(),
+                'message' => $item->getAvailabilityMessage()
+            ];
+            $subtotal += $itemTotal;
         }
-
-        return view('pages.cart.index', compact('cartItems', 'subtotal', 'cart'));
     }
+
+    return view('pages.cart.index', compact('cartItems', 'subtotal', 'cart'));
+}
+
 
    public function add(Request $request, Product $product)
 {
@@ -89,7 +90,7 @@ class CartController extends Controller
         ]);
     }
 
-    return redirect()->route('pages.cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+    return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
 }
 
     public function update(Request $request, $itemId)
@@ -103,16 +104,16 @@ class CartController extends Controller
         $product = $item->product;
 
         if (!$product) {
-            return redirect()->route('pages.cart.index')->with('error', 'Produk tidak ditemukan.');
+            return redirect()->route('cart.index')->with('error', 'Produk tidak ditemukan.');
         }
 
         if ($request->quantity > $product->stock) {
-            return redirect()->route('pages.cart.index')->with('error', 'Stok hanya tersisa ' . $product->stock . ' item.');
+            return redirect()->route('cart.index')->with('error', 'Stok hanya tersisa ' . $product->stock . ' item.');
         }
 
         $item->update(['quantity' => $request->quantity]);
 
-        return redirect()->route('pages.cart.index')->with('success', 'Keranjang berhasil diperbarui.');
+        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil diperbarui.');
     }
 
     public function remove($itemId)
@@ -122,10 +123,10 @@ class CartController extends Controller
         
         if ($item) {
             $item->delete();
-            return redirect()->route('pages.cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
+            return redirect()->route('cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
         }
 
-        return redirect()->route('pages.cart.index')->with('error', 'Item tidak ditemukan di keranjang.');
+        return redirect()->route('cart.index')->with('error', 'Item tidak ditemukan di keranjang.');
     }
 
     public function clear()
@@ -133,51 +134,49 @@ class CartController extends Controller
         $cart = Cart::getCurrentCart();
         $cart->items()->delete();
         
-        return redirect()->route('pages.cart.index')->with('success', 'Keranjang berhasil dikosongkan.');
+        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil dikosongkan.');
     }
 
     public function checkout()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login untuk melanjutkan checkout.');
-        }
-
-        $cart = Cart::getCurrentCart();
-        $items = $cart->items()->with('product')->get();
-        
-        // Validate all items are available
-        $unavailableItems = [];
-        foreach ($items as $item) {
-            if (!$item->isAvailable()) {
-                $unavailableItems[] = $item->product->name . ' - ' . $item->getAvailabilityMessage();
-            }
-        }
-        
-        if (!empty($unavailableItems)) {
-            return redirect()->route('pages.cart.index')
-                ->with('error', 'Beberapa produk tidak tersedia:')
-                ->with('unavailable', $unavailableItems);
-        }
-        
-        // Get user addresses
-        $user = Auth::user();
-        $addresses = $user->locations()->orderBy('is_primary', 'desc')->get();
-        
-        if ($addresses->isEmpty()) {
-            return redirect()->route('pages.profile.index')
-                ->with('warning', 'Silakan tambahkan alamat pengiriman terlebih dahulu sebelum checkout.');
-        }
-        
-        $subtotal = $cart->subtotal;
-        $shippingCost = 15000; // Default shipping cost
-        $total = $subtotal + $shippingCost;
-        
-        return view('cart.checkout', compact(
-            'cart', 'items', 'addresses', 
-            'subtotal', 'shippingCost', 'total'
-        ));
+{
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Silakan login.');
     }
-    
+
+    $cart = Cart::getCurrentCart();
+    $items = $cart->items()->with('product')->get();
+
+    $unavailableItems = [];
+    foreach ($items as $item) {
+        if (!$item->isAvailable()) {
+            $unavailableItems[] = $item->product->name . ' - ' . $item->getAvailabilityMessage();
+        }
+    }
+
+    if (!empty($unavailableItems)) {
+        return redirect()->route('cart.index')
+            ->with('error', 'Beberapa produk tidak tersedia')
+            ->with('unavailable', $unavailableItems);
+    }
+
+    $user = Auth::user();
+    $addresses = $user->locations()->orderBy('is_primary', 'desc')->get();
+
+    if ($addresses->isEmpty()) {
+        return redirect()->route('profile.index')
+            ->with('warning', 'Tambah alamat dulu.');
+    }
+
+    $subtotal = $cart->subtotal;
+    $shippingCost = 15000;
+    $total = $subtotal + $shippingCost;
+
+    return view('pages.cart.checkout', compact(
+        'cart', 'items', 'addresses',
+        'subtotal', 'shippingCost', 'total'
+    ));
+}
+
     public function getCartCount()
     {
         if (Auth::check()) {

@@ -51,10 +51,6 @@ Route::get('/whatsapp', function () {
     return redirect()->away("https://wa.me/{$number}?text={$message}");
 })->name('whatsapp.chat');
 
-Route::get('/cart', function () {
-    return view('pages.cart.index');
-})->name('cart.index');
-
 Route::get('/track-order', function () {
     return view('pages.orders.track');
 })->name('orders.track');
@@ -71,7 +67,7 @@ Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogle
 
 
 // =======================
-// CART
+// CART (SATU-SATUNYA ROUTE CART, GA DOUBEL)
 // =======================
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
@@ -80,12 +76,13 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-
-    // 🔥 INI YANG DIBUTUHIN
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
 });
 
-// Orders Routes (PUBLIC)
+
+// =======================
+// ORDERS (LOGIN)
+// =======================
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [FrontOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [FrontOrderController::class, 'showOrder'])->name('orders.show');
@@ -106,17 +103,27 @@ Route::middleware(['auth'])->prefix('profile')->name('profile.')->group(function
     Route::delete('/locations/{location}', [ProfileController::class, 'deleteLocation'])->name('locations.delete');
 });
 
-// Logout route
-Route::post('/logout', function() {
+
+// =======================
+// LOGOUT
+// =======================
+Route::post('/logout', function () {
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('logout');
 
-// Include admin routes
-require __DIR__.'/auth.php';
-require __DIR__.'/admin.php';
 
-// Fallback for Vue SPA
-Route::get('/{any}', [HomeController::class, 'index'])->where('any', '.*');
+// =======================
+// ADMIN & AUTH
+// =======================
+require __DIR__ . '/auth.php';
+require __DIR__ . '/admin.php';
+
+
+// =======================
+// FALLBACK (PALING BAWAH)
+// =======================
+Route::get('/{any}', [HomeController::class, 'index'])
+    ->where('any', '.*');
