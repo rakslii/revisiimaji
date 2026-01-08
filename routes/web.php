@@ -75,8 +75,16 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::post('/{item}', [CartController::class, 'update'])->name('update');
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
+
+Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+
+// 🔥 TAMBAH INI
+    Route::post('/checkout/process', [CartController::class, 'processCheckout'])
+        ->name('process');
+
+    Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
+
 });
 
 

@@ -6,31 +6,62 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia
 {
     use SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
-        'name', 'description', 'short_description', 'price', 'discount_percent',
-        'category', 'is_active', 'image', 'category_id', 'stock', 'sales_count',
-        'rating', 'min_order', 'specifications'
+        'name',
+        'description',
+        'short_description',
+        'price',
+        'discount_percent',
+        'category',
+        'is_active',
+        'image',
+        'category_id',
+        'stock',
+        'sales_count',
+        'rating',
+        'min_order',
+        'specifications',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'specifications' => 'array',
         'price' => 'decimal:2',
-        'rating' => 'decimal:1'
+        'rating' => 'decimal:1',
     ];
 
-    // ✅ TAMBAHKAN RELATIONSHIP INI
+    /* =========================
+     |  SPATIE MEDIA FIX (WAJIB)
+     ========================= */
+    public function getMediaModel(): string
+    {
+        return Media::class;
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('images')
+            ->singleFile(); // 1 produk = 1 gambar (aman buat cart)
+    }
+
+    /* =========================
+     |  RELATIONSHIP
+     ========================= */
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    // Accessor untuk memastikan specifications selalu array
+    /* =========================
+     |  ACCESSOR & MUTATOR
+     ========================= */
     public function getSpecificationsAttribute($value)
     {
         if (is_array($value)) {
@@ -45,7 +76,6 @@ class Product extends Model implements HasMedia
         return [];
     }
 
-    // Mutator untuk menyimpan sebagai JSON
     public function setSpecificationsAttribute($value)
     {
         if (is_array($value)) {
@@ -55,7 +85,9 @@ class Product extends Model implements HasMedia
         }
     }
 
-    // Scopes
+    /* =========================
+     |  SCOPES
+     ========================= */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -71,24 +103,39 @@ class Product extends Model implements HasMedia
         return $query->where('category', 'non-instan');
     }
 
-    // Helper method untuk mendapatkan nama kategori
+    /* =========================
+     |  HELPERS
+     ========================= */
     public function getCategoryNameAttribute()
     {
-        // Prioritaskan relationship jika ada
         if ($this->category_id && $this->category) {
             return $this->category->name;
         }
 
-        // Fallback ke enum category
-        return $this->category === 'instan' ? 'Produk Instan' : 'Produk Custom';
+        return $this->category === 'instan'
+            ? 'Produk Instan'
+            : 'Produk Custom';
     }
 
-    // Helper untuk mendapatkan harga diskon
     public function getDiscountedPriceAttribute()
     {
         if ($this->discount_percent > 0) {
             return $this->price - ($this->price * $this->discount_percent / 100);
         }
+
         return $this->price;
+    }
+
+    /* =========================
+     |  SAFE IMAGE (ANTI ERROR)
+     ========================= */
+    public function getImageUrlAttribute()
+    {
+        if ($this->hasMedia('images')) {
+            return $this->getFirstMediaUrl('images');
+        }
+
+        // fallback kalo belum ada foto
+        return asset('images/no-image.png');
     }
 }
