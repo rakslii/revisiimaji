@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media; // ✅ TAMBAHKAN INI
 
 class Product extends Model implements HasMedia
 {
@@ -24,10 +25,16 @@ class Product extends Model implements HasMedia
         'rating' => 'decimal:1'
     ];
 
-    // ✅ TAMBAHKAN RELATIONSHIP INI
+    // Relationship
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
+    }
+
+    // ✅ TAMBAHKAN METHOD INI (untuk Media Library)
+    public function getMediaModel(): string
+    {
+        return Media::class; // ✅ RETURN STRING
     }
 
     // Accessor untuk memastikan specifications selalu array
@@ -72,21 +79,17 @@ class Product extends Model implements HasMedia
     }
 
     // Helper method untuk mendapatkan nama kategori
-public function getCategoryNameAttribute()
-{
-    // Jika ada relationship category (object)
-    if ($this->category_id && $this->categoryRelation) {
-        return $this->categoryRelation->name;
+    public function getCategoryNameAttribute()
+    {
+        // ✅ PERBAIKI: gunakan $this->category() bukan $this->categoryRelation
+        if ($this->category_id && $this->category) {
+            return $this->category->name;
+        }
+        // Jika menggunakan property category (string ENUM)
+        elseif ($this->category && is_string($this->category)) {
+            return ucfirst($this->category);
+        }
+        
+        return 'No Category';
     }
-    // Jika menggunakan property category (string ENUM)
-    elseif ($this->category && is_string($this->category)) {
-        return ucfirst($this->category);
-    }
-    // Jika category ada tapi null/empty
-    elseif ($this->category && is_object($this->category)) {
-        return $this->category->name ?? 'No Category';
-    }
-    
-    return 'No Category';
-}
 }
