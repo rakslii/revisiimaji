@@ -4,21 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia; // ✅ Import Interface
-use Spatie\MediaLibrary\InteractsWithMedia; // ✅ Import Trait
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model implements HasMedia // ✅ Implement Interface
+class Product extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia; // ✅ Tambahkan Trait
-    
+    use SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
         'name', 'description', 'short_description', 'price', 'discount_percent',
         'category', 'is_active', 'image', 'category_id', 'stock', 'sales_count',
         'rating', 'min_order', 'specifications'
     ];
-    
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -27,27 +24,24 @@ class Product extends Model implements HasMedia // ✅ Implement Interface
         'rating' => 'decimal:1'
     ];
 
-    public function getMediaModel(): string
+    // ✅ TAMBAHKAN RELATIONSHIP INI
+    public function category()
     {
-        return Media::class;
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    
     // Accessor untuk memastikan specifications selalu array
     public function getSpecificationsAttribute($value)
     {
-        // Jika sudah array, return langsung
         if (is_array($value)) {
             return $value;
         }
-        
-        // Jika string (JSON), decode
+
         if (is_string($value)) {
             $decoded = json_decode($value, true);
             return is_array($decoded) ? $decoded : [];
         }
-        
-        // Default empty array
+
         return [];
     }
 
@@ -80,9 +74,15 @@ class Product extends Model implements HasMedia // ✅ Implement Interface
     // Helper method untuk mendapatkan nama kategori
     public function getCategoryNameAttribute()
     {
+        // Prioritaskan relationship jika ada
+        if ($this->category_id && $this->category) {
+            return $this->category->name;
+        }
+
+        // Fallback ke enum category
         return $this->category === 'instan' ? 'Produk Instan' : 'Produk Custom';
     }
-    
+
     // Helper untuk mendapatkan harga diskon
     public function getDiscountedPriceAttribute()
     {
@@ -91,6 +91,4 @@ class Product extends Model implements HasMedia // ✅ Implement Interface
         }
         return $this->price;
     }
-
-    
 }
