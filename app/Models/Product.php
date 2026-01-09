@@ -6,15 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia
 {
     use SoftDeletes, InteractsWithMedia;
 
     protected $fillable = [
-        'name', 'description', 'short_description', 'price', 'discount_percent',
-        'category', 'is_active', 'image', 'category_id', 'stock', 'sales_count',
-        'rating', 'min_order', 'specifications'
+        'name',
+        'description',
+        'short_description',
+        'price',
+        'discount_percent',
+        'category', // STRING (instan / non-instan)
+        'category_id', // RELASI
+        'is_active',
+        'image',
+        'stock',
+        'sales_count',
+        'rating',
+        'min_order',
+        'specifications'
     ];
 
     protected $casts = [
@@ -24,13 +36,22 @@ class Product extends Model implements HasMedia
         'rating' => 'decimal:1'
     ];
 
-    // RELATION
+    // ================= RELATION =================
+
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    // SPECIFICATIONS ACCESSOR
+    // ================= MEDIA =================
+
+    public function getMediaModel(): string
+    {
+        return Media::class;
+    }
+
+    // ================= SPECIFICATIONS =================
+
     public function getSpecificationsAttribute($value)
     {
         if (is_array($value)) return $value;
@@ -50,7 +71,8 @@ class Product extends Model implements HasMedia
             : $value;
     }
 
-    // SCOPES
+    // ================= SCOPES =================
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -66,13 +88,18 @@ class Product extends Model implements HasMedia
         return $query->where('category', 'non-instan');
     }
 
-    // CATEGORY NAME
+    // ================= ACCESSOR (FIX ERROR) =================
+
     public function getCategoryNameAttribute()
     {
-        if ($this->relationLoaded('category') && $this->category) {
-            return $this->category->name;
+        // PRIORITAS RELASI
+        if ($this->relationLoaded('category') || $this->category_id) {
+            if ($this->category instanceof \App\Models\ProductCategory) {
+                return $this->category->name;
+            }
         }
 
+        // FALLBACK STRING
         if (is_string($this->category)) {
             return ucfirst($this->category);
         }

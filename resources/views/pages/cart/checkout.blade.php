@@ -60,17 +60,66 @@
                 </div>
             @endif
 
-            <form action="{{ route('cart.process') }}" method="POST" id="checkoutForm">
+            <form action="{{ route('cart.process') }}" method="POST" id="checkoutForm" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="flex flex-col lg:flex-row gap-8">
                     <!-- Main Content -->
                     <div class="lg:w-2/3 space-y-6">
+                        <!-- Upload Design Section -->
+                        <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
+                            <div class="flex items-center mb-6">
+                                <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-images text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-800">Upload Design</h2>
+                                    <p class="text-gray-600 text-sm">Upload file design Anda (maks. 10MB)</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="relative">
+                                    <input type="file" 
+                                           name="design_files[]" 
+                                           id="designFiles" 
+                                           multiple 
+                                           accept="image/*,.pdf,.ai,.psd,.cdr"
+                                           class="hidden"
+                                           onchange="handleFileSelect(event)">
+                                    
+                                    <label for="designFiles" class="flex flex-col items-center justify-center w-full h-48 border-3 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
+                                            <p class="mb-2 text-sm text-gray-600">
+                                                <span class="font-bold">Klik untuk upload</span> atau drag & drop
+                                            </p>
+                                            <p class="text-xs text-gray-500">PNG, JPG, PDF, AI, PSD, CDR (Max 10MB)</p>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Preview Container -->
+                                <div id="filePreview" class="hidden grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+                                <!-- Notes for Design -->
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">
+                                        <i class="fas fa-pencil-alt mr-2"></i>
+                                        Catatan Design (Opsional)
+                                    </label>
+                                    <textarea name="design_notes" 
+                                              rows="3"
+                                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none"
+                                              placeholder="Contoh: Tolong ubah warna menjadi biru, gunakan font yang lebih bold, dll.">{{ old('design_notes') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Customer Information -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div
-                                    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-user text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -89,8 +138,7 @@
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('name') border-red-500 @enderror"
                                         placeholder="Masukkan nama lengkap">
                                     @error('name')
-                                        <p class="text-red-500 text-sm mt-1"><i
-                                                class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                                     @enderror
                                 </div>
 
@@ -103,8 +151,7 @@
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('phone') border-red-500 @enderror"
                                         placeholder="08123456789">
                                     @error('phone')
-                                        <p class="text-red-500 text-sm mt-1"><i
-                                                class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                                     @enderror
                                 </div>
 
@@ -117,21 +164,54 @@
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('email') border-red-500 @enderror"
                                         placeholder="email@example.com">
                                     @error('email')
-                                        <p class="text-red-500 text-sm mt-1"><i
-                                                class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                                     @enderror
                                 </div>
+                            </div>
+                        </div>
 
+                        <!-- Shipping Address with Maps -->
+                        <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
+                            <div class="flex items-center mb-6">
+                                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-800">Alamat Pengiriman</h2>
+                                    <p class="text-gray-600 text-sm">Tentukan lokasi pengiriman dengan akurat</p>
+                                </div>
+                            </div>
+
+                            <!-- Google Maps -->
+                            <div class="mb-6">
+                                <div id="map" class="w-full h-80 rounded-2xl border-2 border-gray-200 overflow-hidden"></div>
+                                <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
+                                <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
+                                <p class="text-sm text-gray-600 mt-3 flex items-center">
+                                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                    Klik pada peta untuk menentukan lokasi pengiriman atau gunakan tombol di bawah untuk lokasi saat ini
+                                </p>
+                                <button type="button" 
+                                        onclick="getCurrentLocation()"
+                                        class="mt-3 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition-colors inline-flex items-center">
+                                    <i class="fas fa-crosshairs mr-2"></i>
+                                    Gunakan Lokasi Saya
+                                </button>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
                                     <label class="block text-gray-700 font-semibold mb-2">
                                         Alamat Lengkap <span class="text-red-500">*</span>
                                     </label>
-                                    <textarea name="address" rows="3" required
-                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('address') border-red-500 @enderror"
-                                        placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan">{{ old('address', auth()->user()->address ?? '') }}</textarea>
+                                    <textarea name="address" 
+                                              id="address"
+                                              rows="3" 
+                                              required
+                                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('address') border-red-500 @enderror"
+                                              placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan">{{ old('address', auth()->user()->address ?? '') }}</textarea>
                                     @error('address')
-                                        <p class="text-red-500 text-sm mt-1"><i
-                                                class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                                     @enderror
                                 </div>
 
@@ -139,12 +219,11 @@
                                     <label class="block text-gray-700 font-semibold mb-2">
                                         Kota/Kabupaten <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="city" value="{{ old('city') }}" required
+                                    <input type="text" name="city" id="city" value="{{ old('city') }}" required
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('city') border-red-500 @enderror"
                                         placeholder="Contoh: Bandung">
                                     @error('city')
-                                        <p class="text-red-500 text-sm mt-1"><i
-                                                class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                                     @enderror
                                 </div>
 
@@ -152,12 +231,11 @@
                                     <label class="block text-gray-700 font-semibold mb-2">
                                         Kode Pos <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="postal_code" value="{{ old('postal_code') }}" required
+                                    <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code') }}" required
                                         class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('postal_code') border-red-500 @enderror"
                                         placeholder="40xxx">
                                     @error('postal_code')
-                                        <p class="text-red-500 text-sm mt-1"><i
-                                                class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>
@@ -166,8 +244,7 @@
                         <!-- Shipping Method -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div
-                                    class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-truck text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -177,8 +254,7 @@
                             </div>
 
                             <div class="space-y-3">
-                                <label
-                                    class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="shipping_method" value="pickup"
                                         class="mt-1 mr-4 w-5 h-5 accent-blue-600"
                                         {{ old('shipping_method', 'pickup') == 'pickup' ? 'checked' : '' }}>
@@ -188,13 +264,11 @@
                                             <span class="text-green-600 font-bold text-lg">GRATIS</span>
                                         </div>
                                         <p class="text-gray-600 text-sm">Jl. Contoh Alamat Toko, Bandung</p>
-                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-clock mr-1"></i> Siap
-                                            diambil dalam 24 jam</p>
+                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-clock mr-1"></i> Siap diambil dalam 24 jam</p>
                                     </div>
                                 </label>
 
-                                <label
-                                    class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="shipping_method" value="delivery"
                                         class="mt-1 mr-4 w-5 h-5 accent-blue-600"
                                         {{ old('shipping_method') == 'delivery' ? 'checked' : '' }}>
@@ -204,13 +278,11 @@
                                             <span class="text-blue-600 font-bold text-lg">Rp 15.000</span>
                                         </div>
                                         <p class="text-gray-600 text-sm">Khusus area Bandung dan sekitarnya</p>
-                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-shipping-fast mr-1"></i>
-                                            Estimasi 1-2 hari kerja</p>
+                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-shipping-fast mr-1"></i> Estimasi 1-2 hari kerja</p>
                                     </div>
                                 </label>
 
-                                <label
-                                    class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="shipping_method" value="cargo"
                                         class="mt-1 mr-4 w-5 h-5 accent-blue-600"
                                         {{ old('shipping_method') == 'cargo' ? 'checked' : '' }}>
@@ -220,22 +292,19 @@
                                             <span class="text-blue-600 font-bold text-lg">Rp 25.000+</span>
                                         </div>
                                         <p class="text-gray-600 text-sm">Untuk luar kota Bandung</p>
-                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-box mr-1"></i> Estimasi 3-5
-                                            hari kerja</p>
+                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-box mr-1"></i> Estimasi 3-5 hari kerja</p>
                                     </div>
                                 </label>
                             </div>
                             @error('shipping_method')
-                                <p class="text-red-500 text-sm mt-2"><i
-                                        class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                <p class="text-red-500 text-sm mt-2"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Payment Method -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div
-                                    class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-credit-card text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -245,8 +314,7 @@
                             </div>
 
                             <div class="space-y-3">
-                                <label
-                                    class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="payment_method" value="transfer"
                                         class="mr-4 w-5 h-5 accent-blue-600"
                                         {{ old('payment_method', 'transfer') == 'transfer' ? 'checked' : '' }}>
@@ -261,8 +329,7 @@
                                     </div>
                                 </label>
 
-                                <label
-                                    class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="payment_method" value="cash"
                                         class="mr-4 w-5 h-5 accent-blue-600"
                                         {{ old('payment_method') == 'cash' ? 'checked' : '' }}>
@@ -277,8 +344,7 @@
                                     </div>
                                 </label>
 
-                                <label
-                                    class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                                     <input type="radio" name="payment_method" value="ewallet"
                                         class="mr-4 w-5 h-5 accent-blue-600"
                                         {{ old('payment_method') == 'ewallet' ? 'checked' : '' }}>
@@ -294,16 +360,14 @@
                                 </label>
                             </div>
                             @error('payment_method')
-                                <p class="text-red-500 text-sm mt-2"><i
-                                        class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+                                <p class="text-red-500 text-sm mt-2"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Order Notes -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-4">
-                                <div
-                                    class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-comment-dots text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -322,14 +386,13 @@
                     <div class="lg:w-1/3">
                         <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 sticky top-6">
                             <div class="flex items-center mb-6">
-                                <div
-                                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
                                     <i class="fas fa-receipt text-white"></i>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-800">Ringkasan Pesanan</h3>
                             </div>
 
-                            <!-- Hidden inputs for cart items (OUTSIDE the display div) -->
+                            <!-- Hidden inputs for cart items -->
                             @foreach($cartItems ?? [] as $index => $item)
                                 <input type="hidden" name="items[{{ $index }}][product_id]" value="{{ $item->product_id }}">
                                 <input type="hidden" name="items[{{ $index }}][quantity]" value="{{ $item->quantity }}">
@@ -337,7 +400,7 @@
                             @endforeach
 
                             <!-- Cart Items Display -->
-                            <div class="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                            <div class="space-y-4 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
                                 @forelse($cartItems ?? [] as $item)
                                     <div class="flex gap-3 pb-4 border-b border-gray-100">
                                         <img src="{{ $item->product->image_url ?? 'https://via.placeholder.com/80' }}"
@@ -378,154 +441,120 @@
                                 @endif
 
                                 <div class="border-t border-gray-200 pt-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-xl font-bold text-gray-800">Total</span>
-                                        <span class="text-2xl font-bold text-blue-600" id="totalPrice">
-                                            Rp {{ number_format($total ?? 0, 0, ',', '.') }}
-                                        </span>
-                                    </div>
+                                 <div class="flex justify-between text-lg font-bold text-gray-800">
+                                    <span>Total</span>
+                                    <span class="text-blue-600 total-price">
+                                        Rp {{ number_format(($subtotal ?? 0) - ($discount ?? 0), 0, ',', '.') }}
+                                    </span>
                                 </div>
                             </div>
 
-                            <!-- Submit Button -->
-                            <button type="submit" id="submitBtn"
-                                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-4">
-                                <i class="fas fa-check-circle mr-2"></i>
-                                Proses Pesanan
+                            <button type="submit"
+                                class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2">
+                                <i class="fas fa-lock"></i>
+                                Proses Checkout
                             </button>
 
-                            <a href="{{ route('cart.index') }}"
-                                class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors">
-                                <i class="fas fa-arrow-left mr-2"></i>
-                                Kembali ke Keranjang
-                            </a>
-
-                            <!-- Trust Badges -->
-                            <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-shield-alt text-green-500 mr-3"></i>
-                                    <span>Transaksi Aman & Terpercaya</span>
-                                </div>
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-medal text-yellow-500 mr-3"></i>
-                                    <span>Kualitas Premium Terjamin</span>
-                                </div>
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-headset text-blue-500 mr-3"></i>
-                                    <span>Customer Service 24/7</span>
-                                </div>
-                            </div>
+                            <p class="text-xs text-gray-500 text-center mt-4">
+                                Dengan melanjutkan, Anda menyetujui syarat & ketentuan kami
+                            </p>
                         </div>
                     </div>
                 </div>
             </form>
-
-            <!-- Help Section -->
-            <div
-                class="mt-12 relative bg-gradient-to-r from-blue-900 via-purple-900 to-blue-900 text-white rounded-3xl p-8 md:p-12 overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-400 rounded-full opacity-10 blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
-
-                <div class="text-center relative z-10">
-                    <div
-                        class="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl">
-                        <i class="fas fa-question-circle text-blue-900 text-3xl"></i>
-                    </div>
-                    <h3 class="text-2xl md:text-3xl font-bold mb-3">
-                        Butuh <span class="text-yellow-400">Bantuan</span>?
-                    </h3>
-                    <p class="text-lg mb-6 opacity-90 max-w-2xl mx-auto">
-                        Tim customer service kami siap membantu proses pemesanan Anda
-                    </p>
-                    <a href="{{ route('whatsapp.chat') }}" target="_blank"
-                        class="inline-flex items-center justify-center bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-2xl hover:shadow-yellow-400/50 transform hover:scale-105">
-                        <i class="fab fa-whatsapp mr-3 text-2xl"></i>
-                        <span class="text-lg">Chat via WhatsApp</span>
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
-@endsection
-
-
-@push('styles')
-    <style>
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        input[type="radio"] {
-            accent-color: #3b82f6;
-        }
-
-        /* Custom Scrollbar */
-        .overflow-y-auto::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .overflow-y-auto::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .overflow-y-auto::-webkit-scrollbar-thumb {
-            background: #3b82f6;
-            border-radius: 10px;
-        }
-
-        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-            background: #2563eb;
-        }
-    </style>
-@endpush
-
+    @endsection
 @push('scripts')
-    <script>
-        console.log('Checkout page loaded');
+<script>
+    // ================= UPLOAD PREVIEW =================
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        const preview = document.getElementById('filePreview');
+        preview.innerHTML = '';
+        preview.classList.remove('hidden');
 
-        // Update shipping cost based on selected method
-        document.querySelectorAll('input[name="shipping_method"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                console.log('Shipping method changed to:', this.value);
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.className = 'relative border rounded-xl p-2';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">
+                    <span class="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        ${file.name}
+                    </span>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
-                const shippingCostElement = document.querySelector('.shipping-cost');
-                const totalElement = document.getElementById('totalPrice');
+    // ================= GOOGLE MAPS =================
+    let map, marker;
 
-                const subtotal = {{ $subtotal ?? 0 }};
-                const discount = {{ $discount ?? 0 }};
+    function initMap() {
+        const defaultLocation = { lat: -6.9175, lng: 107.6191 }; // Bandung
 
-                let shippingCost = 0;
-
-                if (this.value === 'delivery') {
-                    shippingCost = 15000;
-                } else if (this.value === 'cargo') {
-                    shippingCost = 25000;
-                } else {
-                    shippingCost = 0;
-                }
-
-                // Update ongkir
-                shippingCostElement.textContent =
-                    'Rp ' + shippingCost.toLocaleString('id-ID');
-
-                // Hitung total
-                const total = subtotal + shippingCost - discount;
-
-                // Update total harga
-                totalElement.textContent =
-                    'Rp ' + total.toLocaleString('id-ID');
-            });
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 13,
+            center: defaultLocation,
         });
 
-        // Optional: prevent double submit
-        document.getElementById('checkoutForm').addEventListener('submit', function() {
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+        map.addListener("click", (e) => {
+            placeMarker(e.latLng);
         });
-    </script>
+    }
+
+    function placeMarker(location) {
+        if (marker) marker.setMap(null);
+
+        marker = new google.maps.Marker({
+            position: location,
+            map: map,
+        });
+
+        document.getElementById('latitude').value = location.lat();
+        document.getElementById('longitude').value = location.lng();
+    }
+
+    function getCurrentLocation() {
+        if (!navigator.geolocation) return alert('Browser tidak support lokasi');
+
+        navigator.geolocation.getCurrentPosition(position => {
+            const loc = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+
+            map.setCenter(loc);
+            placeMarker(loc);
+        });
+    }
+
+    // ================= SHIPPING COST =================
+    const shippingRadios = document.querySelectorAll('input[name="shipping_method"]');
+    const shippingCostEl = document.querySelector('.shipping-cost');
+    const totalPriceEl = document.querySelector('.total-price');
+
+    const subtotal = {{ $subtotal ?? 0 }};
+    const discount = {{ $discount ?? 0 }};
+
+    shippingRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            let cost = 0;
+
+            if (radio.value === 'delivery') cost = 15000;
+            if (radio.value === 'cargo') cost = 25000;
+
+            shippingCostEl.textContent = 'Rp ' + cost.toLocaleString('id-ID');
+            totalPriceEl.textContent = 'Rp ' + (subtotal - discount + cost).toLocaleString('id-ID');
+        });
+    });
+</script>
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=API_KEY_LU&callback=initMap">
+</script>
 @endpush
