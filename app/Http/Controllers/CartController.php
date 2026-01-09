@@ -193,16 +193,16 @@ class CartController extends Controller
     }
 
     // Validation - PERBAIKAN DI SINI
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'phone' => 'required|string|max:20',
-        'email' => 'required|email|max:255',
-        'address' => 'required|string',
-        'city' => 'required|string|max:100',
-        'postal_code' => 'required|string|max:10',
-        'shipping_method' => 'required|in:pickup,delivery,cargo',
-        'payment_method' => 'required|in:transfer,cash,ewallet',
-        'notes' => 'nullable|string|max:500',
+   $validated = $request->validate([
+    'name' => 'required|string|max:255',
+    'phone' => 'required|string|max:20',
+    'email' => 'required|email|max:255',
+    'address' => 'required|string',
+    'city' => 'required|string|max:100',
+    'postal_code' => 'required|string|max:10',
+    'shipping_method' => 'required|in:pickup,delivery,cargo',
+    'payment_method' => 'required|in:transfer,cash,ewallet',
+    'notes' => 'nullable|string|max:500',
         // UBAH VALIDASI INI
         'items' => 'required|array|min:1',
         'items.*.product_id' => 'required|exists:products,id',

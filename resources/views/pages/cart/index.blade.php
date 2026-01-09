@@ -68,35 +68,44 @@
                         @foreach($cartItems as $cartItem)
                         <div class="p-6 hover:bg-gray-50 transition-colors">
                             <div class="flex flex-col sm:flex-row gap-4">
-                                <!-- Product Image -->
-                                <div class="flex-shrink-0">
-                                    <img src="{{ $cartItem['product']->getFirstMediaUrl('products') ?: asset('images/default-product.png') }}" 
-                                         alt="{{ $cartItem['product']->name }}"
-                                         class="w-24 h-24 object-cover rounded-xl">
-                                </div>
-                                
-                                <!-- Product Info -->
-                                <div class="flex-1">
-                                    <div class="flex justify-between">
-                                        <div>
-                                            <h4 class="font-bold text-gray-800">{{ $cartItem['product']->name }}</h4>
-                                            <p class="text-gray-600 text-sm mt-1">{{ $cartItem['product']->category->name ?? 'Uncategorized' }}</p>
-                                            
-                                            @if(!$cartItem['available'])
-                                            <div class="mt-2 flex items-center text-red-600 text-sm">
-                                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                                {{ $cartItem['message'] }}
-                                            </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="text-right">
-                                            <p class="font-bold text-gray-800">{{ $cartItem['item']->formatted_price }}</p>
-                                            @if($cartItem['product']->price != $cartItem['item']->price)
-                                            <p class="text-sm text-gray-500 line-through">Rp {{ number_format($cartItem['product']->price, 0, ',', '.') }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
+                            <!-- Product Image -->
+<div class="flex-shrink-0">
+    <img
+        src="{{ 
+            $cartItem['product'] 
+            && method_exists($cartItem['product'], 'hasMedia') 
+            && $cartItem['product']->hasMedia('products')
+                ? $cartItem['product']->getFirstMediaUrl('products')
+                : asset('images/default-product.png')
+        }}"
+        alt="{{ $cartItem['product']->name ?? 'Product' }}"
+        class="w-24 h-24 object-cover rounded-xl">
+</div>
+
+<!-- Product Info -->
+<div class="flex-1">
+    <div class="flex justify-between">
+        <div>
+            <h4 class="font-bold text-gray-800">
+                {{ $cartItem['product']->name ?? 'Produk' }}
+            </h4>
+
+            <p class="text-gray-600 text-sm mt-1">
+                {{ 
+                    $cartItem['product']->category->name 
+                    ?? $cartItem['product']->category_name 
+                    ?? 'Uncategorized' 
+                }}
+            </p>
+
+            @if(!$cartItem['available'])
+                <div class="mt-2 flex items-center text-red-600 text-sm">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    {{ $cartItem['message'] }}
+                </div>
+            @endif
+        </div>
+
                                     
                                     <!-- Quantity Controls -->
                                     <div class="flex items-center justify-between mt-4">

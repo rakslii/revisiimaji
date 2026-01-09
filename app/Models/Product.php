@@ -24,18 +24,16 @@ class Product extends Model implements HasMedia
         'rating' => 'decimal:1'
     ];
 
-    // ✅ TAMBAHKAN RELATIONSHIP INI
+    // RELATION
     public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    // Accessor untuk memastikan specifications selalu array
+    // SPECIFICATIONS ACCESSOR
     public function getSpecificationsAttribute($value)
     {
-        if (is_array($value)) {
-            return $value;
-        }
+        if (is_array($value)) return $value;
 
         if (is_string($value)) {
             $decoded = json_decode($value, true);
@@ -45,17 +43,14 @@ class Product extends Model implements HasMedia
         return [];
     }
 
-    // Mutator untuk menyimpan sebagai JSON
     public function setSpecificationsAttribute($value)
     {
-        if (is_array($value)) {
-            $this->attributes['specifications'] = json_encode($value);
-        } else {
-            $this->attributes['specifications'] = $value;
-        }
+        $this->attributes['specifications'] = is_array($value)
+            ? json_encode($value)
+            : $value;
     }
 
-    // Scopes
+    // SCOPES
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -71,22 +66,17 @@ class Product extends Model implements HasMedia
         return $query->where('category', 'non-instan');
     }
 
-    // Helper method untuk mendapatkan nama kategori
-public function getCategoryNameAttribute()
-{
-    // Jika ada relationship category (object)
-    if ($this->category_id && $this->categoryRelation) {
-        return $this->categoryRelation->name;
+    // CATEGORY NAME
+    public function getCategoryNameAttribute()
+    {
+        if ($this->relationLoaded('category') && $this->category) {
+            return $this->category->name;
+        }
+
+        if (is_string($this->category)) {
+            return ucfirst($this->category);
+        }
+
+        return 'No Category';
     }
-    // Jika menggunakan property category (string ENUM)
-    elseif ($this->category && is_string($this->category)) {
-        return ucfirst($this->category);
-    }
-    // Jika category ada tapi null/empty
-    elseif ($this->category && is_object($this->category)) {
-        return $this->category->name ?? 'No Category';
-    }
-    
-    return 'No Category';
-}
 }
