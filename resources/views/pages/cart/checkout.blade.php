@@ -60,7 +60,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('cart.process') }}" method="POST" id="checkoutForm" enctype="multipart/form-data">
+            <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="flex flex-col lg:flex-row gap-8">

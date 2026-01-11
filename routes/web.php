@@ -80,8 +80,13 @@ Route::prefix('cart')->name('cart.')->group(function () {
 
     // ✅ CHECKOUT FIX
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('process');
+
+
 });
+
+    // buat checkout process
+    Route::post('/checkout/process', [CartController::class, 'processCheckout'])
+    ->name('checkout.process');
 
 
 // =======================
