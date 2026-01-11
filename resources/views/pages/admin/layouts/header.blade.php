@@ -9,13 +9,23 @@
             </div>
             
             <div class="flex items-center space-x-4">
-                <div class="text-right">
-                    <p class="text-sm text-gray-600">Welcome back,</p>
-                    <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
-                </div>
-                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
+                @auth
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Welcome back,</p>
+                        <p class="text-sm font-medium">{{ auth()->user()->name ?? 'Admin' }}</p>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                    </div>
+                @else
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Welcome</p>
+                        <p class="text-sm font-medium">Guest</p>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center text-white font-semibold">
+                        G
+                    </div>
+                @endauth
             </div>
         </div>
     </div>
