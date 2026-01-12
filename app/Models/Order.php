@@ -17,7 +17,7 @@ class Order extends Model
     const STATUS_SHIPPED = 'shipped';
     const STATUS_DELIVERED = 'delivered';
     const STATUS_CANCELLED = 'cancelled';
-    
+
     // Payment status constants
     const PAYMENT_PENDING = 'pending';
     const PAYMENT_PAID = 'paid';
@@ -26,21 +26,22 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'order_number',
-        'total_amount',
-        'discount_amount',
-        'final_amount',
-        'promo_code_id',
-        'location_id',
+        'order_code',
+        'shipping_address',
+        'shipping_note',
+        'latitude',
+        'longitude',
+        'subtotal',
+        'shipping_cost',
+        'discount',
+        'total',
         'status',
-        'payment_status',
-        'notes',
-        'payment_method',
-        'payment_proof',
-        'estimated_delivery',
-        'delivered_at',
-        'cancelled_at',
+        'promo_code',
+        'admin_notes',
+        'paid_at',
+        'completed_at',
     ];
+
 
     protected $casts = [
         'total_amount' => 'decimal:2',
@@ -54,10 +55,10 @@ class Order extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($order) {
-            if (empty($order->order_number)) {
-                $order->order_number = static::generateOrderNumber();
+            if (empty($order->order_code)) {
+                $order->order_code = static::generateOrderNumber();
             }
         });
     }
@@ -68,16 +69,16 @@ class Order extends Model
     public static function generateOrderNumber()
     {
         $prefix = 'ORD-' . date('Ymd');
-        $lastOrder = static::where('order_number', 'like', $prefix . '%')
+        $lastOrder = static::where('order_code', 'like', $prefix . '%')
             ->orderBy('id', 'desc')
             ->first();
-        
+
         $number = 1;
         if ($lastOrder) {
-            $lastNumber = (int) substr($lastOrder->order_number, -4);
+            $lastNumber = (int) substr($lastOrder->order_code, -4);
             $number = $lastNumber + 1;
         }
-        
+
         return $prefix . '-' . str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 
@@ -141,7 +142,7 @@ class Order extends Model
             self::STATUS_DELIVERED => 'success',
             self::STATUS_CANCELLED => 'danger',
         ];
-        
+
         return $colors[$this->status] ?? 'secondary';
     }
 
@@ -156,7 +157,7 @@ class Order extends Model
             self::PAYMENT_FAILED => 'danger',
             self::PAYMENT_EXPIRED => 'secondary',
         ];
-        
+
         return $colors[$this->payment_status] ?? 'secondary';
     }
 

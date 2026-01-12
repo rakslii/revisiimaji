@@ -187,123 +187,115 @@ class CartController extends Controller
     }
 
     public function processCheckout(Request $request)
-{
-    if (!Auth::check()) {
-        return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-    }
-
-    // Validation - PERBAIKAN DI SINI
-   $validated = $request->validate([
-    'name' => 'required|string|max:255',
-    'phone' => 'required|string|max:20',
-    'email' => 'required|email|max:255',
-    'address' => 'required|string',
-    'city' => 'required|string|max:100',
-    'postal_code' => 'required|string|max:10',
-    'shipping_method' => 'required|in:pickup,delivery,cargo',
-    'payment_method' => 'required|in:transfer,cash,ewallet',
-    'notes' => 'nullable|string|max:500',
-        // UBAH VALIDASI INI
-        'items' => 'required|array|min:1',
-        'items.*.product_id' => 'required|exists:products,id',
-        'items.*.quantity' => 'required|integer|min:1',
-        'items.*.price' => 'required|numeric|min:0',
-    ], [
-        // Custom error messages
-        'items.required' => 'Keranjang belanja kosong.',
-        'items.*.product_id.required' => 'ID produk harus diisi.',
-        'items.*.quantity.required' => 'Jumlah produk harus diisi.',
-        'items.*.quantity.integer' => 'Jumlah produk harus berupa angka.',
-        'items.*.quantity.min' => 'Jumlah produk minimal 1.',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        $cart = Cart::getCurrentCart();
-        $cartItems = $cart->items()->with('product')->get();
-
-        // Check if cart is empty
-        if ($cartItems->isEmpty()) {
-            throw new \Exception('Keranjang belanja kosong.');
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // Calculate shipping cost
-        $shippingCost = 0;
-        switch ($validated['shipping_method']) {
-            case 'delivery':
-                $shippingCost = 15000;
-                break;
-            case 'cargo':
-                $shippingCost = 25000;
-                break;
-        }
-
-        // Calculate totals
-        $subtotal = 0;
-        foreach ($cartItems as $item) {
-            // Check stock availability
-            if ($item->quantity > $item->product->stock) {
-                throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
-            }
-            $subtotal += $item->price * $item->quantity;
-        }
-
-        $discount = 0;
-        $total = $subtotal + $shippingCost - $discount;
-
-        // Create order
-        $order = Order::create([
-            'order_code' => 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
-            'user_id' => Auth::id(),
-            'customer_name' => $validated['name'],
-            'customer_phone' => $validated['phone'],
-            'customer_email' => $validated['email'],
-            'shipping_address' => $validated['address'],
-            'shipping_city' => $validated['city'],
-            'shipping_postal_code' => $validated['postal_code'],
-            'shipping_method' => $validated['shipping_method'],
-            'payment_method' => $validated['payment_method'],
-            'notes' => $validated['notes'] ?? null,
-            'subtotal' => $subtotal,
-            'shipping_cost' => $shippingCost,
-            'discount' => $discount,
-            'total' => $total,
-            'status' => 'pending',
-            'payment_status' => 'unpaid',
+        // Validation - PERBAIKAN DI SINI
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string',
+            'city' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+            'shipping_method' => 'required|in:pickup,delivery,cargo',
+            'payment_method' => 'required|in:transfer,cash,ewallet',
+            'notes' => 'nullable|string|max:500',
+        ], [
+            'shipping_method.required' => 'Metode pengiriman wajib dipilih.',
+            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
 
-        // Create order items and reduce stock
-        foreach ($cartItems as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item->product_id,
-                'product_name' => $item->product->name,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'subtotal' => $item->price * $item->quantity,
+
+        DB::beginTransaction();
+
+        try {
+            $cart = Cart::getCurrentCart();
+            $cartItems = $cart->items()->with('product')->get();
+
+            // Check if cart is empty
+            if ($cartItems->isEmpty()) {
+                throw new \Exception('Keranjang belanja kosong.');
+            }
+
+            // Calculate shipping cost
+            $shippingCost = 0;
+            switch ($validated['shipping_method']) {
+                case 'delivery':
+                    $shippingCost = 15000;
+                    break;
+                case 'cargo':
+                    $shippingCost = 25000;
+                    break;
+            }
+
+            // Calculate totals
+            $subtotal = 0;
+            foreach ($cartItems as $item) {
+                // Check stock availability
+                if ($item->quantity > $item->product->stock) {
+                    throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
+                }
+                $subtotal += $item->price * $item->quantity;
+            }
+
+            $discount = 0;
+            $total = $subtotal + $shippingCost - $discount;
+
+            // Create order
+            $order = Order::create([
+                'order_code' => 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                'user_id' => Auth::id(),
+                'customer_name' => $validated['name'],
+                'customer_phone' => $validated['phone'],
+                'customer_email' => $validated['email'],
+                'shipping_address' => $validated['address'],
+                'shipping_city' => $validated['city'],
+                'shipping_postal_code' => $validated['postal_code'],
+                'shipping_method' => $validated['shipping_method'],
+                'payment_method' => $validated['payment_method'],
+                'notes' => $validated['notes'] ?? null,
+                'subtotal' => $subtotal,
+                'shipping_cost' => $shippingCost,
+                'discount' => $discount,
+                'total' => $total,
+                'status' => 'pending',
+                'payment_status' => 'unpaid',
             ]);
 
-            // Reduce product stock
-            $item->product->decrement('stock', $item->quantity);
+            // Create order items and reduce stock
+            foreach ($cartItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'subtotal' => $item->price * $item->quantity,
+                ]);
+
+                // Reduce product stock
+                $item->product->decrement('stock', $item->quantity);
+            }
+
+            // Clear cart
+            $cart->items()->delete();
+
+            DB::commit();
+
+            return redirect()->route('orders.show', $order->id)
+                ->with('success', 'Pesanan berhasil dibuat! Kode pesanan: ' . $order->order_code);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Checkout Error: ' . $e->getMessage());
+
+            return back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Clear cart
-        $cart->items()->delete();
-
-        DB::commit();
-
-        return redirect()->route('orders.show', $order->id)
-            ->with('success', 'Pesanan berhasil dibuat! Kode pesanan: ' . $order->order_code);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Checkout Error: ' . $e->getMessage());
-
-        return back()
-            ->withInput()
-            ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
-}
 
     public function getCartCount()
     {
