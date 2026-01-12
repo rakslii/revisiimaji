@@ -2,6 +2,24 @@
 
 @section('title', 'Checkout - Cipta Imaji')
 
+@push('styles')
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+</style>
+@endpush
+
 @section('content')
     <div class="bg-gradient-to-b from-gray-50 to-white min-h-screen">
         <!-- Hero Section -->
@@ -170,76 +188,82 @@
                             </div>
                         </div>
 
-                        <!-- Shipping Address with Maps -->
-                        <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
-                            <div class="flex items-center mb-6">
-                                <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
-                                    <i class="fas fa-map-marker-alt text-white text-xl"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-2xl font-bold text-gray-800">Alamat Pengiriman</h2>
-                                    <p class="text-gray-600 text-sm">Tentukan lokasi pengiriman dengan akurat</p>
-                                </div>
-                            </div>
+                     <!-- Shipping Address with Maps -->
+<div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
+    <div class="flex items-center mb-6">
+        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
+            <i class="fas fa-map-marker-alt text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Alamat Pengiriman</h2>
+            <p class="text-gray-600 text-sm">Tentukan lokasi pengiriman dengan akurat</p>
+        </div>
+    </div>
 
-                            <!-- Google Maps -->
-                            <div class="mb-6">
-                                <div id="map" class="w-full h-80 rounded-2xl border-2 border-gray-200 overflow-hidden"></div>
-                                <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
-                                <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
-                                <p class="text-sm text-gray-600 mt-3 flex items-center">
-                                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                                    Klik pada peta untuk menentukan lokasi pengiriman atau gunakan tombol di bawah untuk lokasi saat ini
-                                </p>
-                                <button type="button" 
-                                        onclick="getCurrentLocation()"
-                                        class="mt-3 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition-colors inline-flex items-center">
-                                    <i class="fas fa-crosshairs mr-2"></i>
-                                    Gunakan Lokasi Saya
-                                </button>
-                            </div>
+    <!-- Leaflet Maps -->
+    <div class="mb-6">
+        <div id="map" class="w-full h-80 rounded-2xl border-2 border-gray-200 overflow-hidden"></div>
+        
+        <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude', $userLocation->latitude ?? '') }}">
+        <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $userLocation->longitude ?? '') }}">
+        
+        <p class="text-sm text-gray-600 mt-3 flex items-center">
+            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+            Klik pada peta untuk menentukan lokasi pengiriman atau gunakan tombol di bawah untuk lokasi saat ini
+        </p>
+        <button type="button" 
+                onclick="getCurrentLocation()"
+                class="mt-3 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition-colors inline-flex items-center">
+            <i class="fas fa-crosshairs mr-2"></i>
+            Gunakan Lokasi Saya
+        </button>
+    </div>
 
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="md:col-span-2">
-                                    <label class="block text-gray-700 font-semibold mb-2">
-                                        Alamat Lengkap <span class="text-red-500">*</span>
-                                    </label>
-                                    <textarea name="address" 
-                                              id="address"
-                                              rows="3" 
-                                              required
-                                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('address') border-red-500 @enderror"
-                                              placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan">{{ old('address', auth()->user()->address ?? '') }}</textarea>
-                                    @error('address')
-                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
-                                    @enderror
-                                </div>
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="md:col-span-2">
+            <label class="block text-gray-700 font-semibold mb-2">
+                Alamat Lengkap <span class="text-red-500">*</span>
+            </label>
+            <textarea name="address" 
+                      id="address"
+                      rows="3" 
+                      required
+                      class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('address') border-red-500 @enderror"
+                      placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan">{{ old('address', $userLocation->address ?? $user->address ?? '') }}</textarea>
+            @error('address')
+                <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+            @enderror
+        </div>
 
-                                <div>
-                                    <label class="block text-gray-700 font-semibold mb-2">
-                                        Kota/Kabupaten <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text" name="city" id="city" value="{{ old('city') }}" required
-                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('city') border-red-500 @enderror"
-                                        placeholder="Contoh: Bandung">
-                                    @error('city')
-                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
-                                    @enderror
-                                </div>
+        <div>
+            <label class="block text-gray-700 font-semibold mb-2">
+                Kota/Kabupaten <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="city" id="city" 
+                   value="{{ old('city', $userLocation->city ?? $user->city ?? '') }}" 
+                   required
+                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('city') border-red-500 @enderror"
+                   placeholder="Contoh: Bandung">
+            @error('city')
+                <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+            @enderror
+        </div>
 
-                                <div>
-                                    <label class="block text-gray-700 font-semibold mb-2">
-                                        Kode Pos <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code') }}" required
-                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('postal_code') border-red-500 @enderror"
-                                        placeholder="40xxx">
-                                    @error('postal_code')
-                                        <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+        <div>
+            <label class="block text-gray-700 font-semibold mb-2">
+                Kode Pos <span class="text-red-500">*</span>
+            </label>
+            <input type="text" name="postal_code" id="postal_code" 
+                   value="{{ old('postal_code', $userLocation->postal_code ?? $user->postal_code ?? '') }}" 
+                   required
+                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('postal_code') border-red-500 @enderror"
+                   placeholder="40xxx">
+            @error('postal_code')
+                <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
+            @enderror
+        </div>
+    </div>
+</div>
 
                         <!-- Shipping Method -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
@@ -466,6 +490,9 @@
     </div>
     @endsection
 @push('scripts')
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
     // ================= UPLOAD PREVIEW =================
     function handleFileSelect(event) {
@@ -478,59 +505,156 @@
             const reader = new FileReader();
             reader.onload = e => {
                 const div = document.createElement('div');
-                div.className = 'relative border rounded-xl p-2';
-                div.innerHTML = `
-                    <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">
-                    <span class="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                        ${file.name}
-                    </span>
-                `;
+                div.className = 'relative border-2 border-gray-200 rounded-xl p-2 hover:border-blue-400 transition-all';
+                
+                if (file.type.startsWith('image/')) {
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">
+                        <span class="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-lg">
+                            ${file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name}
+                        </span>
+                        <button type="button" onclick="removeFile(this)" class="absolute top-2 left-2 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="w-full h-32 flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
+                            <i class="fas fa-file-alt text-4xl text-blue-500 mb-2"></i>
+                            <span class="text-xs text-gray-700 px-2 text-center font-semibold">
+                                ${file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name}
+                            </span>
+                        </div>
+                        <button type="button" onclick="removeFile(this)" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    `;
+                }
                 preview.appendChild(div);
             };
             reader.readAsDataURL(file);
         });
     }
 
-    // ================= GOOGLE MAPS =================
-    let map, marker;
-
-    function initMap() {
-        const defaultLocation = { lat: -6.9175, lng: 107.6191 }; // Bandung
-
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 13,
-            center: defaultLocation,
-        });
-
-        map.addListener("click", (e) => {
-            placeMarker(e.latLng);
-        });
+    function removeFile(btn) {
+        btn.parentElement.remove();
+        const preview = document.getElementById('filePreview');
+        if (preview.children.length === 0) {
+            preview.classList.add('hidden');
+            document.getElementById('designFiles').value = '';
+        }
     }
 
-    function placeMarker(location) {
-        if (marker) marker.setMap(null);
+    // ================= LEAFLET MAPS (GRATIS!) =================
+    let map, marker;
 
-        marker = new google.maps.Marker({
-            position: location,
-            map: map,
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+    });
 
-        document.getElementById('latitude').value = location.lat();
-        document.getElementById('longitude').value = location.lng();
+    function initMap() {
+    // Ambil koordinat dari database (jika ada)
+    const savedLat = document.getElementById('latitude').value;
+    const savedLng = document.getElementById('longitude').value;
+    
+    let initialLat = -6.9175;  // Default Bandung
+    let initialLng = 107.6191;
+    let initialZoom = 13;
+    
+    // Jika ada koordinat tersimpan, gunakan itu
+    if (savedLat && savedLng && savedLat !== '' && savedLng !== '') {
+        initialLat = parseFloat(savedLat);
+        initialLng = parseFloat(savedLng);
+        initialZoom = 16; // Zoom lebih dekat jika ada lokasi tersimpan
+    }
+    
+    map = L.map('map').setView([initialLat, initialLng], initialZoom);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Auto place marker jika ada koordinat tersimpan
+    if (savedLat && savedLng && savedLat !== '' && savedLng !== '') {
+        placeMarker(initialLat, initialLng);
+    }
+    
+    map.on('click', function(e) {
+        placeMarker(e.latlng.lat, e.latlng.lng);
+        getAddress(e.latlng.lat, e.latlng.lng);
+    });
+}
+
+    function placeMarker(lat, lng) {
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        
+        marker = L.marker([lat, lng], {
+            icon: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            })
+        }).addTo(map);
+        
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        
+        marker.bindPopup('<b>📍 Lokasi Pengiriman</b><br>Klik untuk confirm').openPopup();
+    }
+
+    function getAddress(lat, lng) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.address) {
+                    const addr = data.address;
+                    const fullAddress = data.display_name;
+                    const city = addr.city || addr.town || addr.village || addr.county || '';
+                    const postcode = addr.postcode || '';
+                    
+                    document.getElementById('address').value = fullAddress;
+                    if (city) document.getElementById('city').value = city;
+                    if (postcode) document.getElementById('postal_code').value = postcode;
+                }
+            })
+            .catch(err => console.log('Error:', err));
     }
 
     function getCurrentLocation() {
-        if (!navigator.geolocation) return alert('Browser tidak support lokasi');
-
-        navigator.geolocation.getCurrentPosition(position => {
-            const loc = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-
-            map.setCenter(loc);
-            placeMarker(loc);
-        });
+        if (!navigator.geolocation) {
+            alert('Browser Anda tidak mendukung fitur lokasi');
+            return;
+        }
+        
+        const btn = event.target;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mencari lokasi...';
+        btn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                map.setView([lat, lng], 16);
+                placeMarker(lat, lng);
+                getAddress(lat, lng);
+                
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            },
+            function(error) {
+                alert('Tidak dapat mengakses lokasi: ' + error.message);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        );
     }
 
     // ================= SHIPPING COST =================
@@ -544,7 +668,6 @@
     shippingRadios.forEach(radio => {
         radio.addEventListener('change', () => {
             let cost = 0;
-
             if (radio.value === 'delivery') cost = 15000;
             if (radio.value === 'cargo') cost = 25000;
 
@@ -552,9 +675,18 @@
             totalPriceEl.textContent = 'Rp ' + (subtotal - discount + cost).toLocaleString('id-ID');
         });
     });
-</script>
 
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=API_KEY_LU&callback=initMap">
+    // ================= FORM VALIDATION =================
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const lat = document.getElementById('latitude').value;
+        const lng = document.getElementById('longitude').value;
+        
+        if (!lat || !lng) {
+            e.preventDefault();
+            alert('⚠️ Mohon tentukan lokasi pengiriman pada peta!\n\nKlik pada peta atau gunakan tombol "Gunakan Lokasi Saya"');
+            document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+    });
 </script>
 @endpush

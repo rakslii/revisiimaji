@@ -70,7 +70,8 @@ class CheckoutController extends Controller
         // User locations
         $user = auth()->user();
         $locations = $user->locations()->orderBy('is_primary', 'desc')->get();
-        
+        $userLocation = $locations->first(); // Ambil alamat utama/pertama
+
         return view('checkout.index', compact(
             'cartItems', 
             'subtotal', 
@@ -78,7 +79,9 @@ class CheckoutController extends Controller
             'shippingCost', 
             'total',
             'locations',
-            'promoCode'
+            'promoCode',
+            'user',
+            'userLocation'
         ));
     }
 
