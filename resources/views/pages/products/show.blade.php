@@ -3,43 +3,43 @@
 @section('title', $product->name . ' - Cipta Imaji')
 
 @section('content')
-<div class="bg-gradient-to-b from-gray-50 to-white min-h-screen py-8">
+<div class="bg-[#f9f0f1] min-h-screen py-8">
     <div class="container mx-auto px-4">
         <!-- Breadcrumb Modern -->
         <nav class="mb-8">
             <ol class="flex items-center space-x-2 text-sm">
                 <li>
-                    <a href="{{ route('home') }}" class="text-gray-500 hover:text-blue-600 transition-colors">
+                    <a href="{{ route('home') }}" class="text-gray-500 hover:text-[#193497] transition-colors">
                         <i class="fas fa-home mr-1"></i> Beranda
                     </a>
                 </li>
                 <li><i class="fas fa-chevron-right text-gray-300 text-xs"></i></li>
                 <li>
-                    <a href="{{ route('products.index') }}" class="text-gray-500 hover:text-blue-600 transition-colors">Produk</a>
+                    <a href="{{ route('products.index') }}" class="text-gray-500 hover:text-[#193497] transition-colors">Produk</a>
                 </li>
                 <li><i class="fas fa-chevron-right text-gray-300 text-xs"></i></li>
-                <li class="font-semibold text-blue-600 truncate max-w-xs">{{ $product->name }}</li>
+                <li class="font-semibold text-[#193497] truncate max-w-xs">{{ $product->name }}</li>
             </ol>
         </nav>
 
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="bg-[#f9f0f1] rounded-3xl shadow-2xl overflow-hidden">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 <!-- Product Images Section -->
-                <div class="p-8 lg:p-12 bg-gradient-to-br from-gray-50 to-white">
+                <div class="p-8 lg:p-12 bg-[#f9f0f1]">
                     <!-- Main Image -->
-                    <div class="bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 rounded-3xl h-[450px] flex items-center justify-center mb-6 relative overflow-hidden group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
+                    <div class="bg-[#f9f0f1] rounded-3xl h-[450px] flex items-center justify-center mb-6 relative overflow-hidden group">
+                        <div class=""></div>
                         <i class="fas fa-print text-blue-200 text-9xl relative z-10 group-hover:scale-110 transition-transform duration-500"></i>
                         
                         <!-- Badges -->
                         <div class="absolute top-4 left-4 flex flex-col gap-2">
                             @if($product->discount_percent > 0)
-                                <span class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                                <span class="bg-[#f91f01] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                                     -{{ $product->discount_percent }}% OFF
                                 </span>
                             @endif
                             @if($product->category === 'instan')
-                                <span class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                                <span class="bg-[#193497] text-[#f9f0f1] border border-[#f9f0f1] px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                                     <i class="fas fa-bolt mr-1"></i> Instan
                                 </span>
                             @endif
@@ -49,7 +49,7 @@
                     <!-- Thumbnails -->
                     <div class="grid grid-cols-4 gap-3">
                         @for($i = 0; $i < 4; $i++)
-                        <div class="bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl h-24 flex items-center justify-center cursor-pointer hover:ring-4 ring-blue-500 transition-all duration-300 group">
+                        <div class="bg-[#f9f0f1] rounded-2xl h-24 flex items-center justify-center cursor-pointer hover:ring-4 ring-[#193497] transition-all duration-300 group">
                             <i class="fas fa-image text-gray-300 text-2xl group-hover:text-blue-500 transition-colors"></i>
                         </div>
                         @endfor
@@ -71,7 +71,7 @@
                     <!-- Category Badges -->
                     <div class="flex flex-wrap items-center gap-2 mb-4">
                         @if($product->category)
-                            <span class="px-4 py-2 text-xs font-bold rounded-full {{ $product->category === 'instan' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600' }}">
+                            <span class="px-4 py-2 text-xs font-bold rounded-full {{ $product->category === 'instan' ? 'bg-blue-100 text-[#193497]' : 'bg-purple-100 text-purple-600' }}">
                                 {{ $product->category === 'instan' ? 'PRODUK INSTAN' : 'PRODUK CUSTOM' }}
                             </span>
                         @endif
@@ -96,7 +96,7 @@
                     <!-- Rating & Sales -->
                     <div class="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200">
                         <div class="flex items-center">
-                            <div class="flex text-yellow-400 mr-2">
+                            <div class="flex text-[#d2f801] drop-shadow-[0_0_1px_#193497] drop-shadow-[0_0_1px_#193497] drop-shadow-[0_0_1px_#193497] mr-2">
                                 @php $rating = $product->rating ?? 4.5; @endphp
                                 @for($i = 1; $i <= 5; $i++)
                                     <i class="fas fa-star {{ $i <= floor($rating) ? '' : 'text-gray-300' }}"></i>
@@ -115,8 +115,8 @@
                         <div class="h-6 w-px bg-gray-300"></div>
                         
                         <div class="flex items-center">
-                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                            <span class="text-green-600 font-semibold">Stok: {{ $product->stock }}</span>
+                            <div class="w-3 h-3 hover:bg-[#193497] rounded-full mr-2 animate-pulse"></div>
+                            <span class="text-[#d2f801] drop-shadow-[0_0_1px_#193497] drop-shadow-[0_0_1px_#193497] font-semibold">Stok: {{ $product->stock }}</span>
                         </div>
                     </div>
 
@@ -139,7 +139,7 @@
                                 <span class="font-bold">Hemat Rp {{ number_format($product->price * $product->discount_percent / 100, 0, ',', '.') }}</span>
                             </div>
                         @else
-                            <span class="text-5xl font-bold text-blue-600">
+                            <span class="text-5xl font-bold text-[#193497]">
                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                             </span>
                         @endif
@@ -149,7 +149,7 @@
                     @if($product->specifications && !empty($product->specifications))
                         <div class="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6">
                             <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                <i class="fas fa-info-circle text-[#193497] mr-2"></i>
                                 Spesifikasi Produk
                             </h3>
                             <div class="space-y-3">
@@ -174,9 +174,9 @@
                     @endif
 
                     <!-- Order Form -->
-                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 mb-8 border-2 border-gray-200">
+                    <div class="bg-[#f9f0f1] rounded-2xl p-6 mb-8 border-2 border-gray-200">
                         <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                            <i class="fas fa-shopping-cart text-blue-600 mr-2"></i>
+                            <i class="fas fa-shopping-cart text-[#193497] mr-2"></i>
                             Atur Pesanan
                         </h3>
                         
@@ -184,9 +184,9 @@
                         <div class="mb-6">
                             <label class="block text-gray-700 font-semibold mb-3">Jumlah</label>
                             <div class="flex items-center gap-4">
-                                <div class="flex items-center bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+                                <div class="flex items-center bg-[#f9f0f1] rounded-xl border-2 border-gray-200 overflow-hidden">
                                     <button type="button"
-    class="qty-minus w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
+    class="qty-minus w-12 h-12 bg-gray-100 hover:bg-[#193497] hover:text-white flex items-center justify-center transition-colors">
     <i class="fas fa-minus"></i>
 </button>
 
@@ -197,7 +197,7 @@
     class="w-20 h-12 text-center border-none font-bold text-xl focus:outline-none">
 
 <button type="button"
-    class="qty-plus w-12 h-12 bg-gray-100 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors">
+    class="qty-plus w-12 h-12 bg-gray-100 hover:bg-[#193497] hover:text-white flex items-center justify-center transition-colors">
     <i class="fas fa-plus"></i>
 </button>
 
@@ -207,7 +207,7 @@
                         </div>
 
                         <!-- Total Price Display -->
-                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white mb-6">
+                        <div class="bg-[#193497] rounded-2xl p-6 text-white mb-6">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <div class="text-sm opacity-90 mb-1">Total Harga</div>
@@ -229,20 +229,20 @@
                                 @csrf
                                 <input type="hidden" name="quantity" id="form-quantity" value="{{ $product->min_order }}">
                                 <button type="submit" 
-                                        class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                                        class="w-full bg-gradient-to-r from-[#193497] to-[#142a7a] hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
                                     <i class="fas fa-shopping-cart mr-3 text-xl"></i>
                                     <span class="text-lg">Tambah ke Keranjang</span>
                                 </button>
                             </form>
                             
                             <button onclick="buyNow()" 
-                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                                    class="w-full bg-[#193497] hover:bg-[#193497] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
                                 <i class="fas fa-bolt mr-3 text-xl"></i>
                                 <span class="text-lg">Beli Sekarang</span>
                             </button>
                             
                             <a href="{{ route('whatsapp.chat') }}" target="_blank"
-                               class="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                               class="w-full bg-[#193497] hover:bg-[#193497] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
                                 <i class="fab fa-whatsapp mr-3 text-2xl"></i>
                                 <span class="text-lg">Konsultasi via WhatsApp</span>
                             </a>
@@ -252,7 +252,7 @@
                     <!-- Features Grid -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-blue-50 rounded-xl p-4 flex items-center">
-                            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                            <div class="w-12 h-12 bg-[#193497] rounded-full flex items-center justify-center mr-3">
                                 <i class="fas fa-shipping-fast text-white text-xl"></i>
                             </div>
                             <div>
@@ -262,7 +262,7 @@
                         </div>
                         
                         <div class="bg-green-50 rounded-xl p-4 flex items-center">
-                            <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                            <div class="w-12 h-12 bg-[#193497] rounded-full flex items-center justify-center mr-3">
                                 <i class="fas fa-shield-alt text-white text-xl"></i>
                             </div>
                             <div>
@@ -303,13 +303,13 @@
             <!-- Tabs Section -->
             <div class="border-t border-gray-200">
                 <div class="flex border-b border-gray-200">
-                    <button class="tab-button active px-8 py-4 font-bold text-blue-600 border-b-4 border-blue-600 transition-colors" data-tab="description">
+                    <button class="tab-button active px-8 py-4 font-bold text-[#193497] border-b-4 border-[#193497] transition-colors" data-tab="description">
                         Deskripsi
                     </button>
-                    <button class="tab-button px-8 py-4 font-bold text-gray-600 hover:text-blue-600 transition-colors" data-tab="reviews">
+                    <button class="tab-button px-8 py-4 font-bold text-gray-600 hover:text-[#193497] transition-colors" data-tab="reviews">
                         Ulasan ({{ rand(10, 50) }})
                     </button>
-                    <button class="tab-button px-8 py-4 font-bold text-gray-600 hover:text-blue-600 transition-colors" data-tab="shipping">
+                    <button class="tab-button px-8 py-4 font-bold text-gray-600 hover:text-[#193497] transition-colors" data-tab="shipping">
                         Pengiriman
                     </button>
                 </div>
@@ -331,12 +331,12 @@
                             @for($i = 0; $i < 3; $i++)
                             <div class="bg-gray-50 rounded-2xl p-6">
                                 <div class="flex items-center mb-4">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                                    <div class="w-12 h-12 bg-[#193497] rounded-full flex items-center justify-center text-white font-bold mr-4">
                                         {{ chr(65 + $i) }}
                                     </div>
                                     <div>
                                         <h4 class="font-bold text-gray-800">Pelanggan {{ $i + 1 }}</h4>
-                                        <div class="flex text-yellow-400 text-sm">
+                                        <div class="flex text-[#d2f801] drop-shadow-[0_0_1px_#193497] drop-shadow-[0_0_1px_#193497] drop-shadow-[0_0_1px_#193497] text-sm">
                                             @for($j = 0; $j < 5; $j++)
                                             <i class="fas fa-star"></i>
                                             @endfor
@@ -357,11 +357,11 @@
                                 <h3 class="font-bold text-xl mb-4">Gratis Ongkir</h3>
                                 <p class="text-gray-700 mb-4">Untuk pembelian minimal Rp 500.000 ke seluruh area Jabodetabek</p>
                                 <ul class="space-y-2 text-gray-600">
-                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Jakarta</li>
-                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Bogor</li>
-                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Depok</li>
-                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Tangerang</li>
-                                    <li><i class="fas fa-check text-green-600 mr-2"></i> Bekasi</li>
+                                    <li><i class="fas fa-check text-[#d2f801] drop-shadow-[0_0_1px_#193497] mr-2"></i> Jakarta</li>
+                                    <li><i class="fas fa-check text-[#d2f801] drop-shadow-[0_0_1px_#193497] mr-2"></i> Bogor</li>
+                                    <li><i class="fas fa-check text-[#d2f801] drop-shadow-[0_0_1px_#193497] mr-2"></i> Depok</li>
+                                    <li><i class="fas fa-check text-[#d2f801] drop-shadow-[0_0_1px_#193497] mr-2"></i> Tangerang</li>
+                                    <li><i class="fas fa-check text-[#d2f801] drop-shadow-[0_0_1px_#193497] mr-2"></i> Bekasi</li>
                                 </ul>
                             </div>
                             
@@ -396,7 +396,7 @@
                         <h2 class="text-3xl font-bold text-gray-800">Produk Terkait</h2>
                         <p class="text-gray-600 mt-2">Pelanggan juga melihat produk ini</p>
                     </div>
-                    <a href="{{ route('products.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
+                    <a href="{{ route('products.index') }}" class="text-[#193497] hover:text-blue-800 font-semibold flex items-center">
                         Lihat Semua <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
@@ -410,7 +410,7 @@
         @endif
 
         <!-- CTA Banner -->
-        <div class="mt-16 bg-gradient-to-r from-blue-900 via-purple-900 to-blue-900 text-white rounded-3xl p-12 text-center relative overflow-hidden">
+        <div class="mt-16 bg-[#193497] text-white rounded-3xl p-12 text-center relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-400 rounded-full opacity-10 blur-3xl"></div>
             <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
             
@@ -425,7 +425,7 @@
                         <i class="fab fa-whatsapp mr-3 text-xl"></i> Konsultasi Gratis
                     </a>
                     <a href="{{ route('products.index') }}"
-                       class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border-2 border-white text-white font-bold px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center">
+                       class="bg-[#f9f0f1]/10 hover:bg-[#f9f0f1]/20 backdrop-blur-sm border-2 border-white text-white font-bold px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center">
                         <i class="fas fa-th mr-3"></i> Lihat Katalog
                     </a>
                 </div>

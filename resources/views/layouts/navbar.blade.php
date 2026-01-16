@@ -17,9 +17,18 @@
                 <div class="w-full relative">
                     <input type="text" 
                            placeholder="Cari produk, kategori, atau layanan..."
-                           class="w-full px-6 py-3 pr-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/60 focus:outline-none focus:bg-white/20 focus:border-yellow-400 transition-all duration-300">
-                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-yellow-400 hover:bg-yellow-300 rounded-full flex items-center justify-center transition-colors duration-300 shadow-lg">
-                        <i class="fas fa-search text-blue-900"></i>
+                           class="w-full px-6 py-3 pr-12 rounded-full 
+bg-[#193497]/40 backdrop-blur-sm 
+border border-[#d2f801]/40 
+text-white placeholder-white/70 
+focus:outline-none focus:bg-[#193497]/60 
+focus:border-[#d2f801] 
+transition-all duration-300">
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 
+w-10 h-10 bg-[#d2f801] hover:bg-yellow-300 
+rounded-full flex items-center justify-center 
+transition-colors duration-300 shadow-lg">
+                        <i class="fas fa-search text-[#193497]"></i>
                     </button>
                 </div>
             </div>
@@ -124,9 +133,18 @@
             <div class="relative">
                 <input type="text" 
                        placeholder="Cari produk..."
-                       class="w-full px-4 py-2 pr-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/60 focus:outline-none focus:bg-white/20 focus:border-yellow-400 transition-all duration-300">
-                <button class="absolute right-1 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-yellow-400 hover:bg-yellow-300 rounded-full flex items-center justify-center transition-colors duration-300">
-                    <i class="fas fa-search text-blue-900 text-sm"></i>
+                       class="w-full px-4 py-2 pr-10 rounded-full 
+bg-[#193497]/40 backdrop-blur-sm 
+border border-[#d2f801]/40 
+text-white placeholder-white/70 
+focus:outline-none focus:bg-[#193497]/60 
+focus:border-[#d2f801] 
+transition-all duration-300">
+                <button class="absolute right-1 top-1/2 transform -translate-y-1/2 
+w-8 h-8 bg-[#d2f801] hover:bg-yellow-300 
+rounded-full flex items-center justify-center 
+transition-colors duration-300">
+                    <i class="fas fa-search text-[#193497] text-sm"></i>
                 </button>
             </div>
         </div>

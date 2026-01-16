@@ -23,26 +23,26 @@
 @section('content')
     <div class="bg-gradient-to-b from-gray-50 to-white min-h-screen">
         <!-- Hero Section -->
-        <div class="relative bg-gradient-to-r from-blue-900 via-purple-900 to-blue-900 text-white overflow-hidden">
-            <div class="absolute top-0 right-0 w-96 h-96 bg-yellow-400 rounded-full opacity-10 blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full opacity-10 blur-3xl"></div>
+        <div class="relative bg-[#193497] text-white overflow-hidden">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-[#d2f801] rounded-full opacity-10 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#193497] rounded-full opacity-10 blur-3xl"></div>
 
             <div class="container mx-auto px-4 py-8 md:py-12 relative z-10">
                 <div class="max-w-4xl">
                     <nav class="flex items-center space-x-2 text-sm mb-6">
-                        <a href="{{ route('home') }}" class="text-blue-200 hover:text-yellow-400 transition-colors">
+                        <a href="{{ route('home') }}" class="text-[#f9f0f1]/70 hover:text-[#d2f801] transition-colors">
                             <i class="fas fa-home"></i> Beranda
                         </a>
-                        <i class="fas fa-chevron-right text-blue-300 text-xs"></i>
+                        <i class="fas fa-chevron-right text-[#f9f0f1]/50 text-xs"></i>
                         <a href="{{ route('cart.index') }}"
-                            class="text-blue-200 hover:text-yellow-400 transition-colors">Keranjang</a>
-                        <i class="fas fa-chevron-right text-blue-300 text-xs"></i>
-                        <span class="text-yellow-400 font-semibold">Checkout</span>
+                            class="text-[#f9f0f1]/70 hover:text-[#d2f801] transition-colors">Keranjang</a>
+                        <i class="fas fa-chevron-right text-[#f9f0f1]/50 text-xs"></i>
+                        <span class="text-[#d2f801] font-semibold">Checkout</span>
                     </nav>
 
                     <h1 class="text-3xl md:text-5xl font-bold mb-3 leading-tight">
-                        <i class="fas fa-shopping-bag text-yellow-400 mr-3"></i>
-                        Checkout <span class="text-yellow-400">Pesanan</span>
+                        <i class="fas fa-shopping-bag text-[#d2f801] mr-3"></i>
+                        Checkout <span class="text-[#d2f801]">Pesanan</span>
                     </h1>
                     <p class="text-lg md:text-xl opacity-90">
                         Lengkapi data dan selesaikan pembayaran Anda
@@ -87,7 +87,7 @@
                         <!-- Upload Design Section -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br bg-[#f91f01] rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-images text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -106,7 +106,7 @@
                                            class="hidden"
                                            onchange="handleFileSelect(event)">
                                     
-                                    <label for="designFiles" class="flex flex-col items-center justify-center w-full h-48 border-3 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+                                    <label for="designFiles" class="flex flex-col items-center justify-center w-full h-48 border-3 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-[#193497] hover:bg-[#193497]/5 transition-all duration-300">
                                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                             <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
                                             <p class="mb-2 text-sm text-gray-600">
@@ -128,7 +128,7 @@
                                     </label>
                                     <textarea name="design_notes" 
                                               rows="3"
-                                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none"
+                                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none"
                                               placeholder="Contoh: Tolong ubah warna menjadi biru, gunakan font yang lebih bold, dll.">{{ old('design_notes') }}</textarea>
                                 </div>
                             </div>
@@ -137,7 +137,7 @@
                         <!-- Customer Information -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br bg-[#193497] rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-user text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -153,7 +153,7 @@
                                     </label>
                                     <input type="text" name="name"
                                         value="{{ old('name', auth()->user()->name ?? '') }}" required
-                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('name') border-red-500 @enderror"
+                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none @error('name') border-red-500 @enderror"
                                         placeholder="Masukkan nama lengkap">
                                     @error('name')
                                         <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -166,7 +166,7 @@
                                     </label>
                                     <input type="tel" name="phone"
                                         value="{{ old('phone', auth()->user()->phone ?? '') }}" required
-                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('phone') border-red-500 @enderror"
+                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none @error('phone') border-red-500 @enderror"
                                         placeholder="08123456789">
                                     @error('phone')
                                         <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -179,7 +179,7 @@
                                     </label>
                                     <input type="email" name="email"
                                         value="{{ old('email', auth()->user()->email ?? '') }}" required
-                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('email') border-red-500 @enderror"
+                                        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none @error('email') border-red-500 @enderror"
                                         placeholder="email@example.com">
                                     @error('email')
                                         <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -191,7 +191,7 @@
                      <!-- Shipping Address with Maps -->
 <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
     <div class="flex items-center mb-6">
-        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
+        <div class="w-12 h-12 bg-gradient-to-br bg-[#f91f01] rounded-xl flex items-center justify-center mr-4">
             <i class="fas fa-map-marker-alt text-white text-xl"></i>
         </div>
         <div>
@@ -208,12 +208,12 @@
         <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude', $userLocation->longitude ?? '') }}">
         
         <p class="text-sm text-gray-600 mt-3 flex items-center">
-            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+            <i class="fas fa-info-circle text-[#193497] mr-2"></i>
             Klik pada peta untuk menentukan lokasi pengiriman atau gunakan tombol di bawah untuk lokasi saat ini
         </p>
         <button type="button" 
                 onclick="getCurrentLocation()"
-                class="mt-3 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition-colors inline-flex items-center">
+                class="mt-3 px-4 py-2 bg-[#193497]/10 hover:bg-[#193497]/20 text-[#193497] font-semibold rounded-lg transition-colors inline-flex items-center">
             <i class="fas fa-crosshairs mr-2"></i>
             Gunakan Lokasi Saya
         </button>
@@ -228,7 +228,7 @@
                       id="address"
                       rows="3" 
                       required
-                      class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('address') border-red-500 @enderror"
+                      class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none @error('address') border-red-500 @enderror"
                       placeholder="Jalan, Nomor Rumah, RT/RW, Kelurahan, Kecamatan">{{ old('address', $userLocation->address ?? $user->address ?? '') }}</textarea>
             @error('address')
                 <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -242,7 +242,7 @@
             <input type="text" name="city" id="city" 
                    value="{{ old('city', $userLocation->city ?? $user->city ?? '') }}" 
                    required
-                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('city') border-red-500 @enderror"
+                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none @error('city') border-red-500 @enderror"
                    placeholder="Contoh: Bandung">
             @error('city')
                 <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -256,7 +256,7 @@
             <input type="text" name="postal_code" id="postal_code" 
                    value="{{ old('postal_code', $userLocation->postal_code ?? $user->postal_code ?? '') }}" 
                    required
-                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none @error('postal_code') border-red-500 @enderror"
+                   class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none @error('postal_code') border-red-500 @enderror"
                    placeholder="40xxx">
             @error('postal_code')
                 <p class="text-red-500 text-sm mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p>
@@ -268,7 +268,7 @@
                         <!-- Shipping Method -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br bg-[#f91f01] rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-truck text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -278,45 +278,45 @@
                             </div>
 
                             <div class="space-y-3">
-                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-[#193497] transition-all group has-[:checked]:border-[#193497] has-[:checked]:bg-[#193497]/5">
                                     <input type="radio" name="shipping_method" value="pickup"
-                                        class="mt-1 mr-4 w-5 h-5 accent-blue-600"
+                                        class="mt-1 mr-4 w-5 h-5 accent-[#193497]"
                                         {{ old('shipping_method', 'pickup') == 'pickup' ? 'checked' : '' }}>
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-1">
                                             <span class="font-bold text-gray-800 text-lg">Ambil di Toko</span>
-                                            <span class="text-green-600 font-bold text-lg">GRATIS</span>
+                                            <span class="text-[#193497] font-bold text-lg">GRATIS</span>
                                         </div>
                                         <p class="text-gray-600 text-sm">Jl. Contoh Alamat Toko, Bandung</p>
-                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-clock mr-1"></i> Siap diambil dalam 24 jam</p>
+                                        <p class="text-[#193497] text-sm mt-1"><i class="fas fa-clock mr-1"></i> Siap diambil dalam 24 jam</p>
                                     </div>
                                 </label>
 
-                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-[#193497] transition-all group has-[:checked]:border-[#193497] has-[:checked]:bg-[#193497]/5">
                                     <input type="radio" name="shipping_method" value="delivery"
-                                        class="mt-1 mr-4 w-5 h-5 accent-blue-600"
+                                        class="mt-1 mr-4 w-5 h-5 accent-[#193497]"
                                         {{ old('shipping_method') == 'delivery' ? 'checked' : '' }}>
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-1">
                                             <span class="font-bold text-gray-800 text-lg">Delivery/Kurir</span>
-                                            <span class="text-blue-600 font-bold text-lg">Rp 15.000</span>
+                                            <span class="text-[#193497] font-bold text-lg">Rp 15.000</span>
                                         </div>
                                         <p class="text-gray-600 text-sm">Khusus area Bandung dan sekitarnya</p>
-                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-shipping-fast mr-1"></i> Estimasi 1-2 hari kerja</p>
+                                        <p class="text-[#193497] text-sm mt-1"><i class="fas fa-shipping-fast mr-1"></i> Estimasi 1-2 hari kerja</p>
                                     </div>
                                 </label>
 
-                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-[#193497] transition-all group has-[:checked]:border-[#193497] has-[:checked]:bg-[#193497]/5">
                                     <input type="radio" name="shipping_method" value="cargo"
-                                        class="mt-1 mr-4 w-5 h-5 accent-blue-600"
+                                        class="mt-1 mr-4 w-5 h-5 accent-[#193497]"
                                         {{ old('shipping_method') == 'cargo' ? 'checked' : '' }}>
                                     <div class="flex-1">
                                         <div class="flex items-center justify-between mb-1">
                                             <span class="font-bold text-gray-800 text-lg">Cargo/Ekspedisi</span>
-                                            <span class="text-blue-600 font-bold text-lg">Rp 25.000+</span>
+                                            <span class="text-[#193497] font-bold text-lg">Rp 25.000+</span>
                                         </div>
                                         <p class="text-gray-600 text-sm">Untuk luar kota Bandung</p>
-                                        <p class="text-blue-600 text-sm mt-1"><i class="fas fa-box mr-1"></i> Estimasi 3-5 hari kerja</p>
+                                        <p class="text-[#193497] text-sm mt-1"><i class="fas fa-box mr-1"></i> Estimasi 3-5 hari kerja</p>
                                     </div>
                                 </label>
                             </div>
@@ -328,7 +328,7 @@
                         <!-- Payment Method -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-6">
-                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br bg-[#193497] rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-credit-card text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -338,13 +338,13 @@
                             </div>
 
                             <div class="space-y-3">
-                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-[#193497] transition-all group has-[:checked]:border-[#193497] has-[:checked]:bg-[#193497]/5">
                                     <input type="radio" name="payment_method" value="transfer"
-                                        class="mr-4 w-5 h-5 accent-blue-600"
+                                        class="mr-4 w-5 h-5 accent-[#193497]"
                                         {{ old('payment_method', 'transfer') == 'transfer' ? 'checked' : '' }}>
                                     <div class="flex-1">
                                         <div class="flex items-center">
-                                            <i class="fas fa-university text-blue-600 text-2xl mr-4"></i>
+                                            <i class="fas fa-university text-[#193497] text-2xl mr-4"></i>
                                             <div>
                                                 <span class="font-bold text-gray-800 text-lg block">Transfer Bank</span>
                                                 <span class="text-gray-600 text-sm">BCA, Mandiri, BRI</span>
@@ -353,13 +353,13 @@
                                     </div>
                                 </label>
 
-                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-[#193497] transition-all group has-[:checked]:border-[#193497] has-[:checked]:bg-[#193497]/5">
                                     <input type="radio" name="payment_method" value="cash"
-                                        class="mr-4 w-5 h-5 accent-blue-600"
+                                        class="mr-4 w-5 h-5 accent-[#193497]"
                                         {{ old('payment_method') == 'cash' ? 'checked' : '' }}>
                                     <div class="flex-1">
                                         <div class="flex items-center">
-                                            <i class="fas fa-money-bill-wave text-green-600 text-2xl mr-4"></i>
+                                            <i class="fas fa-money-bill-wave text-[#193497] text-2xl mr-4"></i>
                                             <div>
                                                 <span class="font-bold text-gray-800 text-lg block">Cash on Delivery</span>
                                                 <span class="text-gray-600 text-sm">Bayar saat terima barang</span>
@@ -368,13 +368,13 @@
                                     </div>
                                 </label>
 
-                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-blue-500 transition-all group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-[#193497] transition-all group has-[:checked]:border-[#193497] has-[:checked]:bg-[#193497]/5">
                                     <input type="radio" name="payment_method" value="ewallet"
-                                        class="mr-4 w-5 h-5 accent-blue-600"
+                                        class="mr-4 w-5 h-5 accent-[#193497]"
                                         {{ old('payment_method') == 'ewallet' ? 'checked' : '' }}>
                                     <div class="flex-1">
                                         <div class="flex items-center">
-                                            <i class="fas fa-wallet text-purple-600 text-2xl mr-4"></i>
+                                            <i class="fas fa-wallet text-[#193497] text-2xl mr-4"></i>
                                             <div>
                                                 <span class="font-bold text-gray-800 text-lg block">E-Wallet</span>
                                                 <span class="text-gray-600 text-sm">GoPay, OVO, Dana, ShopeePay</span>
@@ -391,7 +391,7 @@
                         <!-- Order Notes -->
                         <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-gray-100">
                             <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
+                                <div class="w-12 h-12 bg-gradient-to-br bg-[#d2f801] rounded-xl flex items-center justify-center mr-4">
                                     <i class="fas fa-comment-dots text-white text-xl"></i>
                                 </div>
                                 <div>
@@ -401,7 +401,7 @@
                             </div>
 
                             <textarea name="notes" rows="4"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#193497] focus:ring-4 focus:ring-[#193497]/20 transition-all outline-none"
                                 placeholder="Contoh: Tolong kirim sebelum jam 5 sore, Untuk hadiah, dll.">{{ old('notes') }}</textarea>
                         </div>
                     </div>
@@ -410,7 +410,7 @@
                     <div class="lg:w-1/3">
                         <div class="bg-white rounded-3xl shadow-xl p-6 border border-gray-100 sticky top-6">
                             <div class="flex items-center mb-6">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                                <div class="w-10 h-10 bg-gradient-to-br bg-[#193497] rounded-xl flex items-center justify-center mr-3">
                                     <i class="fas fa-receipt text-white"></i>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-800">Ringkasan Pesanan</h3>
@@ -433,7 +433,7 @@
                                             <h4 class="font-semibold text-gray-800 text-sm line-clamp-2">
                                                 {{ $item->product->name }}</h4>
                                             <p class="text-gray-600 text-xs mt-1">Qty: {{ $item->quantity }}</p>
-                                            <p class="text-blue-600 font-bold text-sm mt-1">Rp
+                                            <p class="text-[#193497] font-bold text-sm mt-1">Rp
                                                 {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
                                         </div>
                                     </div>
@@ -458,7 +458,7 @@
                                 </div>
 
                                 @if (isset($discount) && $discount > 0)
-                                    <div class="flex justify-between text-green-600">
+                                    <div class="flex justify-between text-[#193497]">
                                         <span>Diskon</span>
                                         <span class="font-semibold">-Rp {{ number_format($discount, 0, ',', '.') }}</span>
                                     </div>
@@ -467,14 +467,14 @@
                                 <div class="border-t border-gray-200 pt-3">
                                  <div class="flex justify-between text-lg font-bold text-gray-800">
                                     <span>Total</span>
-                                    <span class="text-blue-600 total-price">
+                                    <span class="text-[#193497] total-price">
                                         Rp {{ number_format(($subtotal ?? 0) - ($discount ?? 0), 0, ',', '.') }}
                                     </span>
                                 </div>
                             </div>
 
                             <button type="submit"
-                                class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2">
+                                class="w-full py-4 bg-gradient-to-r bg-[#193497] text-white font-bold rounded-xl hover:bg-[#191f01] transition-all duration-300 flex items-center justify-center gap-2">
                                 <i class="fas fa-lock"></i>
                                 Proses Checkout
                             </button>
@@ -505,7 +505,7 @@
             const reader = new FileReader();
             reader.onload = e => {
                 const div = document.createElement('div');
-                div.className = 'relative border-2 border-gray-200 rounded-xl p-2 hover:border-blue-400 transition-all';
+                div.className = 'relative border-2 border-gray-200 rounded-xl p-2 hover:border-[#193497] transition-all';
                 
                 if (file.type.startsWith('image/')) {
                     div.innerHTML = `
@@ -519,8 +519,8 @@
                     `;
                 } else {
                     div.innerHTML = `
-                        <div class="w-full h-32 flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-                            <i class="fas fa-file-alt text-4xl text-blue-500 mb-2"></i>
+                        <div class="w-full h-32 flex flex-col items-center justify-center bg-gradient-to-br bg-[#f9f0f1] rounded-lg">
+                            <i class="fas fa-file-alt text-4xl text-[#193497] mb-2"></i>
                             <span class="text-xs text-gray-700 px-2 text-center font-semibold">
                                 ${file.name.length > 15 ? file.name.substring(0, 15) + '...' : file.name}
                             </span>
