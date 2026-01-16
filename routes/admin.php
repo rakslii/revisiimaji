@@ -37,7 +37,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
 
-    // Orders - RESTful routes
+     // Orders - RESTful routes dengan method yang benar
     Route::get('/orders', [AdminOrderController::class, 'orders'])->name('orders');
     Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
@@ -45,9 +45,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/orders/{id}/edit', [AdminOrderController::class, 'edit'])->name('orders.edit');
     Route::put('/orders/{id}', [AdminOrderController::class, 'update'])->name('orders.update');
     Route::delete('/orders/{id}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
-    Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateOrderStatus'])->name('orders.update-status');
+    
+    // Order Status Routes - Gunakan POST untuk semua agar konsisten
+    Route::post('/orders/{id}/update-status', [AdminOrderController::class, 'updateOrderStatus'])->name('orders.update-status');
     Route::post('/orders/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
-
+    Route::post('/orders/{id}/mark-processing', [AdminOrderController::class, 'markAsProcessing'])->name('orders.mark-processing');
+    Route::post('/orders/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('orders.mark-completed');
+    
     // Products - RESTful routes
     Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');

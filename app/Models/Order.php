@@ -26,6 +26,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'location_id', // KOLOM INI HARUS ADA
         'order_code',
         'shipping_address',
         'shipping_note',
@@ -36,20 +37,27 @@ class Order extends Model
         'discount',
         'total',
         'status',
+        'payment_status',
         'promo_code',
         'admin_notes',
         'paid_at',
         'completed_at',
     ];
 
-
     protected $casts = [
-        'total_amount' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'final_amount' => 'decimal:2',
-        'estimated_delivery' => 'datetime',
-        'delivered_at' => 'datetime',
-        'cancelled_at' => 'datetime',
+        'subtotal' => 'decimal:2',
+        'shipping_cost' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'total' => 'decimal:2',
+        'paid_at' => 'datetime',
+        'completed_at' => 'datetime',
+    ];
+
+    protected $appends = [
+        'customer_name',
+        'customer_phone',
+        'formatted_total',
+        'items_count',
     ];
 
     protected static function boot()
@@ -91,19 +99,11 @@ class Order extends Model
     }
 
     /**
-     * Get the location for the order
+     * Get the location for the order - INI YANG PERLU DITAMBAHKAN
      */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
-    }
-
-    /**
-     * Get the promo code used
-     */
-    public function promoCode(): BelongsTo
-    {
-        return $this->belongsTo(PromoCode::class);
     }
 
     /**
@@ -115,11 +115,19 @@ class Order extends Model
     }
 
     /**
-     * Get the payment for the order
+     * Get the payments for the order
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Alias untuk payment() jika ada yang masih panggil singular
      */
     public function payment(): HasMany
     {
-        return $this->hasMany(Payment::class);
+        return $this->payments();
     }
 
     /**
@@ -162,27 +170,59 @@ class Order extends Model
     }
 
     /**
-     * Get formatted total amount
+     * Get formatted total
      */
     public function getFormattedTotalAttribute(): string
     {
-        return 'Rp ' . number_format($this->total_amount, 0, ',', '.');
+        return 'Rp ' . number_format($this->total ?? 0, 0, ',', '.');
     }
 
     /**
-     * Get formatted final amount
+     * Get customer name from user relationship
      */
-    public function getFormattedFinalAmountAttribute(): string
+    public function getCustomerNameAttribute()
     {
-        return 'Rp ' . number_format($this->final_amount, 0, ',', '.');
+        return $this->user ? $this->user->name : 'N/A';
     }
 
     /**
-     * Get formatted discount amount
+     * Get customer phone from user relationship
+     */
+    public function getCustomerPhoneAttribute()
+    {
+        return $this->user ? $this->user->phone : 'No phone';
+    }
+
+    /**
+     * Get items count
+     */
+    public function getItemsCountAttribute()
+    {
+        return $this->items()->count();
+    }
+
+    /**
+     * Get formatted subtotal
+     */
+    public function getFormattedSubtotalAttribute(): string
+    {
+        return 'Rp ' . number_format($this->subtotal ?? 0, 0, ',', '.');
+    }
+
+    /**
+     * Get formatted shipping cost
+     */
+    public function getFormattedShippingCostAttribute(): string
+    {
+        return 'Rp ' . number_format($this->shipping_cost ?? 0, 0, ',', '.');
+    }
+
+    /**
+     * Get formatted discount
      */
     public function getFormattedDiscountAttribute(): string
     {
-        return 'Rp ' . number_format($this->discount_amount, 0, ',', '.');
+        return 'Rp ' . number_format($this->discount ?? 0, 0, ',', '.');
     }
 
     /**

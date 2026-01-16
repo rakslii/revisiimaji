@@ -10,6 +10,28 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    public function __construct()
+{
+    // ⚡ HAPUS INI: $this->middleware('auth');
+    // Karena ini yang bikin redirect ke /login
+    
+    // Cek role admin saja
+    $this->middleware(function ($request, $next) {
+        if (!auth()->check()) {
+            // Manual redirect ke admin.login
+            return redirect()->route('admin.login')
+                ->with('error', 'Please login first.');
+        }
+        
+        if (auth()->user()->role !== 'admin') {
+            auth()->logout();
+            return redirect()->route('admin.login')
+                ->with('error', 'Admin access only.');
+        }
+        
+        return $next($request);
+    });
+}
 public function index(Request $request)
 {
     $query = Product::with('category');

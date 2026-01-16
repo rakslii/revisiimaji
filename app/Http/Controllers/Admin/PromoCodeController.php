@@ -8,6 +8,28 @@ use App\Models\PromoCode;
 
 class PromoCodeController extends Controller
 {
+    public function __construct()
+{
+    // ⚡ HAPUS INI: $this->middleware('auth');
+    // Karena ini yang bikin redirect ke /login
+    
+    // Cek role admin saja
+    $this->middleware(function ($request, $next) {
+        if (!auth()->check()) {
+            // Manual redirect ke admin.login
+            return redirect()->route('admin.login')
+                ->with('error', 'Please login first.');
+        }
+        
+        if (auth()->user()->role !== 'admin') {
+            auth()->logout();
+            return redirect()->route('admin.login')
+                ->with('error', 'Admin access only.');
+        }
+        
+        return $next($request);
+    });
+}
     public function promoCodes()
     {
         $promoCodes = PromoCode::latest()->paginate(10);

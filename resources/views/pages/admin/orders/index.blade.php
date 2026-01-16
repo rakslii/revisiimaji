@@ -228,7 +228,27 @@
         </div>
         <div class="p-6">
             <div class="space-y-3">
-                <button type="button" id="markAsPaidBtn"
+                <!-- Hidden Forms -->
+                <form id="markPaidForm" method="POST" style="display: none;">
+                    @csrf
+                </form>
+                
+                <form id="markProcessingForm" method="POST" style="display: none;">
+                    @csrf
+                </form>
+                
+                <form id="markCompletedForm" method="POST" style="display: none;">
+                    @csrf
+                </form>
+                
+                <!-- Update status form untuk cancelled -->
+                <form id="updateStatusForm" method="POST" style="display: none;">
+                    @csrf
+                    <input type="hidden" name="status" value="cancelled">
+                </form>
+                
+                <!-- Buttons dengan onclick handler -->
+                <button type="button" onclick="submitAction('paid')"
                         class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-green-200 hover:bg-green-50">
                     <div class="flex items-center">
                         <i class="fas fa-check-circle text-green-600 mr-3"></i>
@@ -239,7 +259,7 @@
                     </div>
                 </button>
                 
-                <button type="button" id="markProcessingBtn"
+                <button type="button" onclick="submitAction('processing')"
                         class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-purple-200 hover:bg-purple-50">
                     <div class="flex items-center">
                         <i class="fas fa-cog text-purple-600 mr-3"></i>
@@ -250,7 +270,7 @@
                     </div>
                 </button>
                 
-                <button type="button" id="markCompletedBtn"
+                <button type="button" onclick="submitAction('completed')"
                         class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-green-200 hover:bg-green-50">
                     <div class="flex items-center">
                         <i class="fas fa-check-double text-green-600 mr-3"></i>
@@ -261,7 +281,7 @@
                     </div>
                 </button>
                 
-                <button type="button" id="cancelOrderBtn"
+                <button type="button" onclick="submitAction('cancelled')"
                         class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-red-200 hover:bg-red-50">
                     <div class="flex items-center">
                         <i class="fas fa-times-circle text-red-600 mr-3"></i>
@@ -282,59 +302,184 @@
         </div>
     </div>
 </div>
-
 @push('scripts')
 <script>
+// Global variable untuk menyimpan order ID yang sedang diproses
 let currentOrderId = null;
 
+/**
+ * Menampilkan modal actions untuk order tertentu
+ * @param {number} orderId - ID order yang akan diproses
+ */
 function showOrderActions(orderId) {
     currentOrderId = orderId;
     const modal = document.getElementById('actionsModal');
     modal.classList.remove('hidden');
+    
+    // Update semua form actions dengan currentOrderId
+    updateFormActions(orderId);
 }
 
-// Close modal when clicking outside
-document.getElementById('actionsModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.classList.add('hidden');
+/**
+ * Update action URL untuk semua form berdasarkan order ID
+ * @param {number} orderId - ID order
+ */
+function updateFormActions(orderId) {
+    const forms = {
+        'markPaidForm': `/admin/orders/${orderId}/confirm-payment`,
+        'markProcessingForm': `/admin/orders/${orderId}/mark-processing`,
+        'markCompletedForm': `/admin/orders/${orderId}/mark-completed`,
+        'updateStatusForm': `/admin/orders/${orderId}/update-status`
+    };
+    
+    Object.entries(forms).forEach(([formId, actionUrl]) => {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.action = actionUrl;
+        }
+    });
+    
+    // Set status value untuk cancelled form
+    const statusInput = document.querySelector('#updateStatusForm input[name="status"]');
+    if (statusInput) {
+        statusInput.value = 'cancelled';
     }
-});
+}
 
-// Filter functionality
-document.getElementById('statusFilter').addEventListener('change', function() {
-    filterOrders();
-});
+/**
+ * Handle action button click (menggunakan form submit)
+ * @param {string} actionType - Jenis action: 'paid', 'processing', 'completed', 'cancelled'
+ */
+function submitAction(actionType) {
+    if (!currentOrderId) {
+        alert('No order selected');
+        return;
+    }
+    
+    // Konfirmasi pesan berdasarkan action type
+    const confirmMessages = {
+        'paid': 'Are you sure you want to mark this order as paid?\n\nNote: Order will automatically move to "Processing" status.',
+        'processing': 'Are you sure you want to mark this order as processing?',
+        'completed': 'Are you sure you want to mark this order as completed?',
+        'cancelled': 'Are you sure you want to cancel this order?\n\nNote: This action will restore product stock.'
+    };
+    
+    const confirmMessage = confirmMessages[actionType] || `Are you sure you want to ${actionType} this order?`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    // Tentukan form yang akan disubmit
+    const formMap = {
+        'paid': 'markPaidForm',
+        'processing': 'markProcessingForm',
+        'completed': 'markCompletedForm',
+        'cancelled': 'updateStatusForm'
+    };
+    
+    const formId = formMap[actionType];
+    if (!formId) {
+        console.error('No form found for action:', actionType);
+        return;
+    }
+    
+    const form = document.getElementById(formId);
+    if (form) {
+        // Tutup modal
+        document.getElementById('actionsModal').classList.add('hidden');
+        // Submit form (akan langsung redirect ke controller)
+        form.submit();
+    } else {
+        console.error('Form not found:', formId);
+        alert('Error: Form not found');
+    }
+}
 
-document.getElementById('paymentFilter').addEventListener('change', function() {
-    filterOrders();
-});
-
-document.getElementById('searchInput').addEventListener('input', function() {
-    filterOrders();
-});
-
+/**
+ * Filter orders berdasarkan status, payment status, dan search query
+ */
 function filterOrders() {
-    const statusFilter = document.getElementById('statusFilter').value;
-    const paymentFilter = document.getElementById('paymentFilter').value;
-    const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#ordersTable tr');
+    const statusFilter = document.getElementById('statusFilter')?.value || '';
+    const paymentFilter = document.getElementById('paymentFilter')?.value || '';
+    const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    
+    const rows = document.querySelectorAll('#ordersTable tr[data-status]');
     
     rows.forEach(row => {
-        const status = row.getAttribute('data-status');
-        const payment = row.getAttribute('data-payment');
+        const status = row.getAttribute('data-status') || '';
+        const payment = row.getAttribute('data-payment') || '';
         const rowText = row.textContent.toLowerCase();
         
         const statusMatch = !statusFilter || status === statusFilter;
         const paymentMatch = !paymentFilter || payment === paymentFilter;
         const searchMatch = !searchQuery || rowText.includes(searchQuery);
         
-        if (statusMatch && paymentMatch && searchMatch) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
+        row.style.display = (statusMatch && paymentMatch && searchMatch) ? '' : 'none';
+    });
+}
+
+/**
+ * Initialize semua event listeners saat halaman dimuat
+ */
+function initializePage() {
+    // Setup filter event listeners
+    const statusFilter = document.getElementById('statusFilter');
+    const paymentFilter = document.getElementById('paymentFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterOrders);
+    }
+    
+    if (paymentFilter) {
+        paymentFilter.addEventListener('change', filterOrders);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterOrders);
+    }
+    
+    // Setup modal close event
+    const modal = document.getElementById('actionsModal');
+    if (modal) {
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+        
+        // Close button event
+        const closeBtn = modal.querySelector('[onclick*="actionsModal"]');
+        if (closeBtn) {
+            closeBtn.onclick = function() {
+                modal.classList.add('hidden');
+            };
+        }
+    }
+    
+    // Setup ellipsis buttons in table
+    const actionButtons = document.querySelectorAll('button[onclick^="showOrderActions"]');
+    actionButtons.forEach(button => {
+        const originalOnclick = button.getAttribute('onclick');
+        const orderId = originalOnclick?.match(/\d+/)?.[0];
+        
+        if (orderId) {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showOrderActions(orderId);
+            });
         }
     });
 }
+
+// Initialize saat halaman dimuat
+document.addEventListener('DOMContentLoaded', initializePage);
+
+// Export functions ke global scope
+window.showOrderActions = showOrderActions;
+window.submitAction = submitAction;
 </script>
 @endpush
 @endsection

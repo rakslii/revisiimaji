@@ -138,7 +138,7 @@ class OrderController extends Controller
             // Create order
             $order = Order::create([
                 'user_id' => $user->id,
-                'order_code' => Order::generateOrderNumber(),
+                'order_number' => Order::generateOrderNumber(),
                 'total_amount' => $totalAmount,
                 'discount_amount' => $discountAmount,
                 'final_amount' => $finalAmount,

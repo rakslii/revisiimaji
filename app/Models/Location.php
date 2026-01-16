@@ -35,6 +35,12 @@ class Location extends Model
         return $this->belongsTo(User::class);
     }
 
+    // Relationship dengan orders
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     // Scope untuk lokasi utama
     public function scopePrimary($query)
     {

@@ -22,6 +22,19 @@
         </div>
     </div>
 
+    <!-- Flash Messages -->
+    @if(session('success'))
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+        <p>{{ session('success') }}</p>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+        <p>{{ session('error') }}</p>
+    </div>
+    @endif
+
     <!-- Order Information -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Order Summary -->
@@ -60,6 +73,18 @@
                                 {{ ucfirst($order->payment_status) }}
                             </span>
                         </div>
+                        @if($order->payment_method)
+                        <div>
+                            <p class="text-sm text-gray-500">Payment Method</p>
+                            <p class="font-medium text-gray-900">{{ ucfirst(str_replace('_', ' ', $order->payment_method)) }}</p>
+                        </div>
+                        @endif
+                        @if($order->paid_at)
+                        <div>
+                            <p class="text-sm text-gray-500">Paid At</p>
+                            <p class="font-medium text-gray-900">{{ $order->paid_at->format('d M Y H:i') }}</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -85,12 +110,20 @@
                                 <tr>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center">
-                                            <img src="{{ $item->product->image_url ?? '/images/placeholder.jpg' }}" 
+                                            @if($item->product && $item->product->image_url)
+                                            <img src="{{ $item->product->image_url }}" 
                                                  alt="{{ $item->product->name }}"
                                                  class="w-10 h-10 object-cover rounded mr-3">
+                                            @else
+                                            <div class="w-10 h-10 bg-gray-200 rounded mr-3 flex items-center justify-center">
+                                                <i class="fas fa-image text-gray-400"></i>
+                                            </div>
+                                            @endif
                                             <div>
-                                                <p class="font-medium text-gray-900">{{ $item->product->name }}</p>
-                                                <p class="text-sm text-gray-500">{{ $item->product->sku ?? 'N/A' }}</p>
+                                                <p class="font-medium text-gray-900">{{ $item->product->name ?? 'Product deleted' }}</p>
+                                                @if($item->product && $item->product->sku)
+                                                <p class="text-sm text-gray-500">{{ $item->product->sku }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -121,10 +154,18 @@
                                     </td>
                                 </tr>
                                 @endif
+                                @if($order->shipping_cost > 0)
                                 <tr>
-                                    <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</td>
+                                    <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Shipping Cost</td>
                                     <td class="px-4 py-3 text-sm font-bold text-gray-900">
-                                        Rp {{ number_format($order->total - $order->discount, 0, ',', '.') }}
+                                        Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Grand Total</td>
+                                    <td class="px-4 py-3 text-sm font-bold text-gray-900">
+                                        Rp {{ number_format($order->grand_total ?? ($order->total - $order->discount + ($order->shipping_cost ?? 0)), 0, ',', '.') }}
                                     </td>
                                 </tr>
                             </tfoot>
@@ -139,14 +180,58 @@
                     <h3 class="text-lg font-medium text-gray-900">Shipping Information</h3>
                 </div>
                 <div class="p-6">
-                    @if($order->shipping_address)
-                    <p class="text-sm text-gray-500">Shipping Address</p>
-                    <p class="mt-1 text-gray-900">{{ $order->shipping_address }}</p>
+                    @if($order->location)
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-500">Recipient</p>
+                                <p class="font-medium text-gray-900">{{ $order->location->recipient_name }}</p>
+                                <p class="text-sm text-gray-600">{{ $order->location->recipient_phone }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Address</p>
+                                <p class="text-gray-900">{{ $order->location->full_address }}</p>
+                                <p class="text-sm text-gray-600">
+                                    {{ $order->location->city }}, {{ $order->location->province }} {{ $order->location->postal_code }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Location Type</p>
+                                <p class="text-gray-900">{{ $order->location->name }}</p>
+                                @if($order->location->is_primary)
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full mt-1">
+                                        Primary Address
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    @elseif($order->shipping_address)
+                        <div>
+                            <p class="text-sm text-gray-500">Shipping Address</p>
+                            <p class="mt-1 text-gray-900">{{ $order->shipping_address }}</p>
+                            @if($order->shipping_note)
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">Notes</p>
+                                    <p class="text-gray-900">{{ $order->shipping_note }}</p>
+                                </div>
+                            @endif
+                        </div>
                     @else
-                    <p class="text-gray-500">No shipping address provided</p>
+                        <p class="text-gray-500">No shipping information provided</p>
                     @endif
                 </div>
             </div>
+
+            @if($order->notes)
+            <!-- Order Notes -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Order Notes</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 whitespace-pre-line">{{ $order->notes }}</p>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Customer & Actions Sidebar -->
@@ -176,11 +261,16 @@
                             <p class="text-sm text-gray-500">Total Orders</p>
                             <p class="font-medium text-gray-900">{{ $order->customer->orders_count ?? 0 }}</p>
                         </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Member Since</p>
+                            <p class="font-medium text-gray-900">{{ $order->customer->created_at->format('d M Y') }}</p>
+                        </div>
                     </div>
-                    <div class="mt-4">
+                    <div class="mt-4 pt-4 border-t">
                         <a href="{{ route('admin.customers.show', $order->customer_id) }}"
-                           class="text-blue-600 hover:text-blue-900 text-sm font-medium">
-                            View Customer Profile →
+                           class="inline-flex items-center text-blue-600 hover:text-blue-900 text-sm font-medium">
+                            <i class="fas fa-user-circle mr-2"></i>
+                            View Customer Profile
                         </a>
                     </div>
                     @else
@@ -189,232 +279,127 @@
                 </div>
             </div>
 
-            <!-- Payment Information -->
+          
+            <!-- Order Timeline -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Payment Information</h3>
-                </div>
-                <div class="p-6 space-y-3">
-                    <div>
-                        <p class="text-sm text-gray-500">Payment Method</p>
-                        <p class="font-medium text-gray-900">{{ $order->payment_method ? ucfirst(str_replace('_', ' ', $order->payment_method)) : 'Not specified' }}</p>
-                    </div>
-                    @if($order->payment_status === 'paid' && $order->paid_at)
-                    <div>
-                        <p class="text-sm text-gray-500">Paid At</p>
-                        <p class="font-medium text-gray-900">{{ $order->paid_at->format('d M Y H:i') }}</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Order Notes -->
-            @if($order->notes)
-            <div class="bg-white rounded-lg shadow">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Order Notes</h3>
+                    <h3 class="text-lg font-medium text-gray-900">Order Timeline</h3>
                 </div>
                 <div class="p-6">
-                    <p class="text-gray-700">{{ $order->notes }}</p>
-                </div>
-            </div>
-            @endif
-
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-lg shadow">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
-                </div>
-                <div class="p-6 space-y-3">
-                    @if($order->payment_status === 'unpaid')
-                    <button onclick="showPaymentModal({{ $order->id }})"
-                            class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-green-200 hover:bg-green-50">
-                        <div class="flex items-center">
-                            <i class="fas fa-check-circle text-green-600 mr-3"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">Confirm Payment</p>
-                                <p class="text-sm text-gray-500">Mark as paid</p>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-shopping-cart text-blue-600 text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Order Created</p>
+                                <p class="text-sm text-gray-500">{{ $order->created_at->format('d M Y H:i') }}</p>
                             </div>
                         </div>
-                    </button>
-                    @endif
-
-                    @if($order->status !== 'processing')
-                    <button onclick="updateStatus({{ $order->id }}, 'processing')"
-                            class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-purple-200 hover:bg-purple-50">
-                        <div class="flex items-center">
-                            <i class="fas fa-cog text-purple-600 mr-3"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">Mark as Processing</p>
-                                <p class="text-sm text-gray-500">Start processing order</p>
+                        
+                        @if($order->status === 'processing' || $order->status === 'completed')
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-cog text-purple-600 text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Processing Started</p>
+                                <p class="text-sm text-gray-500">Order is being processed</p>
                             </div>
                         </div>
-                    </button>
-                    @endif
+                        @endif
 
-                    @if($order->status !== 'completed')
-                    <button onclick="updateStatus({{ $order->id }}, 'completed')"
-                            class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-green-200 hover:bg-green-50">
-                        <div class="flex items-center">
-                            <i class="fas fa-check-double text-green-600 mr-3"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">Mark as Completed</p>
-                                <p class="text-sm text-gray-500">Order delivered/completed</p>
+                        @if($order->status === 'completed')
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-check text-green-600 text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Order Completed</p>
+                                <p class="text-sm text-gray-500">Order has been delivered/completed</p>
                             </div>
                         </div>
-                    </button>
-                    @endif
+                        @endif
 
-                    @if($order->status !== 'cancelled')
-                    <button onclick="showConfirmCancel({{ $order->id }})"
-                            class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-red-200 hover:bg-red-50">
-                        <div class="flex items-center">
-                            <i class="fas fa-times-circle text-red-600 mr-3"></i>
-                            <div>
-                                <p class="font-medium text-gray-900">Cancel Order</p>
-                                <p class="text-sm text-gray-500">Cancel this order</p>
+                        @if($order->paid_at)
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <i class="fas fa-money-bill-wave text-green-600 text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">Payment Received</p>
+                                <p class="text-sm text-gray-500">{{ $order->paid_at->format('d M Y H:i') }}</p>
                             </div>
                         </div>
-                    </button>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Payment Modal -->
-<div id="paymentModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Confirm Payment</h3>
-        </div>
-        <form id="paymentForm" method="POST">
-            @csrf
-            <div class="p-6 space-y-4">
-                <div>
-                    <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">
-                        Payment Method
-                    </label>
-                    <select name="payment_method" id="payment_method" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Select Method</option>
-                        <option value="cash">Cash</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                        <option value="credit_card">Credit Card</option>
-                        <option value="ewallet">E-Wallet</option>
-                    </select>
-                </div>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button type="button" 
-                        onclick="closePaymentModal()"
-                        class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Cancel
-                </button>
-                <button type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    Confirm Payment
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Cancel Confirmation Modal -->
-<div id="cancelModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Cancel Order</h3>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-700">Are you sure you want to cancel this order? This action will restore product stock.</p>
-        </div>
-        <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-            <button type="button" 
-                    onclick="closeCancelModal()"
-                    class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
-                No, Keep Order
-            </button>
-            <button type="button" 
-                    onclick="confirmCancel()"
-                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                Yes, Cancel Order
-            </button>
         </div>
     </div>
 </div>
 
 @push('scripts')
 <script>
-let currentOrderId = null;
+/**
+ * Confirm and submit action
+ * @param {string} actionType - payment, processing, completed, cancelled
+ */
+function confirmAction(actionType) {
+    const messages = {
+        'payment': 'Are you sure you want to confirm payment for this order?\n\nNote: Order will automatically move to "Processing" status.',
+        'processing': 'Are you sure you want to mark this order as processing?',
+        'completed': 'Are you sure you want to mark this order as completed?',
+        'cancelled': 'Are you sure you want to cancel this order?\n\n⚠️ Warning: This action will restore product stock and cannot be undone.'
+    };
 
-// Payment Modal
-function showPaymentModal(orderId) {
-    currentOrderId = orderId;
-    const modal = document.getElementById('paymentModal');
-    const form = document.getElementById('paymentForm');
-    form.action = `/admin/orders/${orderId}/confirm-payment`;
-    modal.classList.remove('hidden');
-}
-
-function closePaymentModal() {
-    document.getElementById('paymentModal').classList.add('hidden');
-}
-
-// Cancel Modal
-function showConfirmCancel(orderId) {
-    currentOrderId = orderId;
-    document.getElementById('cancelModal').classList.remove('hidden');
-}
-
-function closeCancelModal() {
-    document.getElementById('cancelModal').classList.add('hidden');
-}
-
-function confirmCancel() {
-    if (currentOrderId) {
-        updateStatus(currentOrderId, 'cancelled');
-        closeCancelModal();
-    }
-}
-
-// Update Status Function
-function updateStatus(orderId, status) {
-    if (!confirm(`Are you sure you want to mark this order as "${status}"?`)) {
+    const confirmMessage = messages[actionType];
+    
+    if (!confirm(confirmMessage)) {
         return;
     }
 
-    fetch(`/admin/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ status: status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+    // Submit the corresponding form
+    const formId = actionType + 'Form';
+    const form = document.getElementById(formId);
+    
+    if (form) {
+        // Show loading state on button
+        const button = document.querySelector(`[onclick="confirmAction('${actionType}')"]`);
+        if (button) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            button.disabled = true;
+            
+            // Submit form after a short delay to show loading state
+            setTimeout(() => {
+                form.submit();
+            }, 300);
         } else {
-            alert('Failed to update status');
+            form.submit();
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to update status');
-    });
+    } else {
+        console.error('Form not found:', formId);
+        alert('Error: Form not found');
+    }
 }
 
-// Close modals when clicking outside
-document.getElementById('paymentModal').addEventListener('click', function(e) {
-    if (e.target === this) closePaymentModal();
-});
+// Simple modals close functionality
+function closePaymentModal() {
+    document.getElementById('paymentModal')?.classList.add('hidden');
+}
 
-document.getElementById('cancelModal').addEventListener('click', function(e) {
-    if (e.target === this) closeCancelModal();
-});
+function closeCancelModal() {
+    document.getElementById('cancelModal')?.classList.add('hidden');
+}
 </script>
 @endpush
 @endsection

@@ -22,6 +22,19 @@
         </div>
     </div>
 
+    <!-- Flash Messages -->
+    @if(session('success'))
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+        <p>{{ session('success') }}</p>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+        <p>{{ session('error') }}</p>
+    </div>
+    @endif
+
     <!-- Form -->
     <div class="bg-white rounded-lg shadow">
         <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
@@ -35,15 +48,19 @@
             <div class="p-6 space-y-6">
                 <!-- Customer Selection -->
                 <div>
-                    <label for="customer_id" class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
-                    <select name="customer_id" id="customer_id" required
+                    <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
+                    <select name="user_id" id="user_id" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Customer</option>
                         @foreach($customers as $customer)
-                            <option value="{{ $customer->id }}" {{ $order->customer_id == $customer->id ? 'selected' : '' }}>
-                                {{ $customer->name }} - {{ $customer->phone }}
+                            <option value="{{ $customer->id }}" {{ $order->user_id == $customer->id ? 'selected' : '' }}>
+                                {{ $customer->name }} - {{ $customer->phone }} ({{ $customer->email }})
                             </option>
                         @endforeach
                     </select>
+                    @if($customers->isEmpty())
+                    <p class="mt-2 text-sm text-red-600">No customers found. Please create customers first.</p>
+                    @endif
                 </div>
 
                 <!-- Order Items (Readonly) -->
@@ -62,7 +79,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($order->items as $item)
                                 <tr>
-                                    <td class="px-4 py-3 text-sm text-gray-900">{{ $item->product->name }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-900">{{ $item->product->name ?? 'Product deleted' }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-900">{{ $item->quantity }}</td>
                                     <td class="px-4 py-3 text-sm font-medium text-gray-900">Rp {{ number_format($item->total, 0, ',', '.') }}</td>
