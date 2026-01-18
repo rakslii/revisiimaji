@@ -7,15 +7,19 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    public function __construct()
+    protected $midtrans;
+
+    public function __construct(MidtransService $midtrans)
     {
         $this->middleware('auth')->only(['checkout', 'processCheckout']);
+        $this->midtrans = $midtrans;
     }
 
     public function index()
@@ -213,7 +217,7 @@ class CartController extends Controller
             $total = $subtotal + $shipping;
 
             $order = Order::create([
-                'order_code' => 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                'order_code' => $orderCode,
                 'user_id' => Auth::id(),
                 'customer_name' => $data['name'],
                 'customer_phone' => $data['phone'],

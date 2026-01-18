@@ -13,25 +13,25 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
-'google' => [
-    'client_id' => env('GOOGLE_CLIENT_ID'),
-    'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-    'redirect' => env('GOOGLE_REDIRECT_URI', 'http://127.0.0.1:8000/auth/google/callback'),
-      
-    // Tambah scopes untuk data lengkap
-    'scopes' => explode(',', env('GOOGLE_SCOPES', 'email,profile')),
-    
-    // Request data tambahan
-    'fields' => 'id,name,email,verified_email,picture,phone,addresses,locale',
-    
-    // Enable access type
-    'access_type' => 'online',
-    'approval_prompt' => 'auto',
-    // Tambahkan ini
-    'auth_url' => 'https://accounts.google.com/o/oauth2/auth',
-    'token_url' => 'https://oauth2.googleapis.com/token',
-    'userinfo_url' => 'https://www.googleapis.com/oauth2/v3/userinfo',
-],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'http://127.0.0.1:8000/auth/google/callback'),
+
+        // Tambah scopes untuk data lengkap
+        'scopes' => explode(',', env('GOOGLE_SCOPES', 'email,profile')),
+
+        // Request data tambahan
+        'fields' => 'id,name,email,verified_email,picture,phone,addresses,locale',
+
+        // Enable access type
+        'access_type' => 'online',
+        'approval_prompt' => 'auto',
+        // Tambahkan ini
+        'auth_url' => 'https://accounts.google.com/o/oauth2/auth',
+        'token_url' => 'https://oauth2.googleapis.com/token',
+        'userinfo_url' => 'https://www.googleapis.com/oauth2/v3/userinfo',
+    ],
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
@@ -53,5 +53,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+    ],
+
 
 ];

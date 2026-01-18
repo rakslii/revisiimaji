@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController as FrontOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\MidtransController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -74,21 +75,16 @@ Route::get('/auth/google/callback', [GoogleLoginController::class, 'handleGoogle
 // =======================
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
-
     Route::post('/add/{product}', [CartController::class, 'add'])->name('add');
     Route::post('/{item}', [CartController::class, 'update'])->name('update');
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
-
-    // ✅ CHECKOUT FIX
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-
-
 });
 
-    // buat checkout process
-    Route::post('/checkout/process', [CartController::class, 'processCheckout'])
+// Checkout process
+Route::post('/checkout/process', [CartController::class, 'processCheckout'])
     ->name('checkout.process');
 
 
@@ -98,7 +94,16 @@ Route::prefix('cart')->name('cart.')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [FrontOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [FrontOrderController::class, 'showOrder'])->name('orders.show');
+    Route::get('/orders/{id}/payment', [FrontOrderController::class, 'payment'])->name('orders.payment');
+    Route::post('/orders/{id}/check-payment-status', [FrontOrderController::class, 'checkPaymentStatus'])->name('orders.checkPaymentStatus');
 });
+
+
+// =======================
+// MIDTRANS NOTIFICATION
+// =======================
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])
+    ->name('midtrans.notification');
 
 
 // =======================
