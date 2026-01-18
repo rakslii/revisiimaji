@@ -318,9 +318,142 @@
                 <div class="p-8 lg:p-12">
                     <!-- Description Tab -->
                     <div id="description-tab" class="tab-content">
-                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Deskripsi Produk</h2>
-                        <div class="prose max-w-none text-gray-700 text-lg leading-relaxed whitespace-pre-line">
-                            {{ $product->description }}
+                        <h2 class="text-3xl font-bold text-gray-800 mb-8">Deskripsi Produk</h2>
+                        
+                        <!-- Main Description -->
+                        <div class="bg-white rounded-2xl p-8 mb-6 shadow-sm">
+                            <div class="prose max-w-none text-gray-700 text-lg leading-relaxed">
+                                {{ $product->description }}
+                            </div>
+                        </div>
+
+                        <!-- Important Notice -->
+                        <div class="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 rounded-xl p-6 mb-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-bold text-gray-800 mb-2">PENTING DIBACA!</h3>
+                                    <p class="text-gray-700 leading-relaxed">
+                                        Hasil print tidak bisa 100% sama dengan warna layar monitor customer, karena warna yang dihasilkan mesin cetak menggunakan
+                                        <span class="font-bold text-red-600">CMYK (Cyan Magenta Yellow Black)</span> sedangkan tampilan layar monitor adalah
+                                        <span class="font-bold text-blue-600">RGB (Red Green Blue)</span>.
+                                        Hal ini yang menyebabkan warna design pada layar monitor customer akan sedikit berbeda dengan hasil cetak.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Specifications Grid -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 mb-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-cogs text-blue-600 mr-3"></i>
+                                Spesifikasi Produk
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-xl p-4 flex items-center shadow-sm">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i class="fas fa-cube text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Material</div>
+                                        <div class="font-bold text-gray-800">Kain Spunbond</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4 flex items-center shadow-sm">
+                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i class="fas fa-palette text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Warna</div>
+                                        <div class="font-bold text-gray-800">Hitam, Putih, Kuning, Biru, Hijau, dll</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4 flex items-center shadow-sm">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i class="fas fa-ruler-combined text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Ukuran Produk</div>
+                                        <div class="font-bold text-gray-800">25 x 35 cm</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4 flex items-center shadow-sm">
+                                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i class="fas fa-vector-square text-yellow-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Ukuran Desain</div>
+                                        <div class="font-bold text-gray-800">20 x 30 cm</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4 flex items-center shadow-sm md:col-span-2">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i class="fas fa-shopping-cart text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Minimum Order</div>
+                                        <div class="font-bold text-gray-800">10 pcs</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Care Instructions -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 mb-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-heart text-green-600 mr-3"></i>
+                                Instruksi Perawatan
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                    <p class="text-gray-700">Dicuci menggunakan tangan, hindari pencucian dengan mesin</p>
+                                </div>
+                                
+                                <div class="flex items-start bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                    <p class="text-gray-700">Jangan diperas</p>
+                                </div>
+                                
+                                <div class="flex items-start bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                                        <i class="fas fa-check text-green-600"></i>
+                                    </div>
+                                    <p class="text-gray-700">Hindari penggunaan pemutih pakaian</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Format Notice -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-500 rounded-xl p-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-file-code text-purple-500 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-bold text-gray-800 mb-2">Format File yang Diterima</h3>
+                                    <p class="text-gray-700">
+                                        File design diwajibkan dalam format:
+                                        <span class="inline-flex flex-wrap gap-2 mt-2">
+                                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">Vector</span>
+                                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">Corel</span>
+                                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">AI</span>
+                                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">PSD</span>
+                                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">PNG</span>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
