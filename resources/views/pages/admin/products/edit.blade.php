@@ -22,6 +22,17 @@
         </div>
     </div>
 
+    <!-- Error Messages -->
+    @if ($errors->any())
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <ul class="list-disc pl-5">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Form -->
         <div class="lg:col-span-2">
@@ -191,12 +202,16 @@
                                              class="w-20 h-20 object-cover rounded-lg border">
                                         <div>
                                             <p class="text-sm text-gray-600">{{ basename($product->image) }}</p>
-                                            <button type="button" 
-                                                    onclick="document.getElementById('remove-image').value = '1'"
-                                                    class="text-xs text-red-600 hover:text-red-800">
-                                                <i class="fas fa-trash mr-1"></i> Remove image
-                                            </button>
-                                            <input type="hidden" name="remove_image" id="remove-image" value="0">
+                                            <div class="flex items-center">
+                                                <input type="checkbox" 
+                                                       name="remove_image" 
+                                                       id="remove-image-checkbox"
+                                                       value="1"
+                                                       class="h-4 w-4 text-red-600 border-gray-300 rounded">
+                                                <label for="remove-image-checkbox" class="ml-2 text-xs text-red-600 hover:text-red-800 cursor-pointer">
+                                                    <i class="fas fa-trash mr-1"></i> Remove image
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -255,7 +270,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Sales Count</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $product->sales_count }}</p>
+                                <p class="text-lg font-bold text-gray-800">{{ $product->sales_count ?? 0 }}</p>
                             </div>
                         </div>
                     </div>
@@ -313,31 +328,49 @@
                 </div>
             </div>
 
-            <!-- Current Status -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Current Status</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Product Status</span>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                            {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $product->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </div>
-                    
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Category</span>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                            {{ $product->category_name }}
-                        </span>
-                    </div>
-                    
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Last Updated</span>
-                        <span class="text-sm text-gray-800">{{ $product->updated_at->format('d M Y H:i') }}</span>
-                    </div>
-                </div>
-            </div>
+          <!-- Current Status -->
+<div class="bg-white rounded-lg shadow p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Current Status</h3>
+    <div class="space-y-3">
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Product Status</span>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full 
+                {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                {{ $product->is_active ? 'Active' : 'Inactive' }}
+            </span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Category</span>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                <!-- Gunakan salah satu dari ini -->
+                @php
+                    // Pilihan 1: Jika category adalah string
+                    if (is_string($product->category)) {
+                        echo ucfirst($product->category);
+                    }
+                    // Pilihan 2: Jika ada relationship category
+                    elseif ($product->categoryRelation && is_object($product->categoryRelation)) {
+                        echo $product->categoryRelation->name;
+                    }
+                    // Pilihan 3: Jika tidak ada kategori
+                    else {
+                        echo 'No Category';
+                    }
+                @endphp
+            </span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Category Type</span>
+            <span class="text-sm text-gray-800">
+                {{ is_string($product->category) ? ucfirst($product->category) : 'Unknown' }}
+            </span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-600">Last Updated</span>
+            <span class="text-sm text-gray-800">{{ $product->updated_at->format('d M Y H:i') }}</span>
         </div>
     </div>
 </div>
