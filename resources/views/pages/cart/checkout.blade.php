@@ -454,29 +454,24 @@
                                 <h3 class="text-xl font-bold text-gray-800">Ringkasan Pesanan</h3>
                             </div>
 
-                            <!-- Hidden inputs for cart items -->
-                            @foreach ($cartItems ?? [] as $index => $item)
-                                <input type="hidden" name="items[{{ $index }}][product_id]"
-                                    value="{{ $item->product_id }}">
-                                <input type="hidden" name="items[{{ $index }}][quantity]"
-                                    value="{{ $item->quantity }}">
-                                <input type="hidden" name="items[{{ $index }}][price]"
-                                    value="{{ $item->price }}">
-                            @endforeach
-
                             <!-- Cart Items Display -->
                             <div class="space-y-4 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
                                 @forelse($cartItems ?? [] as $item)
                                     <div class="flex gap-3 pb-4 border-b border-gray-100">
-                                        <img src="{{ $item->product->image_url ?? 'https://via.placeholder.com/80' }}"
-                                            alt="{{ $item->product->name }}" class="w-16 h-16 object-cover rounded-lg">
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-gray-800 text-sm line-clamp-2">
-                                                {{ $item->product->name }}</h4>
-                                            <p class="text-gray-600 text-xs mt-1">Qty: {{ $item->quantity }}</p>
-                                            <p class="text-[#193497] font-bold text-sm mt-1">Rp
-                                                {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
-                                        </div>
+                                        @if ($item->product)
+                                            <img src="{{ $item->product->image_url ?? 'https://via.placeholder.com/80' }}"
+                                                alt="{{ $item->product->name }}"
+                                                class="w-16 h-16 object-cover rounded-lg">
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="font-semibold text-gray-800 text-sm line-clamp-2">
+                                                    {{ $item->product->name }}
+                                                </h4>
+                                                <p class="text-gray-600 text-xs mt-1">Qty: {{ $item->quantity }}</p>
+                                                <p class="text-[#193497] font-bold text-sm mt-1">
+                                                    Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        @endif
                                     </div>
                                 @empty
                                     <div class="text-center py-4 text-gray-500">
@@ -513,17 +508,17 @@
                                         </span>
                                     </div>
                                 </div>
-
-                                <button type="submit"
-                                    class="w-full py-4 bg-gradient-to-r bg-[#193497] text-white font-bold rounded-xl hover:bg-[#191f01] transition-all duration-300 flex items-center justify-center gap-2">
-                                    <i class="fas fa-lock"></i>
-                                    Proses Checkout
-                                </button>
-
-                                <p class="text-xs text-gray-500 text-center mt-4">
-                                    Dengan melanjutkan, Anda menyetujui syarat & ketentuan kami
-                                </p>
                             </div>
+
+                            <button type="submit"
+                                class="w-full py-4 bg-gradient-to-r bg-[#193497] text-white font-bold rounded-xl hover:bg-[#191f01] transition-all duration-300 flex items-center justify-center gap-2">
+                                <i class="fas fa-lock"></i>
+                                Proses Checkout
+                            </button>
+
+                            <p class="text-xs text-gray-500 text-center mt-4">
+                                Dengan melanjutkan, Anda menyetujui syarat & ketentuan kami
+                            </p>
                         </div>
                     </div>
             </form>
@@ -726,7 +721,8 @@
             if (!lat || !lng) {
                 e.preventDefault();
                 alert(
-                    '⚠️ Mohon tentukan lokasi pengiriman pada peta!\n\nKlik pada peta atau gunakan tombol "Gunakan Lokasi Saya"');
+                    '⚠️ Mohon tentukan lokasi pengiriman pada peta!\n\nKlik pada peta atau gunakan tombol "Gunakan Lokasi Saya"'
+                    );
                 document.getElementById('map').scrollIntoView({
                     behavior: 'smooth',
                     block: 'center'
