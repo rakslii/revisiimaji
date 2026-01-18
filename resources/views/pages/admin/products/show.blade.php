@@ -190,28 +190,46 @@
                         </div>
                     </div>
 
-                    <!-- Specifications -->
-                    @if($product->specifications && count($product->specifications) > 0)
-                    <div class="mb-6">
-                        <p class="text-sm text-gray-500 mb-3">Specifications</p>
-                        <div class="bg-gray-50 rounded-lg overflow-hidden">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <tbody class="divide-y divide-gray-200">
-                                    @foreach($product->specifications as $key => $value)
-                                    <tr class="hover:bg-gray-100">
-                                        <td class="px-4 py-3 text-sm font-medium text-gray-700">
-                                            {{ ucfirst(str_replace('_', ' ', $key)) }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-600">
-                                            {{ $value }}
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    @endif
+                   <!-- Specifications -->
+@if($product->specifications && is_array($product->specifications) && count($product->specifications) > 0)
+<div class="mb-6">
+    <p class="text-sm text-gray-500 mb-3">Specifications</p>
+    <div class="bg-gray-50 rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-200">
+                @php
+                    $specifications = $product->specifications;
+                    // Pastikan $specifications adalah array
+                    if (is_string($specifications)) {
+                        $specifications = json_decode($specifications, true);
+                    }
+                @endphp
+                
+                @if(is_array($specifications) && count($specifications) > 0)
+                    @foreach($specifications as $spec)
+                        @if(isset($spec['key']) || isset($spec['value']))
+                        <tr class="hover:bg-gray-100">
+                            <td class="px-4 py-3 text-sm font-medium text-gray-700 border-r border-gray-200 w-1/3">
+                                {{ $spec['key'] ?? 'N/A' }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600">
+                                {{ $spec['value'] ?? 'N/A' }}
+                            </td>
+                        </tr>
+                        @endif
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">
+                            No specifications available
+                        </td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
 
                     <!-- Timestamps -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">

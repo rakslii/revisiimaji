@@ -5,38 +5,35 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\ProductCategory; // Ganti dari Category ke ProductCategory
+use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     public function __construct()
-{
-    // ⚡ HAPUS INI: $this->middleware('auth');
-    // Karena ini yang bikin redirect ke /login
-    
-    // Cek role admin saja
-    $this->middleware(function ($request, $next) {
-        if (!auth()->check()) {
-            // Manual redirect ke admin.login
-            return redirect()->route('admin.login')
-                ->with('error', 'Please login first.');
-        }
-        
-        if (auth()->user()->role !== 'admin') {
-            auth()->logout();
-            return redirect()->route('admin.login')
-                ->with('error', 'Admin access only.');
-        }
-        
-        return $next($request);
-    });
-}
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check()) {
+                return redirect()->route('admin.login')
+                    ->with('error', 'Please login first.');
+            }
+
+            if (auth()->user()->role !== 'admin') {
+                auth()->logout();
+                return redirect()->route('admin.login')
+                    ->with('error', 'Admin access only.');
+            }
+
+            return $next($request);
+        });
+    }
+
+  // Di ProductController.php, method index()
 public function index(Request $request)
 {
     $query = Product::with('category');
     
-    // Search by name or description
+    // Search
     if ($request->has('search') && $request->search) {
         $query->where(function($q) use ($request) {
             $q->where('name', 'like', '%' . $request->search . '%')
@@ -55,7 +52,74 @@ public function index(Request $request)
         $query->where('is_active', $request->status === 'active' ? 1 : 0);
     }
     
-    $products = $query->latest()->paginate(10);
+    // Filter by stock
+    if ($request->has('stock_filter') && $request->stock_filter) {
+        switch ($request->stock_filter) {
+            case 'out_of_stock':
+                $query->where('stock', 0);
+                break;
+            case 'low_stock':
+                $query->where('stock', '>', 0)->where('stock', '<=', 10);
+                break;
+            case 'in_stock':
+                $query->where('stock', '>', 0);
+                break;
+            case 'high_stock':
+                $query->where('stock', '>', 10);
+                break;
+            case 'custom':
+                if ($request->has('min_stock') && $request->min_stock) {
+                    $query->where('stock', '>=', $request->min_stock);
+                }
+                if ($request->has('max_stock') && $request->max_stock) {
+                    $query->where('stock', '<=', $request->max_stock);
+                }
+                break;
+        }
+    }
+    
+    // Filter by price range
+    if ($request->has('min_price') && $request->min_price) {
+        $query->where('price', '>=', $request->min_price);
+    }
+    if ($request->has('max_price') && $request->max_price) {
+        $query->where('price', '<=', $request->max_price);
+    }
+    
+    // Sorting
+    if ($request->has('sort_by') && $request->sort_by) {
+        switch ($request->sort_by) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'stock_high':
+                $query->orderBy('stock', 'desc');
+                break;
+            case 'stock_low':
+                $query->orderBy('stock', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            default: // newest
+                $query->latest();
+                break;
+        }
+    } else {
+        $query->latest(); // Default sort
+    }
+    
+    $perPage = $request->get('per_page', 15);
+    $products = $query->paginate($perPage);
     $categories = ProductCategory::active()->get();
     
     return view('pages.admin.products.index', compact('products', 'categories'));
@@ -66,36 +130,58 @@ public function index(Request $request)
         $categories = ProductCategory::active()->get();
         return view('pages.admin.products.create', compact('categories'));
     }
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'short_description' => 'nullable|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'discount_percent' => 'nullable|integer|min:0|max:100',
+        'category_id' => 'required|exists:product_categories,id',
+        'stock' => 'required|integer|min:0',
+        'min_order' => 'nullable|integer|min:1',
+        'is_active' => 'nullable|boolean',
+        'image' => 'required|image|max:5120',
+        'specifications' => 'nullable|array',
+        'specifications.*.key' => 'nullable|string|max:100',
+        'specifications.*.value' => 'nullable|string|max:255',
+    ]);
 
-    public function store(Request $request) // Ubah dari storeProduct() ke store()
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'discount_percent' => 'nullable|integer|min:0|max:100',
-            'category_id' => 'required|exists:product_categories,id',
-            'stock' => 'required|integer|min:0',
-            'min_order' => 'nullable|integer|min:1',
-            'is_active' => 'nullable|boolean',
-            'image' => 'nullable|image|max:2048',
-            'specifications' => 'nullable|array',
-        ]);
-
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = $path;
-        }
-
-        // Set default values
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-        $validated['category'] = ProductCategory::find($validated['category_id'])->type;
-
-        Product::create($validated);
-
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully');
+    // Handle image
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('products', 'public');
+        $validated['image'] = $path;
     }
+
+    // Get category type from selected category
+    $category = ProductCategory::find($validated['category_id']);
+    $validated['category'] = $category->type;
+
+    // Process specifications
+    if ($request->has('specifications')) {
+        $specifications = [];
+        foreach ($request->specifications as $spec) {
+            // Only add if both key and value are not empty
+            if (!empty($spec['key']) || !empty($spec['value'])) {
+                $specifications[] = [
+                    'key' => $spec['key'] ?? '',
+                    'value' => $spec['value'] ?? ''
+                ];
+            }
+        }
+        $validated['specifications'] = $specifications;
+    } else {
+        $validated['specifications'] = [];
+    }
+
+    $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+
+    Product::create($validated);
+
+    return redirect()->route('admin.products.index')
+        ->with('success', 'Product created successfully');
+}
 
     public function show($id)
     {
@@ -105,58 +191,92 @@ public function index(Request $request)
 
     public function edit($id)
     {
-        $product = Product::findOrFail($id);
+        // FIX: PASTIKAN MENGGUNAKAN EAGER LOADING
+        $product = Product::with('category')->findOrFail($id);
         $categories = ProductCategory::active()->get();
         return view('pages.admin.products.edit', compact('product', 'categories'));
     }
 
-    public function update(Request $request, $id) // Ubah dari updateProduct() ke update()
-    {
-        $product = Product::findOrFail($id);
+    public function update(Request $request, $id)
+{
+    $product = Product::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'discount_percent' => 'nullable|integer|min:0|max:100',
-            'category_id' => 'required|exists:product_categories,id',
-            'stock' => 'required|integer|min:0',
-            'min_order' => 'nullable|integer|min:1',
-            'is_active' => 'nullable|boolean',
-            'image' => 'nullable|image|max:2048',
-            'specifications' => 'nullable|array',
-        ]);
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'short_description' => 'nullable|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'discount_percent' => 'nullable|integer|min:0|max:100',
+        'category_id' => 'required|exists:product_categories,id',
+        'stock' => 'required|integer|min:0',
+        'min_order' => 'nullable|integer|min:1',
+        'is_active' => 'nullable|boolean',
+        'image' => 'nullable|image|max:5120',
+        'remove_image' => 'nullable|boolean',
+        'specifications' => 'nullable|array',
+        'specifications.*.key' => 'nullable|string|max:100',
+        'specifications.*.value' => 'nullable|string|max:255',
+    ]);
 
-        if ($request->hasFile('image')) {
-            // Delete old image jika ada
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = $path;
+    // Handle image removal
+    if ($request->has('remove_image') && $request->remove_image) {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+            $validated['image'] = null;
         }
-
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-        $validated['category'] = ProductCategory::find($validated['category_id'])->type;
-
-        $product->update($validated);
-
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully');
     }
 
-    public function destroy($id) // Ubah dari deleteProduct() ke destroy()
+    // Handle new image upload
+    if ($request->hasFile('image')) {
+        // Delete old image
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        $path = $request->file('image')->store('products', 'public');
+        $validated['image'] = $path;
+    }
+
+    // Get category type from selected category
+    $category = ProductCategory::find($validated['category_id']);
+    $validated['category'] = $category->type;
+
+    // Process specifications
+    if ($request->has('specifications')) {
+        $specifications = [];
+        foreach ($request->specifications as $spec) {
+            // Only add if both key and value are not empty
+            if (!empty($spec['key']) || !empty($spec['value'])) {
+                $specifications[] = [
+                    'key' => $spec['key'] ?? '',
+                    'value' => $spec['value'] ?? ''
+                ];
+            }
+        }
+        $validated['specifications'] = $specifications;
+    } else {
+        $validated['specifications'] = [];
+    }
+
+    $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+
+    $product->update($validated);
+
+    return redirect()->route('admin.products.index')
+        ->with('success', 'Product updated successfully');
+}
+    public function destroy($id)
     {
         $product = Product::findOrFail($id);
 
-        // Delete image jika ada
+        // Delete image
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
 
         $product->delete();
 
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully');
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Product deleted successfully');
     }
 }

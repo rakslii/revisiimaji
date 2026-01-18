@@ -35,7 +35,7 @@
                 <div>
                     <p class="text-sm text-gray-500">Active Products</p>
                     <p class="text-2xl font-bold text-green-600">
-                        {{ $products->filter(fn($p) => $p->is_active)->count() }}
+                        {{ App\Models\Product::active()->count() }}
                     </p>
                 </div>
                 <div class="bg-green-100 p-3 rounded-full">
@@ -47,9 +47,9 @@
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Low Stock</p>
+                    <p class="text-sm text-gray-500">Low Stock (< 10)</p>
                     <p class="text-2xl font-bold text-yellow-600">
-                        {{ $products->filter(fn($p) => $p->stock <= 10 && $p->stock > 0)->count() }}
+                        {{ App\Models\Product::where('stock', '>', 0)->where('stock', '<=', 10)->count() }}
                     </p>
                 </div>
                 <div class="bg-yellow-100 p-3 rounded-full">
@@ -63,7 +63,7 @@
                 <div>
                     <p class="text-sm text-gray-500">Out of Stock</p>
                     <p class="text-2xl font-bold text-red-600">
-                        {{ $products->filter(fn($p) => $p->stock == 0)->count() }}
+                        {{ App\Models\Product::where('stock', 0)->count() }}
                     </p>
                 </div>
                 <div class="bg-red-100 p-3 rounded-full">
@@ -73,21 +73,231 @@
         </div>
     </div>
 
+    <!-- Filter Section -->
+    <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Filters</h3>
+            @if(request()->anyFilled(['search', 'category', 'status', 'stock_filter', 'min_price', 'max_price']))
+            <a href="{{ route('admin.products.index') }}" 
+               class="text-sm text-red-600 hover:text-red-800">
+                <i class="fas fa-times mr-1"></i> Clear All Filters
+            </a>
+            @endif
+        </div>
+        
+        <form method="GET" action="{{ route('admin.products.index') }}" class="space-y-4">
+            <!-- Search Bar -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search Products</label>
+                <div class="flex gap-2">
+                    <input type="text" 
+                           name="search" 
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Search by name, description..."
+                           value="{{ request('search') }}">
+                    <button type="submit" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select name="category" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" 
+                                    {{ request('category') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }} ({{ $category->type }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select name="status" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Status</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Stock Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Filter</label>
+                    <select name="stock_filter" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Stock</option>
+                        <option value="out_of_stock" {{ request('stock_filter') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                        <option value="low_stock" {{ request('stock_filter') == 'low_stock' ? 'selected' : '' }}>Low Stock (< 10)</option>
+                        <option value="in_stock" {{ request('stock_filter') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                        <option value="high_stock" {{ request('stock_filter') == 'high_stock' ? 'selected' : '' }}>High Stock (10+)</option>
+                        <option value="custom" {{ request('stock_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                    <select name="sort_by" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                        <option value="oldest" {{ request('sort_by') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                        <option value="price_high" {{ request('sort_by') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="price_low" {{ request('sort_by') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                        <option value="stock_high" {{ request('sort_by') == 'stock_high' ? 'selected' : '' }}>Stock: High to Low</option>
+                        <option value="stock_low" {{ request('stock_low') == 'stock_low' ? 'selected' : '' }}>Stock: Low to High</option>
+                        <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Name: A-Z</option>
+                        <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Name: Z-A</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Custom Stock Range (Visible when custom is selected) -->
+            <div id="customStockRange" class="grid grid-cols-1 md:grid-cols-2 gap-4" 
+                 style="{{ request('stock_filter') == 'custom' ? '' : 'display: none;' }}">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min Stock</label>
+                    <input type="number" 
+                           name="min_stock" 
+                           min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           value="{{ request('min_stock') }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Stock</label>
+                    <input type="number" 
+                           name="max_stock" 
+                           min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           value="{{ request('max_stock') }}">
+                </div>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                        <input type="number" 
+                               name="min_price" 
+                               min="0"
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Min price"
+                               value="{{ request('min_price') }}">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                        <input type="number" 
+                               name="max_price" 
+                               min="0"
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Max price"
+                               value="{{ request('max_price') }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Filters Badges -->
+            @if(request()->anyFilled(['category', 'status', 'stock_filter', 'min_price', 'max_price']))
+            <div class="border-t pt-4">
+                <p class="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
+                <div class="flex flex-wrap gap-2">
+                    @if(request('category'))
+                    @php
+                        $selectedCategory = $categories->firstWhere('id', request('category'));
+                    @endphp
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Category: {{ $selectedCategory->name ?? 'Unknown' }}
+                        <a href="{{ request()->fullUrlWithQuery(['category' => null]) }}" 
+                           class="ml-1 text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                    @endif
+                    
+                    @if(request('status'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                        {{ request('status') == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        Status: {{ ucfirst(request('status')) }}
+                        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" 
+                           class="ml-1 hover:text-opacity-75">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                    @endif
+                    
+                    @if(request('stock_filter'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Stock: {{ ucfirst(str_replace('_', ' ', request('stock_filter'))) }}
+                        <a href="{{ request()->fullUrlWithQuery(['stock_filter' => null]) }}" 
+                           class="ml-1 hover:text-opacity-75">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                    @endif
+                    
+                    @if(request('min_price') || request('max_price'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        Price: 
+                        {{ request('min_price') ? 'Rp ' . number_format(request('min_price'), 0, ',', '.') : 'Min' }}
+                        -
+                        {{ request('max_price') ? 'Rp ' . number_format(request('max_price'), 0, ',', '.') : 'Max' }}
+                        <a href="{{ request()->fullUrlWithQuery(['min_price' => null, 'max_price' => null]) }}" 
+                           class="ml-1 hover:text-opacity-75">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-2 pt-2">
+                <a href="{{ route('admin.products.index') }}" 
+                   class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                    Reset
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Products Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <!-- Table Header with Filters -->
+        <!-- Table Header -->
         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 class="text-lg font-medium text-gray-900">Products List</h3>
-            <form method="GET" action="{{ route('admin.products.index') }}" class="flex gap-2">
-                <input type="text" 
-                       name="search" 
-                       class="px-3 py-1 border rounded-lg text-sm"
-                       placeholder="Search products..."
-                       value="{{ request('search') }}">
-                <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
+            <div>
+                <h3 class="text-lg font-medium text-gray-900">Products List</h3>
+                <p class="text-sm text-gray-500 mt-1">
+                    Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() }} products
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">Show:</span>
+                <select onchange="window.location.href = '{{ request()->fullUrlWithQuery(['per_page' => '']) }}' + this.value" 
+                        class="px-2 py-1 border border-gray-300 rounded text-sm">
+                    <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10</option>
+                    <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                    <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
         </div>
         
         <div class="overflow-x-auto">
@@ -109,25 +319,25 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             #{{ $product->id }}
                         </td>
-                 <td class="px-6 py-4 whitespace-nowrap">
-    <div class="flex items-center">
-        <div class="w-10 h-10 bg-gray-100 rounded-lg mr-3 overflow-hidden flex items-center justify-center">
-            @if($product->image)
-                <img src="{{ asset('storage/' . $product->image) }}" 
-                     alt="{{ $product->name }}" 
-                     class="w-full h-full object-cover">
-            @else
-                <i class="fas fa-box text-gray-400"></i>
-            @endif
-        </div>
-        <div>
-            <p class="text-sm font-medium text-gray-900">{{ $product->name }}</p>
-            <p class="text-xs text-gray-500 truncate max-w-xs">
-                {{ $product->short_description ?: Str::limit($product->description, 50) }}
-            </p>
-        </div>
-    </div>
-</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gray-100 rounded-lg mr-3 overflow-hidden flex items-center justify-center">
+                                    @if($product->image)
+                                        <img src="{{ asset('storage/' . $product->image) }}" 
+                                             alt="{{ $product->name }}" 
+                                             class="w-full h-full object-cover">
+                                    @else
+                                        <i class="fas fa-box text-gray-400"></i>
+                                    @endif
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ $product->name }}</p>
+                                    <p class="text-xs text-gray-500 truncate max-w-xs">
+                                        {{ $product->short_description ?: Str::limit($product->description, 50) }}
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                                 {{ $product->category_name }}
@@ -158,17 +368,17 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex gap-2">
                                 <a href="{{ route('admin.products.show', $product->id) }}" 
-                                   class="text-blue-600 hover:text-blue-900" 
+                                   class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" 
                                    title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ route('admin.products.edit', $product->id) }}" 
-                                   class="text-yellow-600 hover:text-yellow-900" 
+                                   class="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50" 
                                    title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button onclick="showDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                        class="text-red-600 hover:text-red-900" 
+                                        class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" 
                                         title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -181,10 +391,10 @@
                             <div class="py-8">
                                 <i class="fas fa-box fa-2x text-gray-300 mb-2"></i>
                                 <p class="text-gray-500">No products found</p>
-                                @if(request()->has('search'))
+                                @if(request()->anyFilled(['search', 'category', 'status', 'stock_filter', 'min_price', 'max_price']))
                                     <a href="{{ route('admin.products.index') }}" 
                                        class="inline-block mt-2 text-blue-600 hover:text-blue-800">
-                                        Clear search
+                                        <i class="fas fa-times mr-1"></i> Clear filters to see all products
                                     </a>
                                 @else
                                     <a href="{{ route('admin.products.create') }}" 
@@ -209,7 +419,7 @@
     </div>
 </div>
 
-<!-- Delete Modal (Tailwind version) -->
+<!-- Delete Modal -->
 <div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b">
@@ -252,6 +462,24 @@ function showDeleteModal(id, productName) {
 document.getElementById('deleteModal').addEventListener('click', function(e) {
     if (e.target === this) {
         this.classList.add('hidden');
+    }
+});
+
+// Show/hide custom stock range
+document.querySelector('select[name="stock_filter"]').addEventListener('change', function() {
+    const customRange = document.getElementById('customStockRange');
+    if (this.value === 'custom') {
+        customRange.style.display = 'grid';
+    } else {
+        customRange.style.display = 'none';
+    }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const stockFilter = document.querySelector('select[name="stock_filter"]');
+    if (stockFilter && stockFilter.value === 'custom') {
+        document.getElementById('customStockRange').style.display = 'grid';
     }
 });
 </script>

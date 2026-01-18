@@ -46,6 +46,9 @@ Route::get('/products', [FrontProductController::class, 'index'])->name('product
 Route::get('/products/{id}', [FrontProductController::class, 'show'])->name('products.show');
 Route::get('/categories', [FrontProductController::class, 'categories'])->name('products.categories');
 
+// Route untuk Live Search
+Route::post('/products/live-search', [FrontProductController::class, 'liveSearch'])->name('products.live-search');
+
 Route::get('/whatsapp', function () {
     $number = env('WHATSAPP_NUMBER', '6281234567890');
     $message = env('WHATSAPP_MESSAGE', 'Halo Cipta Imaji, saya ingin konsultasi');
