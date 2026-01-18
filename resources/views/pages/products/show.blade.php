@@ -285,13 +285,13 @@
                             </form>
 
                             <!-- Buy Now -->
-                            <button type="button" id="buy-now-btn" class="w-full bg-gradient-to-r from-[#193497] to-[#142a7a] hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                            <button type="button" id="buy-now-btn" class="w-full bg-[#193497] hover:bg-[#0f2354] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
                                 <i class="fas fa-bolt mr-3 text-xl"></i>
                                 <span class="text-lg">Beli Sekarang</span>
                             </button>
 
                             <!-- WhatsApp -->
-                            <button type="button" id="whatsapp-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+                            <button type="button" id="whatsapp-btn" class="w-full bg-[#193497] hover:bg-[#0f2354] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
                                 <i class="fab fa-whatsapp mr-3 text-2xl"></i>
                                 <span class="text-lg">Konsultasi via WhatsApp</span>
                             </button>
