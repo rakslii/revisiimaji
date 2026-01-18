@@ -50,32 +50,24 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1|max:' . $product->stock
         ]);
 
-        // Check product availability
         if (!$product->is_active) {
-            return response()->json(['error' => 'Produk tidak tersedia.'], 400);
+            return redirect()->back()->with('error', 'Produk tidak tersedia.');
         }
 
         if ($product->stock < $request->quantity) {
-            return response()->json(['error' => 'Stok tidak mencukupi. Stok tersisa: ' . $product->stock], 400);
+            return redirect()->back()->with('error', 'Stok tidak cukup.');
         }
 
-        // Get current cart
         $cart = Cart::getCurrentCart();
-
-        // Check if product already in cart
         $cartItem = $cart->items()->where('product_id', $product->id)->first();
 
         if ($cartItem) {
-            // Update quantity
-            $newQuantity = $cartItem->quantity + $request->quantity;
-
-            if ($newQuantity > $product->stock) {
-                return response()->json(['error' => 'Stok tidak mencukupi untuk menambah jumlah ini.'], 400);
+            $newQty = $cartItem->quantity + $request->quantity;
+            if ($newQty > $product->stock) {
+                return redirect()->back()->with('error', 'Stok ga cukup buat nambah segitu.');
             }
-
-            $cartItem->update(['quantity' => $newQuantity]);
+            $cartItem->update(['quantity' => $newQty]);
         } else {
-            // Add new item
             $cart->items()->create([
                 'product_id' => $product->id,
                 'quantity' => $request->quantity,
@@ -83,16 +75,7 @@ class CartController extends Controller
             ]);
         }
 
-        // Return JSON response for AJAX
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Produk berhasil ditambahkan ke keranjang.',
-                'cart_count' => $cart->fresh()->total_items
-            ]);
-        }
-
-        return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
     public function update(Request $request, $itemId)
@@ -106,16 +89,45 @@ class CartController extends Controller
         $product = $item->product;
 
         if (!$product) {
-            return redirect()->route('cart.index')->with('error', 'Produk tidak ditemukan.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Produk ga ada.'
+            ], 404);
         }
 
         if ($request->quantity > $product->stock) {
-            return redirect()->route('cart.index')->with('error', 'Stok hanya tersisa ' . $product->stock . ' item.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Stok tinggal ' . $product->stock
+            ], 400);
         }
 
         $item->update(['quantity' => $request->quantity]);
 
-        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil diperbarui.');
+        // Hitung ulang semua total
+        $cart = $cart->fresh();
+        $items = $cart->items()->with('product')->get();
+        
+        $subtotal = 0;
+        foreach ($items as $cartItem) {
+            if ($cartItem->product && $cartItem->product->is_active) {
+                $subtotal += $cartItem->price * $cartItem->quantity;
+            }
+        }
+
+        $shipping = 15000;
+        $grandTotal = $subtotal + $shipping;
+
+        // Item total yang diupdate
+        $itemTotal = $item->price * $item->quantity;
+
+        return response()->json([
+            'success' => true,
+            'item_total' => 'Rp ' . number_format($itemTotal, 0, ',', '.'),
+            'subtotal' => 'Rp ' . number_format($subtotal, 0, ',', '.'),
+            'grand_total' => 'Rp ' . number_format($grandTotal, 0, ',', '.'),
+            'cart_count' => $cart->total_items
+        ]);
     }
 
     public function remove($itemId)
@@ -125,10 +137,9 @@ class CartController extends Controller
 
         if ($item) {
             $item->delete();
-            return redirect()->route('cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
         }
 
-        return redirect()->route('cart.index')->with('error', 'Item tidak ditemukan di keranjang.');
+        return redirect()->route('cart.index')->with('success', 'Produk dihapus dari keranjang.');
     }
 
     public function clear()
@@ -136,137 +147,92 @@ class CartController extends Controller
         $cart = Cart::getCurrentCart();
         $cart->items()->delete();
 
-        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil dikosongkan.');
+        return redirect()->route('cart.index')->with('success', 'Keranjang dikosongkan.');
     }
 
     public function checkout()
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-        }
-
         $cart = Cart::getCurrentCart();
         $cartItems = $cart->items()->with('product')->get();
 
-        // Check if cart is empty
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
         }
 
-        // Check unavailable items
-        $unavailableItems = [];
         foreach ($cartItems as $item) {
             if (!$item->isAvailable()) {
-                $unavailableItems[] = $item->product->name . ' - ' . $item->getAvailabilityMessage();
+                return redirect()->route('cart.index')->with('error', 'Ada produk yang ga tersedia.');
             }
         }
 
-        if (!empty($unavailableItems)) {
-            return redirect()->route('cart.index')
-                ->with('error', 'Beberapa produk tidak tersedia')
-                ->with('unavailable', $unavailableItems);
-        }
-
-        $user = Auth::user();
-
-        // Calculate totals
-        $subtotal = 0;
-        foreach ($cartItems as $item) {
-            $subtotal += $item->price * $item->quantity;
-        }
-
+        $subtotal = $cartItems->sum(fn($i) => $i->price * $i->quantity);
         $discount = 0;
         $total = $subtotal - $discount;
 
-        return view('pages.cart.checkout', compact(
-            'cartItems',
-            'subtotal',
-            'discount',
-            'total'
-        ));
+        return view('pages.cart.checkout', compact('cartItems', 'subtotal', 'discount', 'total'));
     }
 
     public function processCheckout(Request $request)
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
-        }
-
-        // Validation - PERBAIKAN DI SINI
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-            'address' => 'required|string',
-            'city' => 'required|string|max:100',
-            'postal_code' => 'required|string|max:10',
+        $data = $request->validate([
+            'name' => 'required',
+            'phone' => 'required',
+            'email' => 'required|email',
+            'address' => 'required',
+            'city' => 'required',
+            'postal_code' => 'required',
             'shipping_method' => 'required|in:pickup,delivery,cargo',
             'payment_method' => 'required|in:transfer,cash,ewallet',
-            'notes' => 'nullable|string|max:500',
-        ], [
-            'shipping_method.required' => 'Metode pengiriman wajib dipilih.',
-            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
+            'notes' => 'nullable'
         ]);
-
 
         DB::beginTransaction();
 
         try {
             $cart = Cart::getCurrentCart();
-            $cartItems = $cart->items()->with('product')->get();
+            $items = $cart->items()->with('product')->get();
 
-            // Check if cart is empty
-            if ($cartItems->isEmpty()) {
-                throw new \Exception('Keranjang belanja kosong.');
+            if ($items->isEmpty()) {
+                throw new \Exception('Keranjang kosong.');
             }
 
-            // Calculate shipping cost
-            $shippingCost = 0;
-            switch ($validated['shipping_method']) {
-                case 'delivery':
-                    $shippingCost = 15000;
-                    break;
-                case 'cargo':
-                    $shippingCost = 25000;
-                    break;
-            }
+            $shipping = match($data['shipping_method']) {
+                'delivery' => 15000,
+                'cargo' => 25000,
+                default => 0
+            };
 
-            // Calculate totals
             $subtotal = 0;
-            foreach ($cartItems as $item) {
-                // Check stock availability
+            foreach ($items as $item) {
                 if ($item->quantity > $item->product->stock) {
-                    throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
+                    throw new \Exception('Stok ' . $item->product->name . ' ga cukup.');
                 }
                 $subtotal += $item->price * $item->quantity;
             }
 
-            $discount = 0;
-            $total = $subtotal + $shippingCost - $discount;
+            $total = $subtotal + $shipping;
 
-            // Create order
             $order = Order::create([
                 'order_code' => 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
                 'user_id' => Auth::id(),
-                'customer_name' => $validated['name'],
-                'customer_phone' => $validated['phone'],
-                'customer_email' => $validated['email'],
-                'shipping_address' => $validated['address'],
-                'shipping_city' => $validated['city'],
-                'shipping_postal_code' => $validated['postal_code'],
-                'shipping_method' => $validated['shipping_method'],
-                'payment_method' => $validated['payment_method'],
-                'notes' => $validated['notes'] ?? null,
+                'customer_name' => $data['name'],
+                'customer_phone' => $data['phone'],
+                'customer_email' => $data['email'],
+                'shipping_address' => $data['address'],
+                'shipping_city' => $data['city'],
+                'shipping_postal_code' => $data['postal_code'],
+                'shipping_method' => $data['shipping_method'],
+                'payment_method' => $data['payment_method'],
+                'notes' => $data['notes'] ?? null,
                 'subtotal' => $subtotal,
-                'shipping_cost' => $shippingCost,
-                'discount' => $discount,
+                'shipping_cost' => $shipping,
+                'discount' => 0,
                 'total' => $total,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
             ]);
 
-            // Create order items and reduce stock
-            foreach ($cartItems as $item) {
+            foreach ($items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
@@ -276,24 +242,16 @@ class CartController extends Controller
                     'subtotal' => $item->price * $item->quantity,
                 ]);
 
-                // Reduce product stock
                 $item->product->decrement('stock', $item->quantity);
             }
 
-            // Clear cart
             $cart->items()->delete();
-
             DB::commit();
 
-            return redirect()->route('orders.show', $order->id)
-                ->with('success', 'Pesanan berhasil dibuat! Kode pesanan: ' . $order->order_code);
+            return redirect()->route('orders.show', $order->id)->with('success', 'Order berhasil dibuat!');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Checkout Error: ' . $e->getMessage());
-
-            return back()
-                ->withInput()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -305,8 +263,8 @@ class CartController extends Controller
             $cart = Cart::where('session_id', session()->getId())->first();
         }
 
-        $count = $cart ? $cart->total_items : 0;
-
-        return response()->json(['count' => $count]);
+        return response()->json([
+            'count' => $cart ? $cart->total_items : 0
+        ]);
     }
 }
