@@ -94,13 +94,19 @@
                     
                     <div class="divide-y divide-gray-100">
                         @foreach($cartItems as $cartItem)
+                        @php
+                            // PERBAIKAN: Gunakan image_url, bukan getFirstMediaUrl
+                            $productImage = $cartItem['product']->image_url ?? asset('images/default-product.jpg');
+                            $categoryName = $cartItem['product']->category_name ?? 'Uncategorized';
+                        @endphp
                         <div class="p-6 md:p-8 hover:bg-gray-50 transition-colors">
                             <div class="flex flex-col sm:flex-row gap-6">
                                 <!-- Product Image -->
                                 <div class="flex-shrink-0">
-                                    <img src="{{ $cartItem['product']->getFirstMediaUrl('products') ?: asset('images/default-product.png') }}" 
+                                    <img src="{{ $productImage }}" 
                                          alt="{{ $cartItem['product']->name }}"
-                                         class="w-32 h-32 object-cover rounded-2xl shadow-md">
+                                         class="w-32 h-32 object-cover rounded-2xl shadow-md"
+                                         onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
                                 </div>
                                 
                                 <!-- Product Info -->
@@ -110,7 +116,7 @@
                                             <h4 class="font-bold text-gray-900 text-lg mb-2">{{ $cartItem['product']->name }}</h4>
                                             <div class="inline-block px-3 py-1 bg-blue-100 text-[#193497] rounded-lg text-sm font-semibold mb-3">
                                                 <i class="fas fa-tag mr-1"></i>
-                                                {{ $cartItem['product']->category->name ?? 'Uncategorized' }}
+                                                {{ $categoryName }}
                                             </div>
                                             
                                             @if(!$cartItem['available'])
