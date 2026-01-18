@@ -864,6 +864,11 @@
       'token_url' => 'https://oauth2.googleapis.com/token',
       'userinfo_url' => 'https://www.googleapis.com/oauth2/v3/userinfo',
     ),
+    'midtrans' => 
+    array (
+      'server_key' => 'Mid-server-zQ3ypSZVLV4yAEmMkYmgCa92',
+      'is_production' => false,
+    ),
   ),
   'session' => 
   array (

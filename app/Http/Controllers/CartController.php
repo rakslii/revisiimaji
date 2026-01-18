@@ -68,7 +68,7 @@ class CartController extends Controller
         if ($cartItem) {
             $newQty = $cartItem->quantity + $request->quantity;
             if ($newQty > $product->stock) {
-                return redirect()->back()->with('error', 'Stok ga cukup buat nambah segitu.');
+                return redirect()->back()->with('error', 'Stok tidak cukup untuk menambah jumlah ini.');
             }
             $cartItem->update(['quantity' => $newQty]);
         } else {
@@ -95,23 +95,23 @@ class CartController extends Controller
         if (!$product) {
             return response()->json([
                 'success' => false,
-                'message' => 'Produk ga ada.'
+                'message' => 'Produk tidak ditemukan.'
             ], 404);
         }
 
         if ($request->quantity > $product->stock) {
             return response()->json([
                 'success' => false,
-                'message' => 'Stok tinggal ' . $product->stock
+                'message' => 'Stok hanya tersisa ' . $product->stock
             ], 400);
         }
 
         $item->update(['quantity' => $request->quantity]);
 
-        // Hitung ulang semua total
+        // Hitung ulang total
         $cart = $cart->fresh();
         $items = $cart->items()->with('product')->get();
-        
+
         $subtotal = 0;
         foreach ($items as $cartItem) {
             if ($cartItem->product && $cartItem->product->is_active) {
@@ -121,8 +121,6 @@ class CartController extends Controller
 
         $shipping = 15000;
         $grandTotal = $subtotal + $shipping;
-
-        // Item total yang diupdate
         $itemTotal = $item->price * $item->quantity;
 
         return response()->json([
@@ -143,7 +141,7 @@ class CartController extends Controller
             $item->delete();
         }
 
-        return redirect()->route('cart.index')->with('success', 'Produk dihapus dari keranjang.');
+        return redirect()->route('cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
     }
 
     public function clear()
@@ -151,92 +149,144 @@ class CartController extends Controller
         $cart = Cart::getCurrentCart();
         $cart->items()->delete();
 
-        return redirect()->route('cart.index')->with('success', 'Keranjang dikosongkan.');
+        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil dikosongkan.');
     }
 
     public function checkout()
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
         $cart = Cart::getCurrentCart();
         $cartItems = $cart->items()->with('product')->get();
 
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
+            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
         }
 
+        // Check unavailable items
+        $unavailableItems = [];
         foreach ($cartItems as $item) {
             if (!$item->isAvailable()) {
-                return redirect()->route('cart.index')->with('error', 'Ada produk yang ga tersedia.');
+                $unavailableItems[] = $item->product->name . ' - ' . $item->getAvailabilityMessage();
             }
         }
 
-        $subtotal = $cartItems->sum(fn($i) => $i->price * $i->quantity);
+        if (!empty($unavailableItems)) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Beberapa produk tidak tersedia')
+                ->with('unavailable', $unavailableItems);
+        }
+
+        $subtotal = 0;
+        foreach ($cartItems as $item) {
+            $subtotal += $item->price * $item->quantity;
+        }
+
         $discount = 0;
         $total = $subtotal - $discount;
 
-        return view('pages.cart.checkout', compact('cartItems', 'subtotal', 'discount', 'total'));
+        // FIX: Pastikan user dan userLocation ada
+        $user = Auth::user();
+        $userLocation = null; // Set default jika tidak ada lokasi tersimpan
+
+        return view('pages.cart.checkout', compact('cartItems', 'subtotal', 'discount', 'total', 'user', 'userLocation'));
     }
 
     public function processCheckout(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required',
-            'phone' => 'required',
-            'email' => 'required|email',
-            'address' => 'required',
-            'city' => 'required',
-            'postal_code' => 'required',
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string',
+            'city' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
             'shipping_method' => 'required|in:pickup,delivery,cargo',
-            'payment_method' => 'required|in:transfer,cash,ewallet',
-            'notes' => 'nullable'
+            'design_files.*' => 'nullable|file|max:10240',
+            'design_notes' => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:500',
         ]);
 
         DB::beginTransaction();
 
         try {
             $cart = Cart::getCurrentCart();
-            $items = $cart->items()->with('product')->get();
+            $cartItems = $cart->items()->with('product')->get();
 
-            if ($items->isEmpty()) {
-                throw new \Exception('Keranjang kosong.');
+            if ($cartItems->isEmpty()) {
+                throw new \Exception('Keranjang belanja kosong.');
             }
 
-            $shipping = match($data['shipping_method']) {
-                'delivery' => 15000,
-                'cargo' => 25000,
-                default => 0
-            };
+            // Calculate shipping cost
+            $shippingCost = 0;
+            switch ($validated['shipping_method']) {
+                case 'delivery':
+                    $shippingCost = 15000;
+                    break;
+                case 'cargo':
+                    $shippingCost = 25000;
+                    break;
+            }
 
+            // Calculate totals
             $subtotal = 0;
-            foreach ($items as $item) {
+            foreach ($cartItems as $item) {
                 if ($item->quantity > $item->product->stock) {
-                    throw new \Exception('Stok ' . $item->product->name . ' ga cukup.');
+                    throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
                 }
                 $subtotal += $item->price * $item->quantity;
             }
 
-            $total = $subtotal + $shipping;
+            $discount = 0;
+            $total = $subtotal + $shippingCost - $discount;
 
+            // Create order
+            $orderCode = 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+            
             $order = Order::create([
                 'order_code' => $orderCode,
                 'user_id' => Auth::id(),
-                'customer_name' => $data['name'],
-                'customer_phone' => $data['phone'],
-                'customer_email' => $data['email'],
-                'shipping_address' => $data['address'],
-                'shipping_city' => $data['city'],
-                'shipping_postal_code' => $data['postal_code'],
-                'shipping_method' => $data['shipping_method'],
-                'payment_method' => $data['payment_method'],
-                'notes' => $data['notes'] ?? null,
+                'customer_name' => $validated['name'],
+                'customer_phone' => $validated['phone'],
+                'customer_email' => $validated['email'],
+                'shipping_address' => $validated['address'],
+                'shipping_city' => $validated['city'],
+                'shipping_postal_code' => $validated['postal_code'],
+                'shipping_method' => $validated['shipping_method'],
+                'payment_method' => 'qris',
+                'notes' => $validated['notes'] ?? null,
+                'design_notes' => $validated['design_notes'] ?? null,
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
                 'subtotal' => $subtotal,
-                'shipping_cost' => $shipping,
-                'discount' => 0,
+                'shipping_cost' => $shippingCost,
+                'discount' => $discount,
                 'total' => $total,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
             ]);
 
-            foreach ($items as $item) {
+            // Upload design files
+            if ($request->hasFile('design_files')) {
+                $designPaths = [];
+                foreach ($request->file('design_files') as $file) {
+                    $path = $file->store('designs/' . $order->id, 'public');
+                    $designPaths[] = $path;
+                }
+                $order->design_files = implode(',', $designPaths);
+                $order->save();
+            }
+
+            // Create order items
+            foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
@@ -246,16 +296,37 @@ class CartController extends Controller
                     'subtotal' => $item->price * $item->quantity,
                 ]);
 
+                // Reduce stock
                 $item->product->decrement('stock', $item->quantity);
             }
 
+            // Create Midtrans Snap Token using Service
+            try {
+                $snapToken = $this->midtrans->createTransaction($order, $cartItems);
+                
+                $order->update([
+                    'snap_token' => $snapToken,
+                    'midtrans_order_id' => $orderCode,
+                ]);
+            } catch (\Exception $e) {
+                throw new \Exception('Gagal membuat token pembayaran: ' . $e->getMessage());
+            }
+
+            // Clear cart
             $cart->items()->delete();
+
             DB::commit();
 
-            return redirect()->route('orders.show', $order->id)->with('success', 'Order berhasil dibuat!');
+            return redirect()->route('orders.payment', $order->id)
+                ->with('success', 'Pesanan berhasil dibuat! Silakan lanjutkan pembayaran.');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', $e->getMessage());
+            \Log::error('Checkout Error: ' . $e->getMessage());
+
+            return back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
