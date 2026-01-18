@@ -130,39 +130,58 @@ public function index(Request $request)
         $categories = ProductCategory::active()->get();
         return view('pages.admin.products.create', compact('categories'));
     }
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'short_description' => 'nullable|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'discount_percent' => 'nullable|integer|min:0|max:100',
+        'category_id' => 'required|exists:product_categories,id',
+        'stock' => 'required|integer|min:0',
+        'min_order' => 'nullable|integer|min:1',
+        'is_active' => 'nullable|boolean',
+        'image' => 'required|image|max:5120',
+        'specifications' => 'nullable|array',
+        'specifications.*.key' => 'nullable|string|max:100',
+        'specifications.*.value' => 'nullable|string|max:255',
+    ]);
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'discount_percent' => 'nullable|integer|min:0|max:100',
-            'category_id' => 'required|exists:product_categories,id',
-            'stock' => 'required|integer|min:0',
-            'min_order' => 'nullable|integer|min:1',
-            'is_active' => 'nullable|boolean',
-            'image' => 'required|image|max:5120',
-        ]);
-
-        // Handle image
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = $path;
-        }
-
-        // Get category type from selected category
-        $category = ProductCategory::find($validated['category_id']);
-        $validated['category'] = $category->type;
-
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-
-        Product::create($validated);
-
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product created successfully');
+    // Handle image
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('products', 'public');
+        $validated['image'] = $path;
     }
+
+    // Get category type from selected category
+    $category = ProductCategory::find($validated['category_id']);
+    $validated['category'] = $category->type;
+
+    // Process specifications
+    if ($request->has('specifications')) {
+        $specifications = [];
+        foreach ($request->specifications as $spec) {
+            // Only add if both key and value are not empty
+            if (!empty($spec['key']) || !empty($spec['value'])) {
+                $specifications[] = [
+                    'key' => $spec['key'] ?? '',
+                    'value' => $spec['value'] ?? ''
+                ];
+            }
+        }
+        $validated['specifications'] = $specifications;
+    } else {
+        $validated['specifications'] = [];
+    }
+
+    $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+
+    Product::create($validated);
+
+    return redirect()->route('admin.products.index')
+        ->with('success', 'Product created successfully');
+}
 
     public function show($id)
     {
@@ -179,54 +198,73 @@ public function index(Request $request)
     }
 
     public function update(Request $request, $id)
-    {
-        $product = Product::findOrFail($id);
+{
+    $product = Product::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'discount_percent' => 'nullable|integer|min:0|max:100',
-            'category_id' => 'required|exists:product_categories,id',
-            'stock' => 'required|integer|min:0',
-            'min_order' => 'nullable|integer|min:1',
-            'is_active' => 'nullable|boolean',
-            'image' => 'nullable|image|max:5120',
-            'remove_image' => 'nullable|boolean',
-        ]);
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'short_description' => 'nullable|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'discount_percent' => 'nullable|integer|min:0|max:100',
+        'category_id' => 'required|exists:product_categories,id',
+        'stock' => 'required|integer|min:0',
+        'min_order' => 'nullable|integer|min:1',
+        'is_active' => 'nullable|boolean',
+        'image' => 'nullable|image|max:5120',
+        'remove_image' => 'nullable|boolean',
+        'specifications' => 'nullable|array',
+        'specifications.*.key' => 'nullable|string|max:100',
+        'specifications.*.value' => 'nullable|string|max:255',
+    ]);
 
-        // Handle image removal
-        if ($request->has('remove_image') && $request->remove_image) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-                $validated['image'] = null;
-            }
+    // Handle image removal
+    if ($request->has('remove_image') && $request->remove_image) {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+            $validated['image'] = null;
         }
-
-        // Handle new image upload
-        if ($request->hasFile('image')) {
-            // Delete old image
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-
-            $path = $request->file('image')->store('products', 'public');
-            $validated['image'] = $path;
-        }
-
-        // Get category type from selected category
-        $category = ProductCategory::find($validated['category_id']);
-        $validated['category'] = $category->type;
-
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-
-        $product->update($validated);
-
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product updated successfully');
     }
 
+    // Handle new image upload
+    if ($request->hasFile('image')) {
+        // Delete old image
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        $path = $request->file('image')->store('products', 'public');
+        $validated['image'] = $path;
+    }
+
+    // Get category type from selected category
+    $category = ProductCategory::find($validated['category_id']);
+    $validated['category'] = $category->type;
+
+    // Process specifications
+    if ($request->has('specifications')) {
+        $specifications = [];
+        foreach ($request->specifications as $spec) {
+            // Only add if both key and value are not empty
+            if (!empty($spec['key']) || !empty($spec['value'])) {
+                $specifications[] = [
+                    'key' => $spec['key'] ?? '',
+                    'value' => $spec['value'] ?? ''
+                ];
+            }
+        }
+        $validated['specifications'] = $specifications;
+    } else {
+        $validated['specifications'] = [];
+    }
+
+    $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+
+    $product->update($validated);
+
+    return redirect()->route('admin.products.index')
+        ->with('success', 'Product updated successfully');
+}
     public function destroy($id)
     {
         $product = Product::findOrFail($id);

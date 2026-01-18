@@ -4,12 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Product extends Model implements HasMedia
+class Product extends Model
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes;
 
     protected $fillable = [
         'name', 'description', 'short_description', 'price', 'discount_percent',
@@ -22,6 +20,14 @@ class Product extends Model implements HasMedia
         'specifications' => 'array',
         'price' => 'decimal:2',
         'rating' => 'decimal:1'
+    ];
+
+    protected $appends = [
+        'image_url',
+        'final_price',
+        'has_discount',
+        'category_name',
+        'thumbnail_url'
     ];
 
     // Relationship dengan ProductCategory
@@ -67,56 +73,61 @@ class Product extends Model implements HasMedia
         return $query->where('category', 'non-instan');
     }
 
-    // FIXED: Helper method untuk mendapatkan nama kategori YANG AMAN
+    // PERBAIKAN: Helper method untuk mendapatkan nama kategori
     public function getCategoryNameAttribute()
     {
-        // Cek apakah $this->category adalah object ProductCategory
-        if ($this->category && is_object($this->category) && method_exists($this->category, 'getAttribute')) {
-            // Ini adalah Eloquent model object
+        // Prioritas 1: Jika category adalah object (relationship loaded)
+        if (is_object($this->category) && isset($this->category->name)) {
             return $this->category->name;
         }
         
-        // Cek apakah $this->category adalah string (dari kolom ENUM)
+        // Prioritas 2: Jika category adalah string (dari kolom ENUM)
         if (is_string($this->category) && !empty($this->category)) {
-            // Coba cari category name dari category_id jika ada
-            if ($this->category_id) {
-                // Hindari N+1 query dengan menggunakan cache atau langsung query
-                $categoryName = cache()->remember("category_name_{$this->category_id}", 300, function () {
-                    $cat = ProductCategory::find($this->category_id);
-                    return $cat ? $cat->name : null;
-                });
-                
-                if ($categoryName) {
-                    return $categoryName;
-                }
-            }
-            
-            // Jika tidak ada, format string enum
-            return ucfirst($this->category);
+            return $this->category === 'instan' ? 'Produk Instan' : 'Produk Non Instan';
         }
         
-        // Jika category_id ada
+        // Prioritas 3: Jika category_id ada, coba ambil dari database
         if ($this->category_id) {
-            $category = ProductCategory::find($this->category_id);
-            return $category ? $category->name : "Category #{$this->category_id}";
+            // Cek cache dulu untuk menghindari N+1 query
+            $cacheKey = 'category_name_' . $this->category_id;
+            $categoryName = cache()->remember($cacheKey, 300, function () {
+                $category = ProductCategory::find($this->category_id);
+                return $category ? $category->name : null;
+            });
+            
+            if ($categoryName) {
+                return $categoryName;
+            }
         }
         
-        return 'No Category';
+        // Fallback: Cek kolom enum langsung
+        if (isset($this->attributes['category']) && !empty($this->attributes['category'])) {
+            return $this->attributes['category'] === 'instan' ? 'Produk Instan' : 'Produk Non Instan';
+        }
+        
+        // Default fallback
+        return 'Produk';
     }
 
-    // Helper untuk mendapatkan type kategori dari ENUM
+    // Helper untuk mendapatkan type kategori
     public function getCategoryTypeAttribute()
     {
+        // Jika category adalah object
+        if (is_object($this->category) && isset($this->category->type)) {
+            return $this->category->type;
+        }
+        
+        // Jika category adalah string
         if (is_string($this->category)) {
-            return ucfirst($this->category);
+            return $this->category;
         }
         
-        // Jika ada relationship
-        if ($this->category && is_object($this->category)) {
-            return $this->category->type ?? 'Unknown';
+        // Jika ada di attributes
+        if (isset($this->attributes['category']) && !empty($this->attributes['category'])) {
+            return $this->attributes['category'];
         }
         
-        return 'Unknown';
+        return 'unknown';
     }
 
     // Accessor untuk final price (setelah diskon)
@@ -135,18 +146,38 @@ class Product extends Model implements HasMedia
         return $this->discount_percent > 0;
     }
 
-    // Accessor untuk image URL
+    // Accessor untuk image URL - SIMPLE VERSION
     public function getImageUrlAttribute()
     {
         if (!$this->image) {
             return asset('images/default-product.jpg');
         }
         
-        if (str_starts_with($this->image, 'http')) {
+        // Jika URL external
+        if (filter_var($this->image, FILTER_VALIDATE_URL)) {
             return $this->image;
         }
         
-        return asset('storage/' . $this->image);
+        // Cek apakah file ada di storage
+        $filePath = storage_path('app/public/' . $this->image);
+        if (file_exists($filePath)) {
+            return asset('storage/' . $this->image);
+        }
+        
+        // Coba cek di public folder
+        $publicPath = public_path($this->image);
+        if (file_exists($publicPath)) {
+            return asset($this->image);
+        }
+        
+        // Fallback ke default
+        return asset('images/default-product.jpg');
+    }
+
+    // Accessor untuk thumbnail URL
+    public function getThumbnailUrlAttribute()
+    {
+        return $this->image_url; // Untuk sekarang sama dengan image_url
     }
 
     // Method untuk mendapatkan diskon dalam rupiah
@@ -168,7 +199,7 @@ class Product extends Model implements HasMedia
             if ($product->category_id) {
                 $category = ProductCategory::find($product->category_id);
                 if ($category) {
-                    $product->category = $category->type; // Sync enum dengan type
+                    $product->category = $category->type;
                 }
             }
         });
@@ -186,6 +217,9 @@ class Product extends Model implements HasMedia
             }
             if (is_null($product->discount_percent)) {
                 $product->discount_percent = 0;
+            }
+            if (is_null($product->rating)) {
+                $product->rating = 0;
             }
         });
     }

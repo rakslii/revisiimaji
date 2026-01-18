@@ -9,7 +9,7 @@
         <!-- Decorative Elements -->
         <div class="absolute top-0 right-0 w-96 h-96 bg-[#d2f801] rounded-full opacity-10 blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#7209b7] rounded-full opacity-10 blur-3xl"></div>
-        
+
         <div class="container mx-auto px-4 py-12 md:py-16 relative z-10">
             <div class="max-w-4xl">
                 <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
@@ -18,20 +18,25 @@
                 <p class="text-xl md:text-2xl opacity-90 mb-8">
                     Temukan solusi printing terbaik untuk kebutuhan bisnis dan personal Anda
                 </p>
-                
-                <!-- Search Box -->
-                <form action="{{ route('products.index') }}" method="GET" class="max-w-3xl">
+
+                <!-- Search Box - MODIFIED FOR LIVE SEARCH -->
+                <div class="max-w-3xl">
                     <div class="relative">
-                        <input type="text" 
-                               name="search" 
+                        <input type="text"
+                               id="liveSearchInput"
+                               name="search"
                                value="{{ request('search') }}"
                                placeholder="Cari produk: brosur, banner, kartu nama..."
                                class="w-full px-6 py-5 pr-16 rounded-2xl bg-[#f9f0f1] text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-yellow-400/50 shadow-2xl text-lg">
-                        <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#d2f801] hover:bg-yellow-300 text-blue-900 p-4 rounded-xl transition-colors shadow-lg">
+                        <button type="button" id="searchButton" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#d2f801] hover:bg-yellow-300 text-blue-900 p-4 rounded-xl transition-colors shadow-lg">
                             <i class="fas fa-search text-xl"></i>
                         </button>
                     </div>
-                </form>
+                    <div id="searchResultsInfo" class="text-white mt-2 text-sm hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        <span>Mencari...</span>
+                    </div>
+                </div>
 
                 <!-- Quick Stats -->
                 <div class="grid grid-cols-3 gap-6 mt-8">
@@ -57,7 +62,7 @@
             <!-- Sidebar Filters -->
             <div class="lg:w-1/4">
                 <div class="bg-[#f9f0f1] rounded-3xl shadow-xl p-6 sticky top-6 border border-gray-100">
-                    <!-- Categories -->
+                    <!-- Categories - SIMPLIFIED TO ONLY INSTAN & NON-INSTAN -->
                     <div class="mb-8">
                         <h3 class="font-bold text-xl mb-6 text-gray-800 flex items-center">
                             <div class="w-10 h-10 bg-gradient-to-br bg-[#193497] rounded-xl flex items-center justify-center mr-3">
@@ -66,63 +71,40 @@
                             Kategori
                         </h3>
                         <div class="space-y-2">
-                            <a href="{{ route('products.index') }}" 
-                               class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ !request('category') ? 'bg-[#193497] text-white shadow-lg' : 'text-gray-600 hover:bg-gray-50' }}">
+                            <a href="{{ route('products.index') }}"
+                               class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ !request('category') ? 'bg-[#193497] text-white shadow-lg' : 'text-gray-600 hover:bg-gray-50' }}"
+                               onclick="applyFilter('category', '')">
                                 <i class="fas fa-th-large mr-3 {{ !request('category') ? 'text-[#d2f801]' : 'text-[#193497]' }}"></i>
                                 <span class="font-semibold">Semua Produk</span>
                                 @if(!request('category'))
                                 <i class="fas fa-check ml-auto"></i>
                                 @endif
                             </a>
-                            
-                            @if($instantCategories->isNotEmpty())
-                            <div class="mt-6">
-                                <h4 class="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wider flex items-center">
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                                    Produk Instan
-                                </h4>
-                                <div class="space-y-1 pl-2">
-                                    @foreach($instantCategories as $category)
-                                    <a href="{{ route('products.index', ['category' => $category->slug]) }}"
-                                       class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == $category->slug ? 'bg-blue-50 text-[#193497] font-semibold border-2 border-[#193497]/30' : 'text-gray-600 hover:bg-gray-50' }}">
-                                        <i class="fas fa-rocket mr-3 text-[#193497]"></i>
-                                        <span>{{ $category->name }}</span>
-                                    </a>
-                                    @endforeach
-                                    <a href="{{ route('products.index', ['category' => 'instan']) }}"
-                                       class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == 'instan' ? 'bg-blue-50 text-[#193497] font-semibold border-2 border-[#193497]/30' : 'text-gray-600 hover:bg-gray-50' }}">
-                                        <i class="fas fa-bolt mr-3 text-[#193497]"></i>
-                                        <span>Lihat Semua Instan</span>
-                                    </a>
-                                </div>
-                            </div>
-                            @endif
-                            
-                            @if($customCategories->isNotEmpty())
-                            <div class="mt-6">
-                                <h4 class="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wider flex items-center">
-                                    <div class="w-2 h-2 bg-[#7209b7] rounded-full mr-2"></div>
-                                    Produk Custom
-                                </h4>
-                                <div class="space-y-1 pl-2">
-                                    @foreach($customCategories as $category)
-                                    <a href="{{ route('products.index', ['category' => $category->slug]) }}"
-                                       class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == $category->slug ? 'bg-purple-50 text-[#7209b7] font-semibold border-2 border-purple-200' : 'text-gray-600 hover:bg-gray-50' }}">
-                                        <i class="fas fa-paint-brush mr-3 text-[#7209b7]"></i>
-                                        <span>{{ $category->name }}</span>
-                                    </a>
-                                    @endforeach
-                                    <a href="{{ route('products.index', ['category' => 'non-instan']) }}"
-                                       class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == 'non-instan' ? 'bg-purple-50 text-[#7209b7] font-semibold border-2 border-purple-200' : 'text-gray-600 hover:bg-gray-50' }}">
-                                        <i class="fas fa-gem mr-3 text-[#7209b7]"></i>
-                                        <span>Lihat Semua Custom</span>
-                                    </a>
-                                </div>
-                            </div>
-                            @endif
+
+                            <!-- Produk Instan -->
+                            <a href="#"
+                               onclick="applyFilter('category', 'instan')"
+                               class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == 'instan' ? 'bg-blue-50 text-[#193497] font-semibold border-2 border-[#193497]/30' : 'text-gray-600 hover:bg-gray-50' }}">
+                                <i class="fas fa-bolt mr-3 text-[#193497]"></i>
+                                <span>Produk Instan</span>
+                                @if(request('category') == 'instan')
+                                <i class="fas fa-check ml-auto text-[#193497]"></i>
+                                @endif
+                            </a>
+
+                            <!-- Produk Non-Instan -->
+                            <a href="#"
+                               onclick="applyFilter('category', 'non-instan')"
+                               class="group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == 'non-instan' ? 'bg-purple-50 text-[#7209b7] font-semibold border-2 border-purple-200' : 'text-gray-600 hover:bg-gray-50' }}">
+                                <i class="fas fa-gem mr-3 text-[#7209b7]"></i>
+                                <span>Produk Non Instan</span>
+                                @if(request('category') == 'non-instan')
+                                <i class="fas fa-check ml-auto text-[#7209b7]"></i>
+                                @endif
+                            </a>
                         </div>
                     </div>
-                    
+
                     <!-- Sort Options -->
                     <div class="pt-6 border-t border-gray-200">
                         <h3 class="font-bold text-xl mb-6 text-gray-800 flex items-center">
@@ -131,45 +113,45 @@
                             </div>
                             Urutkan
                         </h3>
-                        <form id="sortForm">
+                        <div id="sortForm">
                             <div class="space-y-2">
                                 <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'latest' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
-                                    <input type="radio" name="sort" value="latest" 
+                                    <input type="radio" name="sort" value="latest"
                                            {{ $selectedSort == 'latest' ? 'checked' : '' }}
-                                           onchange="this.form.submit()"
+                                           onchange="applyFilter('sort', 'latest')"
                                            class="mr-3 w-5 h-5">
                                     <span class="font-medium {{ $selectedSort == 'latest' ? 'text-[#193497]' : 'text-gray-700' }}">Terbaru</span>
                                 </label>
                                 <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'popular' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
-                                    <input type="radio" name="sort" value="popular" 
+                                    <input type="radio" name="sort" value="popular"
                                            {{ $selectedSort == 'popular' ? 'checked' : '' }}
-                                           onchange="this.form.submit()"
+                                           onchange="applyFilter('sort', 'popular')"
                                            class="mr-3 w-5 h-5">
                                     <span class="font-medium {{ $selectedSort == 'popular' ? 'text-[#193497]' : 'text-gray-700' }}">Terlaris</span>
                                 </label>
                                 <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'price_asc' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
-                                    <input type="radio" name="sort" value="price_asc" 
+                                    <input type="radio" name="sort" value="price_asc"
                                            {{ $selectedSort == 'price_asc' ? 'checked' : '' }}
-                                           onchange="this.form.submit()"
+                                           onchange="applyFilter('sort', 'price_asc')"
                                            class="mr-3 w-5 h-5">
                                     <span class="font-medium {{ $selectedSort == 'price_asc' ? 'text-[#193497]' : 'text-gray-700' }}">Harga Terendah</span>
                                 </label>
                                 <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'price_desc' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
-                                    <input type="radio" name="sort" value="price_desc" 
+                                    <input type="radio" name="sort" value="price_desc"
                                            {{ $selectedSort == 'price_desc' ? 'checked' : '' }}
-                                           onchange="this.form.submit()"
+                                           onchange="applyFilter('sort', 'price_desc')"
                                            class="mr-3 w-5 h-5">
                                     <span class="font-medium {{ $selectedSort == 'price_desc' ? 'text-[#193497]' : 'text-gray-700' }}">Harga Tertinggi</span>
                                 </label>
                                 <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'discount' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
-                                    <input type="radio" name="sort" value="discount" 
+                                    <input type="radio" name="sort" value="discount"
                                            {{ $selectedSort == 'discount' ? 'checked' : '' }}
-                                           onchange="this.form.submit()"
+                                           onchange="applyFilter('sort', 'discount')"
                                            class="mr-3 w-5 h-5">
                                     <span class="font-medium {{ $selectedSort == 'discount' ? 'text-[#193497]' : 'text-gray-700' }}">Diskon Terbesar</span>
                                 </label>
                             </div>
-                        </form>
+                        </div>
                     </div>
 
                     <!-- Promo Banner -->
@@ -190,7 +172,7 @@
                 <div class="bg-[#f9f0f1] rounded-3xl shadow-lg p-6 mb-8 border border-gray-100">
                     <div class="flex flex-col md:flex-row md:items-center justify-between">
                         <div>
-                            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2" id="resultsTitle">
                                 @if(request('search'))
                                     <i class="fas fa-search text-[#193497] mr-2"></i>
                                     "{{ request('search') }}"
@@ -200,22 +182,22 @@
                                         Produk Instan
                                     @elseif($selectedCategory == 'non-instan')
                                         <i class="fas fa-gem text-[#7209b7] mr-2"></i>
-                                        Produk Custom
+                                        Produk Non Instan
                                     @else
                                         <i class="fas fa-tag text-[#193497] mr-2"></i>
-                                        {{ $categories->flatten()->where('slug', request('category'))->first()->name ?? '' }}
+                                        Semua Produk
                                     @endif
                                 @else
                                     <i class="fas fa-th-large text-[#193497] mr-2"></i>
                                     Semua Produk
                                 @endif
                             </h2>
-                            <p class="text-gray-600 flex items-center">
+                            <p class="text-gray-600 flex items-center" id="resultsCount">
                                 <i class="fas fa-box mr-2 text-[#193497]"></i>
                                 <strong>{{ $products->total() }}</strong>&nbsp;produk ditemukan
                             </p>
                         </div>
-                        
+
                         <div class="mt-4 md:mt-0">
                             <div class="flex items-center space-x-3">
                                 <span class="text-gray-600 hidden md:block font-medium">Tampilan:</span>
@@ -232,43 +214,45 @@
                     </div>
                 </div>
 
-                <!-- Products Grid -->
-                @if($products->count() > 0)
-                    <x-partials.products.grid :products="$products" />
-                @else
-                    <!-- Empty State -->
-                    <div class="bg-[#f9f0f1] rounded-3xl shadow-lg p-12 text-center">
-                        <i class="fas fa-search text-gray-300 text-8xl mb-6"></i>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Produk Tidak Ditemukan</h3>
-                        <p class="text-gray-600 mb-8 max-w-md mx-auto">
-                            Maaf, kami tidak menemukan produk yang sesuai dengan pencarian Anda. Coba kata kunci lain atau hubungi kami untuk produk custom.
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="{{ route('products.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
-                                <i class="fas fa-th-large mr-2"></i> Lihat Semua Produk
-                            </a>
-                            <a href="{{ route('whatsapp.chat') }}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
-                                <i class="fab fa-whatsapp mr-2"></i> Konsultasi
-                            </a>
+                <!-- Products Grid Container -->
+                <div id="productsContainer">
+                    @if($products->count() > 0)
+                        <x-partials.products.grid :products="$products" />
+                    @else
+                        <!-- Empty State -->
+                        <div class="bg-[#f9f0f1] rounded-3xl shadow-lg p-12 text-center">
+                            <i class="fas fa-search text-gray-300 text-8xl mb-6"></i>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">Produk Tidak Ditemukan</h3>
+                            <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                                Maaf, kami tidak menemukan produk yang sesuai dengan pencarian Anda. Coba kata kunci lain atau hubungi kami untuk produk custom.
+                            </p>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button onclick="resetFilters()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                                    <i class="fas fa-th-large mr-2"></i> Lihat Semua Produk
+                                </button>
+                                <a href="{{ route('whatsapp.chat') }}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                                    <i class="fab fa-whatsapp mr-2"></i> Konsultasi
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
+                </div>
 
-                <!-- Pagination -->
+                <!-- Pagination Container -->
                 @if($products->hasPages())
-                <div class="mt-12">
+                <div id="paginationContainer" class="mt-12">
                     <div class="flex justify-center">
                         {{ $products->withQueryString()->links() }}
                     </div>
                 </div>
                 @endif
-                
+
                 <!-- Call to Action -->
                 <div class="mt-12 relative bg-gradient-to-r bg-[#193497] text-white rounded-3xl p-12 overflow-hidden">
                     <!-- Decorative Elements -->
                     <div class="absolute top-0 right-0 w-64 h-64 bg-[#d2f801] rounded-full opacity-10 blur-3xl"></div>
                     <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#7209b7] rounded-full opacity-10 blur-3xl"></div>
-                    
+
                     <div class="text-center relative z-10">
                         <div class="w-20 h-20 bg-[#d2f801] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
                             <i class="fas fa-headset text-blue-900 text-4xl"></i>
@@ -385,18 +369,252 @@ input[type="radio"] {
     cursor: not-allowed;
     background: #f9fafb;
 }
+
+/* Loading Animation */
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #193497;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 @endpush
 
 @push('scripts')
 <script>
-// Form submission for sort
-document.getElementById('sortForm').addEventListener('change', function(e) {
-    if (e.target.name === 'sort') {
-        const url = new URL(window.location.href);
-        url.searchParams.set('sort', e.target.value);
-        window.location.href = url.toString();
-    }
+// State variables
+let currentFilters = {
+    search: "{{ request('search', '') }}",
+    category: "{{ request('category', '') }}",
+    sort: "{{ $selectedSort }}",
+    page: 1
+};
+
+let searchTimeout = null;
+let isSearching = false;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup search input
+    const searchInput = document.getElementById('liveSearchInput');
+    const searchButton = document.getElementById('searchButton');
+
+    // Search on input with debounce
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentFilters.search = e.target.value;
+            currentFilters.page = 1; // Reset to first page on new search
+            performLiveSearch();
+        }, 500); // 500ms debounce
+    });
+
+    // Search on button click
+    searchButton.addEventListener('click', function() {
+        currentFilters.search = searchInput.value;
+        currentFilters.page = 1;
+        performLiveSearch();
+    });
+
+    // Search on Enter key
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            currentFilters.search = searchInput.value;
+            currentFilters.page = 1;
+            performLiveSearch();
+        }
+    });
+
+    // Update URL with current filters
+    updateURL();
 });
+
+// Apply filter function
+function applyFilter(type, value) {
+    currentFilters[type] = value;
+    if (type !== 'page') {
+        currentFilters.page = 1; // Reset to first page when changing filters
+    }
+    updateURL();
+    performLiveSearch();
+}
+
+// Reset all filters
+function resetFilters() {
+    currentFilters = {
+        search: '',
+        category: '',
+        sort: 'latest',
+        page: 1
+    };
+
+    // Reset UI
+    document.getElementById('liveSearchInput').value = '';
+    document.querySelectorAll('input[name="sort"]').forEach(radio => {
+        radio.checked = radio.value === 'latest';
+    });
+
+    updateURL();
+    performLiveSearch();
+}
+
+// Update browser URL without reload
+function updateURL() {
+    const url = new URL(window.location.href);
+
+    // Clear existing params
+    ['search', 'category', 'sort', 'page'].forEach(param => {
+        url.searchParams.delete(param);
+    });
+
+    // Add active filters
+    Object.keys(currentFilters).forEach(key => {
+        if (currentFilters[key]) {
+            url.searchParams.set(key, currentFilters[key]);
+        }
+    });
+
+    // Update browser URL without reload
+    window.history.replaceState({}, '', url.toString());
+
+    // Update page title
+    updateResultsTitle();
+}
+
+// Update results title
+function updateResultsTitle() {
+    const titleElement = document.getElementById('resultsTitle');
+    let titleHtml = '';
+
+    if (currentFilters.search) {
+        titleHtml = `<i class="fas fa-search text-[#193497] mr-2"></i>"${currentFilters.search}"`;
+    } else if (currentFilters.category) {
+        if (currentFilters.category === 'instan') {
+            titleHtml = `<i class="fas fa-bolt text-[#193497] mr-2"></i>Produk Instan`;
+        } else if (currentFilters.category === 'non-instan') {
+            titleHtml = `<i class="fas fa-gem text-[#7209b7] mr-2"></i>Produk Non Instan`;
+        }
+    } else {
+        titleHtml = `<i class="fas fa-th-large text-[#193497] mr-2"></i>Semua Produk`;
+    }
+
+    titleElement.innerHTML = titleHtml;
+}
+
+// Perform live search
+function performLiveSearch() {
+    if (isSearching) return;
+
+    isSearching = true;
+
+    // Show loading
+    const resultsInfo = document.getElementById('searchResultsInfo');
+    resultsInfo.classList.remove('hidden');
+    resultsInfo.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Mencari...</span>';
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('search', currentFilters.search);
+    formData.append('category', currentFilters.category);
+    formData.append('sort', currentFilters.sort);
+    formData.append('page', currentFilters.page);
+    formData.append('_token', '{{ csrf_token() }}');
+
+    // Send AJAX request
+    fetch('{{ route("products.live-search") }}', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update products grid
+            document.getElementById('productsContainer').innerHTML = data.html;
+
+            // Update pagination
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (data.pagination) {
+                if (!paginationContainer) {
+                    const newPagination = document.createElement('div');
+                    newPagination.id = 'paginationContainer';
+                    newPagination.className = 'mt-12';
+                    newPagination.innerHTML = '<div class="flex justify-center">' + data.pagination + '</div>';
+                    document.getElementById('productsContainer').after(newPagination);
+                } else {
+                    paginationContainer.innerHTML = '<div class="flex justify-center">' + data.pagination + '</div>';
+                }
+            } else {
+                if (paginationContainer) {
+                    paginationContainer.remove();
+                }
+            }
+
+            // Update results count
+            document.getElementById('resultsCount').innerHTML =
+                `<i class="fas fa-box mr-2 text-[#193497]"></i>
+                 <strong>${data.total}</strong>&nbsp;produk ditemukan`;
+
+            // Update quick stats
+            document.querySelector('.grid.grid-cols-3.gap-6.mt-8 .text-center:nth-child(1) .text-3xl').textContent = `${data.total}+`;
+
+            // Hide loading
+            resultsInfo.classList.add('hidden');
+        } else {
+            throw new Error(data.message || 'Search failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsInfo.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i><span>Terjadi kesalahan</span>';
+        setTimeout(() => {
+            resultsInfo.classList.add('hidden');
+        }, 3000);
+    })
+    .finally(() => {
+        isSearching = false;
+
+        // Reattach pagination event listeners
+        attachPaginationListeners();
+    });
+}
+
+// Attach event listeners to pagination links
+function attachPaginationListeners() {
+    document.querySelectorAll('.pagination a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const url = new URL(this.href);
+            const page = url.searchParams.get('page');
+
+            if (page) {
+                currentFilters.page = page;
+                updateURL();
+                performLiveSearch();
+            }
+        });
+    });
+}
+
+// Initial attachment of pagination listeners
+attachPaginationListeners();
 </script>
 @endpush

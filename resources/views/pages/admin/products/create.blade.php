@@ -277,7 +277,81 @@
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
-
+<!-- Specifications Section -->
+<div class="mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Product Specifications</h3>
+        <button type="button" 
+                onclick="addSpecification()" 
+                class="text-sm bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1 rounded-lg">
+            <i class="fas fa-plus mr-1"></i> Add Specification
+        </button>
+    </div>
+    
+    <div id="specifications-container" class="space-y-4">
+        <!-- Default satu field kosong -->
+        <div class="specification-item border border-gray-200 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-sm font-medium text-gray-700">Specification #1</span>
+                <button type="button" 
+                        onclick="removeSpecification(this)" 
+                        class="text-red-600 hover:text-red-800 text-sm">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
+                    <input type="text" 
+                           name="specifications[0][key]" 
+                           placeholder="e.g., Material, Size, Weight"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
+                    <input type="text" 
+                           name="specifications[0][value]" 
+                           placeholder="e.g., High Quality Paper, A4, 100gr"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Empty template untuk JavaScript -->
+    <div id="specification-template" class="hidden">
+        <div class="specification-item border border-gray-200 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-sm font-medium text-gray-700">New Specification</span>
+                <button type="button" 
+                        onclick="removeSpecification(this)" 
+                        class="text-red-600 hover:text-red-800 text-sm">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
+                    <input type="text" 
+                           name="specifications[__INDEX__][key]" 
+                           placeholder="e.g., Material, Size, Weight"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
+                    <input type="text" 
+                           name="specifications[__INDEX__][value]" 
+                           placeholder="e.g., High Quality Paper, A4, 100gr"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- Submit Button -->
             <div class="mt-8 flex justify-end gap-3">
                 <a href="{{ route('admin.products.index') }}" 
@@ -643,6 +717,62 @@ function loadCategoriesByType(type) {
         });
         
         categoryOptions.appendChild(categoryCard);
+    });
+}
+// Specifications Management
+let specIndex = 1;
+
+function addSpecification() {
+    const container = document.getElementById('specifications-container');
+    const template = document.getElementById('specification-template').innerHTML;
+    
+    // Replace placeholder with current index
+    const newSpec = template.replace(/__INDEX__/g, specIndex);
+    
+    // Create new element
+    const div = document.createElement('div');
+    div.innerHTML = newSpec;
+    container.appendChild(div);
+    
+    // Update counter
+    specIndex++;
+}
+
+function removeSpecification(button) {
+    const item = button.closest('.specification-item');
+    
+    // Only remove if there's more than one specification
+    const allItems = document.querySelectorAll('.specification-item');
+    if (allItems.length > 1) {
+        item.remove();
+        // Renumber the remaining items
+        renumberSpecifications();
+    } else {
+        // If only one left, just clear the inputs
+        const inputs = item.querySelectorAll('input[type="text"]');
+        inputs.forEach(input => input.value = '');
+        alert('At least one specification field must remain. Fields have been cleared instead.');
+    }
+}
+
+function renumberSpecifications() {
+    const items = document.querySelectorAll('.specification-item');
+    items.forEach((item, index) => {
+        const title = item.querySelector('.text-sm.font-medium');
+        if (title) {
+            title.textContent = `Specification #${index + 1}`;
+        }
+        
+        // Update input names
+        const keyInput = item.querySelector('input[name*="[key]"]');
+        const valueInput = item.querySelector('input[name*="[value]"]');
+        
+        if (keyInput) {
+            keyInput.name = `specifications[${index}][key]`;
+        }
+        if (valueInput) {
+            valueInput.name = `specifications[${index}][value]`;
+        }
     });
 }
 </script>
