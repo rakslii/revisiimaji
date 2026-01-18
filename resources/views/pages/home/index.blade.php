@@ -141,126 +141,71 @@
     animation: float-slow 6s ease-in-out infinite;
 }
 </style>
-<!-- Product Categories Grid -->
-<section class="py-20 bg-[#f9f0f1]">
-    <div class="container mx-auto px-4">
+<!-- Why Choose Cipta Imaji Section -->
+<section class="py-20 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
+    <!-- Decorative Background -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-[#d2f801] rounded-full opacity-10 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#7209b7] rounded-full opacity-10 blur-3xl"></div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <!-- Header -->
         <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Kategori <span class="text-[#193497]">Produk</span>
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                Mengapa Memilih <span class="text-[#d2f801]">Cipta Imaji</span>?
             </h2>
-            <p class="text-[#191f01]/70 text-lg max-w-2xl mx-auto">
-                Pilihan lengkap untuk semua kebutuhan printing Anda
+            <p class="text-white/80 text-lg max-w-2xl mx-auto">
+                Kami memberikan layanan terbaik dengan kualitas premium untuk kepuasan Anda
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Category Card 1 -->
-            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
-                <div class="h-80 bg-gradient-to-br bg-[#193497] p-8 flex flex-col justify-between relative">
-                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
-                            <i class="fas fa-bolt text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Produk Instan</h3>
-                        <p class="text-blue-100">Cetak cepat dalam 24 jam</p>
-                    </div>
-
-                    <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-[#f9f0f1] text-blue-700 px-4 py-2 rounded-full text-sm font-bold">
-                                Mulai 25K
-                            </span>
-                            <div class="w-12 h-12 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-[#f9f0f1] group-hover:scale-110 transition-all duration-300">
-                                <i class="fas fa-arrow-right text-white group-hover:text-blue-700"></i>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Feature 1 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-shipping-fast text-white text-3xl"></i>
                 </div>
+                <h3 class="text-xl font-bold text-white mb-3">Gratis Ongkir</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Gratis ongkir untuk order minimal Rp500.000 di area Jabodetabek
+                </p>
             </div>
 
-            <!-- Category Card 2 -->
-            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
-                <div class="h-80 bg-gradient-to-br bg-[#7209b7] p-8 flex flex-col justify-between relative">
-                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
-                            <i class="fas fa-palette text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Custom Design</h3>
-                        <p class="text-purple-100">Desain sesuai keinginan</p>
-                    </div>
-
-                    <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-[#f9f0f1] text-purple-700 px-4 py-2 rounded-full text-sm font-bold">
-                                Konsultasi
-                            </span>
-                            <div class="w-12 h-12 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-[#f9f0f1] group-hover:scale-110 transition-all duration-300">
-                                <i class="fas fa-arrow-right text-white group-hover:text-purple-700"></i>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Feature 2 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-shield-alt text-white text-3xl"></i>
                 </div>
+                <h3 class="text-xl font-bold text-white mb-3">Garansi 100%</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Uang kembali 100% jika produk tidak sesuai dengan pesanan
+                </p>
             </div>
 
-            <!-- Category Card 3 -->
-            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
-                <div class="h-80 bg-gradient-to-br bg-[#f72585] p-8 flex flex-col justify-between relative">
-                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
-                            <i class="fas fa-briefcase text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Corporate</h3>
-                        <p class="text-pink-100">Paket branding perusahaan</p>
-                    </div>
-
-                    <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-[#f9f0f1] text-pink-700 px-4 py-2 rounded-full text-sm font-bold">
-                                Spesial
-                            </span>
-                            <div class="w-12 h-12 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-[#f9f0f1] group-hover:scale-110 transition-all duration-300">
-                                <i class="fas fa-arrow-right text-white group-hover:text-pink-700"></i>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Feature 3 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-headset text-white text-3xl"></i>
                 </div>
+                <h3 class="text-xl font-bold text-white mb-3">Support 24/7</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Tim customer service siap membantu 24 jam via WhatsApp
+                </p>
             </div>
 
-            <!-- Category Card 4 -->
-            <div class="group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer">
-                <div class="h-80 bg-gradient-to-br bg-[#f91f01] p-8 flex flex-col justify-between relative">
-                    <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="w-16 h-16 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4">
-                            <i class="fas fa-gift text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Event Package</h3>
-                        <p class="text-orange-100">Solusi acara & event</p>
-                    </div>
-
-                    <div class="relative z-10">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-[#f9f0f1] text-orange-700 px-4 py-2 rounded-full text-sm font-bold">
-                                Promo
-                            </span>
-                            <div class="w-12 h-12 bg-[#f9f0f1]/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-[#f9f0f1] group-hover:scale-110 transition-all duration-300">
-                                <i class="fas fa-arrow-right text-white group-hover:text-orange-700"></i>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Feature 4 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-credit-card text-white text-3xl"></i>
                 </div>
+                <h3 class="text-xl font-bold text-white mb-3">Pembayaran Lengkap</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Bayar dengan QRIS, Transfer Bank, E-Wallet & COD (Jabodetabek)
+                </p>
             </div>
         </div>
     </div>
 </section>
-
 <!-- Banner Manajemen -->
 <section class="py-20 bg-[#193497]">
     <div class="container mx-auto px-4">
@@ -369,147 +314,291 @@
 </section>
 @endif
 
-<!-- Process Steps -->
-<section class="py-20 bg-[#f9f0f1]">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
+<!-- Process Steps - Aesthetic Version -->
+<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+    <!-- Decorative Background -->
+    <div class="absolute top-0 left-0 w-full h-full opacity-5">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-[#193497] rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-20 w-72 h-72 bg-[#7209b7] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-20">
+            <div class="inline-block mb-4">
+            </div>
             <h2 class="text-4xl md:text-5xl font-bold mb-4">
                 Cara <span class="text-[#193497]">Kerja</span>
             </h2>
             <p class="text-[#191f01]/70 text-lg max-w-2xl mx-auto">
-                Proses mudah dan cepat
+                4 langkah mudah untuk mewujudkan kebutuhan printing Anda
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="max-w-6xl mx-auto">
             @php
             $steps = [
-                ['icon' => 'fa-mouse-pointer', 'title' => 'Pilih Produk', 'desc' => 'Browse katalog dan pilih produk'],
-                ['icon' => 'fa-file-upload', 'title' => 'Upload Desain', 'desc' => 'Upload file atau minta bantuan'],
-                ['icon' => 'fa-credit-card', 'title' => 'Bayar', 'desc' => 'Pilih metode pembayaran'],
-                ['icon' => 'fa-shipping-fast', 'title' => 'Terima', 'desc' => 'Produk dikirim ke alamat']
+                [
+                    'icon' => 'fa-search', 
+                    'title' => 'Pilih Produk', 
+                    'desc' => 'Browse katalog lengkap kami dan pilih produk yang sesuai dengan kebutuhan Anda', 
+                    'gradient' => 'from-[#193497] to-[#1e40af]',
+                    'bg' => 'bg-[#193497]'
+                ],
+                [
+                    'icon' => 'fa-palette', 
+                    'title' => 'Upload Desain', 
+                    'desc' => 'Upload file desain Anda atau konsultasikan dengan tim desainer profesional kami', 
+                    'gradient' => 'from-[#7209b7] to-[#a855f7]',
+                    'bg' => 'bg-[#7209b7]'
+                ],
+                [
+                    'icon' => 'fa-credit-card', 
+                    'title' => 'Bayar', 
+                    'desc' => 'Pilih metode pembayaran yang paling nyaman untuk Anda', 
+                    'gradient' => 'from-[#f72585] to-[#ec4899]',
+                    'bg' => 'bg-[#f72585]'
+                ],
+                [
+                    'icon' => 'fa-rocket', 
+                    'title' => 'Terima Produk', 
+                    'desc' => 'Produk berkualitas tinggi dikirim langsung ke alamat Anda dengan aman', 
+                    'gradient' => 'from-[#f91f01] to-[#fb923c]',
+                    'bg' => 'bg-[#f91f01]'
+                ]
             ];
             @endphp
 
-            @foreach($steps as $index => $step)
-            <div class="text-center relative">
-                <div class="w-20 h-20 bg-[#7209b7] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg relative z-10">
-                    <i class="fas {{ $step['icon'] }} text-white text-3xl"></i>
-                </div>
-                
-                @if($index < 3)
-                <div class="hidden md:block absolute top-10 left-[60%] w-[80%] h-1 bg-[#193497] opacity-20"></div>
-                @endif
+            <div class="grid md:grid-cols-2 gap-8">
+                @foreach($steps as $index => $step)
+                <div class="group relative">
+                    <!-- Main Card -->
+                    <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-transparent hover:-translate-y-2">
+                        
+                        <!-- Number Badge with Gradient -->
+                        <div class="absolute -top-5 -left-5 w-16 h-16 bg-gradient-to-br {{ $step['gradient'] }} rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 z-20">
+                            <span class="text-white font-bold text-2xl">{{ $index + 1 }}</span>
+                        </div>
 
-                <div class="absolute -top-2 -left-2 w-10 h-10 bg-[#d2f801] rounded-full flex items-center justify-center font-bold text-blue-900 shadow-lg">
-                    {{ $index + 1 }}
-                </div>
+                        <!-- Content Wrapper -->
+                        <div class="flex items-start gap-6">
+                            <!-- Icon Container -->
+                            <div class="w-20 h-20 bg-gradient-to-br {{ $step['gradient'] }} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0">
+                                <i class="fas {{ $step['icon'] }} text-white text-3xl"></i>
+                            </div>
+                            
+                            <!-- Text Content -->
+                            <div class="flex-1 pt-2">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#193497] transition-colors">
+                                    {{ $step['title'] }}
+                                </h3>
+                                <p class="text-gray-600 leading-relaxed text-sm">
+                                    {{ $step['desc'] }}
+                                </p>
+                            </div>
+                        </div>
 
-                <h3 class="text-xl font-bold mb-2">{{ $step['title'] }}</h3>
-                <p class="text-[#191f01]/70">{{ $step['desc'] }}</p>
+                        <!-- Progress Bar -->
+                        <div class="mt-6 flex items-center gap-2">
+                            @for($i = 0; $i < 4; $i++)
+                            <div class="h-2 flex-1 rounded-full transition-all duration-500 {{ $i <= $index ? 'bg-gradient-to-r ' . $step['gradient'] : 'bg-gray-200' }}"></div>
+                            @endfor
+                        </div>
+
+                        <!-- Decorative Corner -->
+                        <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="w-8 h-8 rounded-full {{ $step['bg'] }}/10 flex items-center justify-center">
+                                <i class="fas fa-check text-xs {{ $step['bg'] }} bg-clip-text text-transparent" style="background: linear-gradient(135deg, {{ $step['gradient'] }});"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connecting Arrow (Desktop Only) -->
+                    @if($index < 3)
+                    <div class="hidden md:block absolute {{ $index % 2 == 0 ? 'top-1/2 -right-4 translate-x-full' : 'bottom-0 left-1/2 translate-y-full' }} transform -translate-y-1/2 z-10">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br {{ $step['gradient'] }} opacity-20 flex items-center justify-center animate-pulse">
+                            <i class="fas fa-arrow-{{ $index % 2 == 0 ? 'right' : 'down' }} text-white text-sm"></i>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
             </div>
-            @endforeach
+
+        
         </div>
     </div>
 </section>
 
-<!-- Testimonials -->
-<section class="py-20 bg-[#f9f0f1]">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
+<style>
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.05;
+    }
+    50% {
+        opacity: 0.1;
+    }
+}
+</style>
+<!-- Testimonials - Aesthetic Version -->
+<section class="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+    <!-- Decorative Background -->
+    <div class="absolute inset-0 overflow-hidden opacity-5">
+        <div class="absolute top-40 -left-20 w-96 h-96 bg-[#193497] rounded-full blur-3xl"></div>
+        <div class="absolute bottom-40 -right-20 w-96 h-96 bg-[#7209b7] rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-20">
+            <div class="inline-block mb-4">
+                <span class="bg-[#193497]/10 text-[#193497] px-6 py-2 rounded-full text-sm font-semibold border border-[#193497]/20">
+                    ⭐ Testimonials
+                </span>
+            </div>
             <h2 class="text-4xl md:text-5xl font-bold mb-4">
                 Kata <span class="text-[#193497]">Mereka</span>
             </h2>
             <p class="text-[#191f01]/70 text-lg max-w-2xl mx-auto">
-                Testimoni dari pelanggan setia kami
+                Kepercayaan pelanggan adalah prioritas kami
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="max-w-6xl mx-auto">
             @php
             $testimonials = [
-                ['name' => 'Ahmad Surya', 'role' => 'CEO Startup', 'initial' => 'AS', 'color' => 'blue'],
-                ['name' => 'Rina Wijaya', 'role' => 'Event Organizer', 'initial' => 'RW', 'color' => 'purple'],
-                ['name' => 'Dewi Fitri', 'role' => 'Marketing Manager', 'initial' => 'DF', 'color' => 'pink']
+                [
+                    'name' => 'Ahmad Surya', 
+                    'role' => 'CEO Startup', 
+                    'initial' => 'AS', 
+                    'gradient' => 'from-[#193497] to-[#1e40af]',
+                    'text' => 'Pelayanan sangat memuaskan! Hasil cetakan berkualitas tinggi dan pengerjaan cepat. Sangat recommended untuk kebutuhan printing.',
+                    'rating' => 5
+                ],
+                [
+                    'name' => 'Rina Wijaya', 
+                    'role' => 'Event Organizer', 
+                    'initial' => 'RW', 
+                    'gradient' => 'from-[#7209b7] to-[#a855f7]',
+                    'text' => 'Tim Cipta Imaji sangat profesional dan responsif. Banner untuk event kami sempurna dan tepat waktu. Highly recommended!',
+                    'rating' => 5
+                ],
+                [
+                    'name' => 'Dewi Fitri', 
+                    'role' => 'Marketing Manager', 
+                    'initial' => 'DF', 
+                    'gradient' => 'from-[#f72585] to-[#ec4899]',
+                    'text' => 'Kualitas cetak terbaik yang pernah saya temui. Harga kompetitif dan hasilnya selalu memuaskan. Partner terpercaya!',
+                    'rating' => 5
+                ]
             ];
             @endphp
 
-            @foreach($testimonials as $testimonial)
-            <div class="bg-[#f9f0f1] p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300">
-                <div class="flex items-center mb-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-{{ $testimonial['color'] }}-400 to-{{ $testimonial['color'] }}-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl mr-4">
-                        {{ $testimonial['initial'] }}
+            <div class="grid md:grid-cols-3 gap-8">
+                @foreach($testimonials as $index => $testimonial)
+                <div class="group relative">
+                    <!-- Quote Icon Background -->
+                    <div class="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br {{ $testimonial['gradient'] }} rounded-2xl flex items-center justify-center opacity-10 group-hover:opacity-20 transition-all duration-300 group-hover:scale-110">
+                        <i class="fas fa-quote-left text-white text-2xl"></i>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-lg">{{ $testimonial['name'] }}</h4>
-                        <p class="text-[#191f01]/60 text-sm">{{ $testimonial['role'] }}</p>
+
+                    <!-- Card -->
+                    <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-transparent hover:-translate-y-2 relative overflow-hidden">
+                        
+                        <!-- Decorative Corner -->
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br {{ $testimonial['gradient'] }} opacity-5 rounded-bl-full"></div>
+
+                        <!-- Profile Section -->
+                        <div class="flex items-center mb-6 relative z-10">
+                            <!-- Avatar with Gradient -->
+                            <div class="w-16 h-16 bg-gradient-to-br {{ $testimonial['gradient'] }} rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
+                                {{ $testimonial['initial'] }}
+                            </div>
+                            
+                            <div class="ml-4">
+                                <h4 class="font-bold text-lg text-gray-900">{{ $testimonial['name'] }}</h4>
+                                <p class="text-gray-500 text-sm">{{ $testimonial['role'] }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Rating Stars -->
+                        <div class="flex items-center gap-1 mb-4">
+                            @for($i = 0; $i < $testimonial['rating']; $i++)
+                            <i class="fas fa-star text-[#d2f801] text-lg"></i>
+                            @endfor
+                        </div>
+
+                        <!-- Quote Icon -->
+                        <div class="mb-4">
+                            <i class="fas fa-quote-left text-3xl bg-gradient-to-br {{ $testimonial['gradient'] }} bg-clip-text text-transparent"></i>
+                        </div>
+
+                        <!-- Testimonial Text -->
+                        <p class="text-gray-700 leading-relaxed mb-4 relative z-10">
+                            {{ $testimonial['text'] }}
+                        </p>
+
+                        <!-- Verified Badge -->
+                        <div class="flex items-center gap-2 mt-6 pt-6 border-t border-gray-100">
+                            <div class="w-6 h-6 bg-gradient-to-br {{ $testimonial['gradient'] }} rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 font-medium">Verified Customer</span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="flex mb-4">
-    @for($i = 0; $i < 5; $i++)
-    <i class="fas fa-star text-[#d2f801] drop-shadow-[0_0_1px_#193497]"></i>
-    @endfor
-</div>
-
-
-                <p class="text-gray-700 leading-relaxed">
-                    "Pelayanan sangat memuaskan! Hasil cetakan berkualitas tinggi dan pengerjaan cepat. Sangat recommended untuk kebutuhan printing."
-                </p>
+                @endforeach
             </div>
-            @endforeach
-        </div>
-    </div>
-</section>
 
+         
+         
+    </div>
+</section>     
 <!-- CTA Section -->
-<section class="py-20 bg-[#193497] text-white relative overflow-hidden">
-    <!-- Decorative Elements -->
+<section class="py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] text-white relative overflow-hidden">
+    <!-- Background Blur -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-[#d2f801] rounded-full opacity-10 blur-3xl"></div>
     <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#7209b7] rounded-full opacity-10 blur-3xl"></div>
 
     <div class="container mx-auto px-4 relative z-10">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-4xl md:text-6xl font-bold mb-6">
+            
+            <h2 class="text-5xl md:text-6xl font-bold mb-6">
                 Siap Mulai Proyek Anda?
             </h2>
-            <p class="text-xl mb-12 text-[#f9f0f1]/80">
-                Hubungi kami sekarang dan dapatkan konsultasi gratis untuk kebutuhan printing Anda
+            <p class="text-xl mb-12 text-white/90 max-w-2xl mx-auto">
+                Hubungi kami sekarang dan dapatkan konsultasi gratis
             </p>
 
-            <div class="flex flex-col md:flex-row justify-center gap-6 mb-16">
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
                 <a href="{{ route('whatsapp.chat') }}" target="_blank"
-                   class="group bg-[#7209b7] hover:bg-[#f72585] text-white px-10 py-5 rounded-full font-bold transition-all duration-300 shadow-2xl hover:shadow-green-500/50 flex items-center justify-center text-lg">
-                    <i class="fab fa-whatsapp text-2xl mr-3"></i>
+                   class="bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 flex items-center justify-center gap-3">
+                    <i class="fab fa-whatsapp text-2xl"></i>
                     Chat WhatsApp
-                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
                 </a>
 
                 <a href="tel:{{ env('SITE_PHONE', '+6281234567890') }}"
-                   class="group bg-[#f9f0f1] hover:bg-gray-100 text-blue-900 px-10 py-5 rounded-full font-bold transition-all duration-300 shadow-2xl flex items-center justify-center text-lg">
-                    <i class="fas fa-phone text-2xl mr-3"></i>
+                   class="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-white hover:text-[#193497] hover:scale-105 flex items-center justify-center gap-3">
+                    <i class="fas fa-phone"></i>
                     Telepon Kami
-                    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
                 </a>
             </div>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div class="text-center">
-                    <div class="text-5xl font-bold mb-2 text-[#d2f801]">5K+</div>
-                    <div class="text-[#f9f0f1]/70">Produk Terjual</div>
+                    <div class="text-5xl font-bold text-[#d2f801] mb-2">5K+</div>
+                    <div class="text-white/70">Produk Terjual</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-bold mb-2 text-[#d2f801]">98%</div>
-                    <div class="text-[#f9f0f1]/70">Kepuasan</div>
+                    <div class="text-5xl font-bold text-[#d2f801] mb-2">98%</div>
+                    <div class="text-white/70">Kepuasan</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-bold mb-2 text-[#d2f801]">24h</div>
-                    <div class="text-[#f9f0f1]/70">Produksi</div>
+                    <div class="text-5xl font-bold text-[#d2f801] mb-2">24h</div>
+                    <div class="text-white/70">Produksi</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-5xl font-bold mb-2 text-[#d2f801]">1K+</div>
-                    <div class="text-[#f9f0f1]/70">Pelanggan</div>
+                    <div class="text-5xl font-bold text-[#d2f801] mb-2">1K+</div>
+                    <div class="text-white/70">Pelanggan</div>
                 </div>
             </div>
         </div>
