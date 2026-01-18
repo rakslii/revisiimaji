@@ -7,15 +7,19 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    public function __construct()
+    protected $midtrans;
+
+    public function __construct(MidtransService $midtrans)
     {
         $this->middleware('auth')->only(['checkout', 'processCheckout']);
+        $this->midtrans = $midtrans;
     }
 
     public function index()
@@ -50,7 +54,6 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1|max:' . $product->stock
         ]);
 
-        // Check product availability
         if (!$product->is_active) {
             return response()->json(['error' => 'Produk tidak tersedia.'], 400);
         }
@@ -59,14 +62,10 @@ class CartController extends Controller
             return response()->json(['error' => 'Stok tidak mencukupi. Stok tersisa: ' . $product->stock], 400);
         }
 
-        // Get current cart
         $cart = Cart::getCurrentCart();
-
-        // Check if product already in cart
         $cartItem = $cart->items()->where('product_id', $product->id)->first();
 
         if ($cartItem) {
-            // Update quantity
             $newQuantity = $cartItem->quantity + $request->quantity;
 
             if ($newQuantity > $product->stock) {
@@ -75,7 +74,6 @@ class CartController extends Controller
 
             $cartItem->update(['quantity' => $newQuantity]);
         } else {
-            // Add new item
             $cart->items()->create([
                 'product_id' => $product->id,
                 'quantity' => $request->quantity,
@@ -83,7 +81,6 @@ class CartController extends Controller
             ]);
         }
 
-        // Return JSON response for AJAX
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -148,12 +145,10 @@ class CartController extends Controller
         $cart = Cart::getCurrentCart();
         $cartItems = $cart->items()->with('product')->get();
 
-        // Check if cart is empty
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
         }
 
-        // Check unavailable items
         $unavailableItems = [];
         foreach ($cartItems as $item) {
             if (!$item->isAvailable()) {
@@ -169,7 +164,6 @@ class CartController extends Controller
 
         $user = Auth::user();
 
-        // Calculate totals
         $subtotal = 0;
         foreach ($cartItems as $item) {
             $subtotal += $item->price * $item->quantity;
@@ -192,7 +186,6 @@ class CartController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // Validation - PERBAIKAN DI SINI
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
@@ -200,14 +193,13 @@ class CartController extends Controller
             'address' => 'required|string',
             'city' => 'required|string|max:100',
             'postal_code' => 'required|string|max:10',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
             'shipping_method' => 'required|in:pickup,delivery,cargo',
-            'payment_method' => 'required|in:transfer,cash,ewallet',
+            'design_files.*' => 'nullable|file|max:10240',
+            'design_notes' => 'nullable|string|max:1000',
             'notes' => 'nullable|string|max:500',
-        ], [
-            'shipping_method.required' => 'Metode pengiriman wajib dipilih.',
-            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
-
 
         DB::beginTransaction();
 
@@ -215,7 +207,6 @@ class CartController extends Controller
             $cart = Cart::getCurrentCart();
             $cartItems = $cart->items()->with('product')->get();
 
-            // Check if cart is empty
             if ($cartItems->isEmpty()) {
                 throw new \Exception('Keranjang belanja kosong.');
             }
@@ -234,7 +225,6 @@ class CartController extends Controller
             // Calculate totals
             $subtotal = 0;
             foreach ($cartItems as $item) {
-                // Check stock availability
                 if ($item->quantity > $item->product->stock) {
                     throw new \Exception("Stok {$item->product->name} tidak mencukupi.");
                 }
@@ -245,8 +235,10 @@ class CartController extends Controller
             $total = $subtotal + $shippingCost - $discount;
 
             // Create order
+            $orderCode = 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+            
             $order = Order::create([
-                'order_code' => 'CI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                'order_code' => $orderCode,
                 'user_id' => Auth::id(),
                 'customer_name' => $validated['name'],
                 'customer_phone' => $validated['phone'],
@@ -255,8 +247,11 @@ class CartController extends Controller
                 'shipping_city' => $validated['city'],
                 'shipping_postal_code' => $validated['postal_code'],
                 'shipping_method' => $validated['shipping_method'],
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => 'qris', // Fixed to QRIS
                 'notes' => $validated['notes'] ?? null,
+                'design_notes' => $validated['design_notes'] ?? null,
+                'latitude' => $validated['latitude'],
+                'longitude' => $validated['longitude'],
                 'subtotal' => $subtotal,
                 'shipping_cost' => $shippingCost,
                 'discount' => $discount,
@@ -265,7 +260,18 @@ class CartController extends Controller
                 'payment_status' => 'unpaid',
             ]);
 
-            // Create order items and reduce stock
+            // Upload design files
+            if ($request->hasFile('design_files')) {
+                foreach ($request->file('design_files') as $file) {
+                    $path = $file->store('designs/' . $order->id, 'public');
+                    $order->design_files = $order->design_files 
+                        ? $order->design_files . ',' . $path 
+                        : $path;
+                }
+                $order->save();
+            }
+
+            // Create order items
             foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -276,8 +282,19 @@ class CartController extends Controller
                     'subtotal' => $item->price * $item->quantity,
                 ]);
 
-                // Reduce product stock
                 $item->product->decrement('stock', $item->quantity);
+            }
+
+            // Create Midtrans Snap Token using Service
+            try {
+                $snapToken = $this->midtrans->createTransaction($order, $cartItems);
+                
+                $order->update([
+                    'snap_token' => $snapToken,
+                    'midtrans_order_id' => $orderCode,
+                ]);
+            } catch (\Exception $e) {
+                throw new \Exception('Gagal membuat token pembayaran: ' . $e->getMessage());
             }
 
             // Clear cart
@@ -285,8 +302,9 @@ class CartController extends Controller
 
             DB::commit();
 
-            return redirect()->route('orders.show', $order->id)
-                ->with('success', 'Pesanan berhasil dibuat! Kode pesanan: ' . $order->order_code);
+            return redirect()->route('orders.payment', $order->id)
+                ->with('success', 'Pesanan berhasil dibuat! Silakan lanjutkan pembayaran.');
+
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Checkout Error: ' . $e->getMessage());

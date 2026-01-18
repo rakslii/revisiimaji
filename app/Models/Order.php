@@ -25,24 +25,45 @@ class Order extends Model
     const PAYMENT_EXPIRED = 'expired';
 
     protected $fillable = [
-        'user_id',
-        'location_id', // KOLOM INI HARUS ADA
         'order_code',
+        'user_id',
+
+        // CUSTOMER
+        'customer_name',
+        'customer_phone',
+        'customer_email',
+
+        // SHIPPING
         'shipping_address',
-        'shipping_note',
+        'shipping_city',
+        'shipping_postal_code',
+        'shipping_method',
+
+        // PAYMENT
+        'payment_method',
+        'snap_token',
+        'midtrans_order_id',
+
+        // MAP
         'latitude',
         'longitude',
+
+        // PRICE
         'subtotal',
         'shipping_cost',
         'discount',
         'total',
+
+        // STATUS
         'status',
         'payment_status',
-        'promo_code',
-        'admin_notes',
-        'paid_at',
-        'completed_at',
+
+        // NOTES
+        'notes',
+        'design_notes',
+        'design_files',
     ];
+
 
     protected $casts = [
         'subtotal' => 'decimal:2',
