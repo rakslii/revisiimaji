@@ -29,23 +29,23 @@ class OrderController extends Controller
         });
     }
 
-    public function orders()
-    {
-        $orders = Order::with(['user' => function($query) {
-            $query->select('id', 'name', 'email', 'phone');
-        }])
-        ->select('orders.*')
-        ->addSelect([
-            'items_count' => \App\Models\OrderItem::whereColumn('order_id', 'orders.id')
-                ->selectRaw('COUNT(*)')
-        ])
-        ->latest()
-        ->paginate(10);
+public function index()
+{
+    $orders = Order::with(['user' => function($query) {
+        $query->select('id', 'name', 'email', 'phone');
+    }])
+    ->select('orders.*')
+    ->addSelect([
+        'items_count' => \App\Models\OrderItem::whereColumn('order_id', 'orders.id')
+            ->selectRaw('COUNT(*)')
+    ])
+    ->latest()
+    ->paginate(10);
 
-        return view('pages.admin.orders.index', compact('orders'));
-    }
+    return view('pages.admin.orders.index', compact('orders'));
+}
     
-    public function orderDetail($id)
+    public function show($id)
     {
         $order = Order::with([
             'user',
@@ -153,57 +153,61 @@ class OrderController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
-    {
-        $order = Order::findOrFail($id);
-        
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:pending,waiting_payment,paid,processing,completed,cancelled',
-            'payment_status' => 'required|in:paid,unpaid',
-            'payment_method' => 'nullable|in:cash,bank_transfer,credit_card,ewallet',
-            'shipping_address' => 'nullable|string',
-            'notes' => 'nullable|string',
-        ]);
+   public function update(Request $request, $id)
+{
+    $order = Order::findOrFail($id);
+    
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'status' => 'required|in:pending,waiting_payment,paid,processing,completed,cancelled',
+        'payment_status' => 'required|in:paid,unpaid',
+        'payment_method' => 'nullable|in:cash,bank_transfer,credit_card,ewallet',
+        'shipping_address' => 'nullable|string',
+        'notes' => 'nullable|string',
+    ]);
 
-        try {
-            DB::beginTransaction();
-
-            // Handle stock adjustments for status changes
-            if ($validated['status'] === 'cancelled' && $order->status !== 'cancelled') {
-                // Restore stock
-                foreach ($order->items as $item) {
-                    $product = Product::find($item->product_id);
-                    if ($product) {
-                        $product->increment('stock', $item->quantity);
-                    }
-                }
-            } elseif ($order->status === 'cancelled' && $validated['status'] !== 'cancelled') {
-                // Reduce stock again
-                foreach ($order->items as $item) {
-                    $product = Product::find($item->product_id);
-                    if ($product) {
-                        $product->decrement('stock', $item->quantity);
-                    }
-                }
-            }
-
-            // Update order
-            $order->update($validated);
-
-            DB::commit();
-
-            return redirect()->route('admin.orders.show', $order->id)
-                ->with('success', 'Order updated successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Failed to update order: ' . $e->getMessage())
-                ->withInput();
-        }
+    // Tambahkan default value jika payment_method kosong
+    if (empty($validated['payment_method'])) {
+        $validated['payment_method'] = null; // atau beri nilai default
     }
 
+    try {
+        DB::beginTransaction();
+
+        // Handle stock adjustments for status changes
+        if ($validated['status'] === 'cancelled' && $order->status !== 'cancelled') {
+            // Restore stock
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->increment('stock', $item->quantity);
+                }
+            }
+        } elseif ($order->status === 'cancelled' && $validated['status'] !== 'cancelled') {
+            // Reduce stock again
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->decrement('stock', $item->quantity);
+                }
+            }
+        }
+
+        // Update order
+        $order->update($validated);
+
+        DB::commit();
+
+        return redirect()->route('admin.orders.show', $order->id)
+            ->with('success', 'Order berhasil diperbarui.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Gagal memperbarui order: ' . $e->getMessage())
+            ->withInput();
+    }
+}
     public function destroy($id)
     {
         $order = Order::findOrFail($id);

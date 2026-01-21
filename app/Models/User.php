@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes; // TAMBAHKAN INI
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes; // TAMBAHKAN SoftDeletes
 
     protected $fillable = [
         'name',
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'province',
         'postal_code',
         'role',
+        'status', // TAMBAHKAN INI
     ];
 
     protected $hidden = [
@@ -35,9 +37,16 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    // Tambahkan property dates untuk soft deletes
+    protected $dates = ['deleted_at'];
+
     // Role constants
     const ROLE_CUSTOMER = 'customer';
     const ROLE_ADMIN = 'admin';
+    
+    // Status constants
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
 
     // ============ RELATIONSHIPS ============
     
@@ -59,7 +68,7 @@ class User extends Authenticatable
         return $this->hasManyThrough(Payment::class, Order::class);
     }
 
-    // ============ CART RELATIONSHIPS (TAMBAHKAN INI) ============
+    // ============ CART RELATIONSHIPS ============
     
     // Cart (One-to-One: satu user punya satu cart)
     public function cart()
@@ -88,6 +97,12 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    // Check if user is active
+    public function isActive()
+    {
+        return $this->status === self::STATUS_ACTIVE;
     }
 
     // Get cart total items count
@@ -129,6 +144,32 @@ class User extends Authenticatable
         return $query->where('role', self::ROLE_CUSTOMER);
     }
 
+    // Scope untuk active users
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    // Scope untuk inactive users
+    public function scopeInactive($query)
+    {
+        return $query->where('status', self::STATUS_INACTIVE);
+    }
+
+    // Activate user
+    public function activate()
+    {
+        $this->update(['status' => self::STATUS_ACTIVE]);
+        return $this;
+    }
+
+    // Deactivate user
+    public function deactivate()
+    {
+        $this->update(['status' => self::STATUS_INACTIVE]);
+        return $this;
+    }
+
     // Find or create by Google ID
     public static function findByGoogleIdOrCreate($googleUser)
     {
@@ -144,6 +185,7 @@ class User extends Authenticatable
                 'avatar' => $googleUser->avatar,
                 'password' => bcrypt(uniqid()),
                 'role' => self::ROLE_CUSTOMER,
+                'status' => self::STATUS_ACTIVE, // Default active
                 'email_verified_at' => now(),
             ]);
         } else {
@@ -158,5 +200,18 @@ class User extends Authenticatable
         }
 
         return $user;
+    }
+    
+    // Boot method
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Set default status saat create
+        static::creating(function ($user) {
+            if (empty($user->status)) {
+                $user->status = self::STATUS_ACTIVE;
+            }
+        });
     }
 }

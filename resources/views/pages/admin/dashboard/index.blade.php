@@ -42,7 +42,8 @@
         <div class="p-6 border-b">
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold">Recent Orders</h2>
-                <a href="{{ route('admin.orders') }}" class="text-blue-600 hover:text-blue-800 text-sm">
+                <!-- PERBAIKAN: admin.orders -> admin.orders.index -->
+                <a href="{{ route('admin.orders.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">
                     View All <i class="fas fa-arrow-right ml-1"></i>
                 </a>
             </div>
