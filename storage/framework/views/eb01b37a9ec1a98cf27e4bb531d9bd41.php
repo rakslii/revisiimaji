@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('title', 'Create New Product'); ?>
 
 <?php $__env->startSection('content'); ?>

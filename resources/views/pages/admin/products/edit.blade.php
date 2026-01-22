@@ -167,121 +167,113 @@
                         @enderror
                     </div>
 
-                   <!-- Specifications Section -->
-<div class="mb-6">
-    <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900">Product Specifications</h3>
-        <button type="button" 
-                onclick="addSpecification()" 
-                class="text-sm bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1 rounded-lg">
-            <i class="fas fa-plus mr-1"></i> Add Specification
-        </button>
-    </div>
-    
-    <div id="specifications-container" class="space-y-4">
-        @php
-            // PERBAIKAN: Ambil specifications dari database dengan benar
-            $specifications = [];
-            
-            // Cek apakah ada old input (setelah submit form dengan error)
-            if (old('specifications')) {
-                $specifications = old('specifications');
-            } else {
-                // Ambil dari database
-                $dbSpecs = $product->specifications;
-                
-                // Handle berbagai format data
-                if (is_string($dbSpecs)) {
-                    // Jika adalah string JSON, decode
-                    $decoded = json_decode($dbSpecs, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        $specifications = $decoded;
-                    }
-                } elseif (is_array($dbSpecs)) {
-                    // Jika sudah array, langsung gunakan
-                    $specifications = $dbSpecs;
-                }
-            }
-            
-            // Filter array kosong
-            $specifications = array_filter($specifications, function($spec) {
-                return !empty($spec['key']) || !empty($spec['value']);
-            });
-            
-            // Jika kosong setelah filter, buat satu field kosong
-            if (empty($specifications)) {
-                $specifications = [['key' => '', 'value' => '']];
-            }
-        @endphp
-        
-        @foreach($specifications as $index => $spec)
-        <div class="specification-item border border-gray-200 rounded-lg p-4">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-medium text-gray-700">Specification #{{ $loop->iteration }}</span>
-                @if($loop->iteration > 1 || (!empty($spec['key']) || !empty($spec['value'])))
-                <button type="button" 
-                        onclick="removeSpecification(this)" 
-                        class="text-red-600 hover:text-red-800 text-sm">
-                    <i class="fas fa-trash"></i> Remove
-                </button>
-                @endif
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
-                    <input type="text" 
-                           name="specifications[{{ $index }}][key]" 
-                           value="{{ $spec['key'] ?? '' }}"
-                           placeholder="e.g., Material, Size, Weight"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
-                    <input type="text" 
-                           name="specifications[{{ $index }}][value]" 
-                           value="{{ $spec['value'] ?? '' }}"
-                           placeholder="e.g., High Quality Paper, A4, 100gr"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-            </div>
-        </div>
-        @endforeach
-    </div>
-    
-    <!-- Empty template untuk JavaScript -->
-    <div id="specification-template" class="hidden">
-        <div class="specification-item border border-gray-200 rounded-lg p-4">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-medium text-gray-700">New Specification</span>
-                <button type="button" 
-                        onclick="removeSpecification(this)" 
-                        class="text-red-600 hover:text-red-800 text-sm">
-                    <i class="fas fa-trash"></i> Remove
-                </button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
-                    <input type="text" 
-                           name="specifications[__INDEX__][key]" 
-                           placeholder="e.g., Material, Size, Weight"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
-                    <input type="text" 
-                           name="specifications[__INDEX__][value]" 
-                           placeholder="e.g., High Quality Paper, A4, 100gr"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                    <!-- Specifications Section -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Product Specifications</h3>
+                            <button type="button" 
+                                    onclick="addSpecification()" 
+                                    class="text-sm bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1 rounded-lg">
+                                <i class="fas fa-plus mr-1"></i> Add Specification
+                            </button>
+                        </div>
+                        
+                        <div id="specifications-container" class="space-y-4">
+                            @php
+                                $specifications = [];
+                                
+                                if (old('specifications')) {
+                                    $specifications = old('specifications');
+                                } else {
+                                    $dbSpecs = $product->specifications;
+                                    
+                                    if (is_string($dbSpecs)) {
+                                        $decoded = json_decode($dbSpecs, true);
+                                        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                            $specifications = $decoded;
+                                        }
+                                    } elseif (is_array($dbSpecs)) {
+                                        $specifications = $dbSpecs;
+                                    }
+                                }
+                                
+                                $specifications = array_filter($specifications, function($spec) {
+                                    return !empty($spec['key']) || !empty($spec['value']);
+                                });
+                                
+                                if (empty($specifications)) {
+                                    $specifications = [['key' => '', 'value' => '']];
+                                }
+                            @endphp
+                            
+                            @foreach($specifications as $index => $spec)
+                            <div class="specification-item border border-gray-200 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm font-medium text-gray-700">Specification #{{ $loop->iteration }}</span>
+                                    @if($loop->iteration > 1 || (!empty($spec['key']) || !empty($spec['value'])))
+                                    <button type="button" 
+                                            onclick="removeSpecification(this)" 
+                                            class="text-red-600 hover:text-red-800 text-sm">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                    @endif
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
+                                        <input type="text" 
+                                               name="specifications[{{ $index }}][key]" 
+                                               value="{{ $spec['key'] ?? '' }}"
+                                               placeholder="e.g., Material, Size, Weight"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
+                                        <input type="text" 
+                                               name="specifications[{{ $index }}][value]" 
+                                               value="{{ $spec['value'] ?? '' }}"
+                                               placeholder="e.g., High Quality Paper, A4, 100gr"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        
+                        <!-- Empty template untuk JavaScript -->
+                        <div id="specification-template" class="hidden">
+                            <div class="specification-item border border-gray-200 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm font-medium text-gray-700">New Specification</span>
+                                    <button type="button" 
+                                            onclick="removeSpecification(this)" 
+                                            class="text-red-600 hover:text-red-800 text-sm">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
+                                        <input type="text" 
+                                               name="specifications[__INDEX__][key]" 
+                                               placeholder="e.g., Material, Size, Weight"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
+                                        <input type="text" 
+                                               name="specifications[__INDEX__][value]" 
+                                               placeholder="e.g., High Quality Paper, A4, 100gr"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Image Management Section -->
                     <div class="mb-6">
@@ -307,7 +299,14 @@
                                     <div class="mt-3">
                                         <p class="text-sm text-gray-500 mb-1">Current Primary Image</p>
                                         <div class="flex items-center gap-3">
-                                            <img src="{{ $product->getImageUrl($product->main_image) }}"
+                                            @php
+                                                $mainImageUrl = $product->main_image ? 
+                                                    (filter_var($product->main_image, FILTER_VALIDATE_URL) ? 
+                                                     $product->main_image : 
+                                                     asset('storage/' . $product->main_image)) : 
+                                                    asset('images/default-product.jpg');
+                                            @endphp
+                                            <img src="{{ $mainImageUrl }}"
                                                  alt="Primary Image"
                                                  class="w-20 h-20 object-cover rounded-lg border">
                                             <div>
@@ -342,7 +341,14 @@
                                     <div class="mt-3">
                                         <p class="text-sm text-gray-500 mb-1">Current Legacy Image</p>
                                         <div class="flex items-center gap-3">
-                                            <img src="{{ $product->getImageUrl($product->image) }}"
+                                            @php
+                                                $legacyImageUrl = $product->image ? 
+                                                    (filter_var($product->image, FILTER_VALIDATE_URL) ? 
+                                                     $product->image : 
+                                                     asset('storage/' . $product->image)) : 
+                                                    asset('images/default-product.jpg');
+                                            @endphp
+                                            <img src="{{ $legacyImageUrl }}"
                                                  alt="{{ $product->name }}"
                                                  class="w-20 h-20 object-cover rounded-lg border">
                                             <div>
@@ -387,7 +393,14 @@
                                         @if($currentImage)
                                             <div class="mt-3">
                                                 <div class="flex items-center gap-3">
-                                                    <img src="{{ $product->getImageUrl($currentImage) }}"
+                                                    @php
+                                                        $additionalImageUrl = $currentImage ? 
+                                                            (filter_var($currentImage, FILTER_VALIDATE_URL) ? 
+                                                             $currentImage : 
+                                                             asset('storage/' . $currentImage)) : 
+                                                            asset('images/default-product.jpg');
+                                                    @endphp
+                                                    <img src="{{ $additionalImageUrl }}"
                                                          alt="Image {{ $i }}"
                                                          class="w-16 h-16 object-cover rounded-lg border">
                                                     <div>
@@ -423,7 +436,14 @@
                                 <div class="mt-3">
                                     <p class="text-sm text-gray-500 mb-1">Current Thumbnail</p>
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ $product->getImageUrl($product->thumbnail) }}"
+                                        @php
+                                            $thumbnailUrl = $product->thumbnail ? 
+                                                (filter_var($product->thumbnail, FILTER_VALIDATE_URL) ? 
+                                                 $product->thumbnail : 
+                                                 asset('storage/' . $product->thumbnail)) : 
+                                                asset('images/default-product.jpg');
+                                        @endphp
+                                        <img src="{{ $thumbnailUrl }}"
                                              alt="Thumbnail"
                                              class="w-20 h-20 object-cover rounded-lg border">
                                         <div>
@@ -462,7 +482,14 @@
                                     <div class="grid grid-cols-4 gap-3">
                                         @foreach($allGalleryImages as $index => $imagePath)
                                             <div class="relative group">
-                                                <img src="{{ $product->getImageUrl($imagePath) }}"
+                                                @php
+                                                    $galleryImageUrl = $imagePath ? 
+                                                        (filter_var($imagePath, FILTER_VALIDATE_URL) ? 
+                                                         $imagePath : 
+                                                         asset('storage/' . $imagePath)) : 
+                                                        asset('images/default-product.jpg');
+                                                @endphp
+                                                <img src="{{ $galleryImageUrl }}"
                                                      alt="Gallery Image {{ $index + 1 }}"
                                                      class="w-full h-20 object-cover rounded-lg">
                                                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -596,7 +623,20 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Total Images</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $product->getTotalImagesCount() }}</p>
+                                <p class="text-lg font-bold text-gray-800">
+                                    @php
+                                        $imageCount = 0;
+                                        if ($product->main_image) $imageCount++;
+                                        if ($product->image) $imageCount++;
+                                        for ($i = 2; $i <= 5; $i++) {
+                                            $field = "image_{$i}";
+                                            if ($product->$field) $imageCount++;
+                                        }
+                                        if ($product->additional_images) $imageCount += count($product->additional_images);
+                                        if ($product->gallery_images) $imageCount += count($product->gallery_images);
+                                    @endphp
+                                    {{ $imageCount }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -624,27 +664,94 @@
             <!-- Current Images Preview -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b">
-                    <h3 class="text-lg font-medium text-gray-900">Current Images</h3>
+                    <h3 class="text-lg font-medium text-gray-900">Current Images Preview</h3>
                 </div>
                 <div class="p-4">
-                    @if(count($product->all_images) > 0)
+                    @php
+                        $allImages = [];
+                        
+                        // Main images
+                        if ($product->main_image) {
+                            $allImages[] = [
+                                'url' => $product->main_image ? 
+                                    (filter_var($product->main_image, FILTER_VALIDATE_URL) ? 
+                                     $product->main_image : 
+                                     asset('storage/' . $product->main_image)) : 
+                                    asset('images/default-product.jpg'),
+                                'type' => 'main'
+                            ];
+                        }
+                        
+                        if ($product->image && $product->image !== $product->main_image) {
+                            $allImages[] = [
+                                'url' => $product->image ? 
+                                    (filter_var($product->image, FILTER_VALIDATE_URL) ? 
+                                     $product->image : 
+                                     asset('storage/' . $product->image)) : 
+                                    asset('images/default-product.jpg'),
+                                'type' => 'legacy'
+                            ];
+                        }
+                        
+                        // Additional images
+                        for ($i = 2; $i <= 5; $i++) {
+                            $field = "image_{$i}";
+                            if ($product->$field) {
+                                $allImages[] = [
+                                    'url' => $product->$field ? 
+                                        (filter_var($product->$field, FILTER_VALIDATE_URL) ? 
+                                         $product->$field : 
+                                         asset('storage/' . $product->$field)) : 
+                                        asset('images/default-product.jpg'),
+                                    'type' => 'additional'
+                                ];
+                            }
+                        }
+                        
+                        // JSON images
+                        if ($product->additional_images && is_array($product->additional_images)) {
+                            foreach ($product->additional_images as $imagePath) {
+                                if ($imagePath) {
+                                    $allImages[] = [
+                                        'url' => filter_var($imagePath, FILTER_VALIDATE_URL) ? 
+                                            $imagePath : 
+                                            asset('storage/' . $imagePath),
+                                        'type' => 'gallery'
+                                    ];
+                                }
+                            }
+                        }
+                        
+                        if ($product->gallery_images && is_array($product->gallery_images)) {
+                            foreach ($product->gallery_images as $imagePath) {
+                                if ($imagePath) {
+                                    $allImages[] = [
+                                        'url' => filter_var($imagePath, FILTER_VALIDATE_URL) ? 
+                                            $imagePath : 
+                                            asset('storage/' . $imagePath),
+                                        'type' => 'gallery'
+                                    ];
+                                }
+                            }
+                        }
+                    @endphp
+                    
+                    @if(count($allImages) > 0)
                         <div class="grid grid-cols-3 gap-3">
-                            @foreach($product->all_images as $index => $image)
-                                @if($image['url'])
-                                    <div class="relative">
-                                        <img src="{{ $image['url'] }}" 
-                                             alt="Image {{ $index + 1 }}"
-                                             class="w-full h-20 object-cover rounded-lg">
-                                        <span class="absolute top-1 left-1 px-1 py-0.5 text-xs bg-black bg-opacity-70 text-white rounded">
-                                            {{ $image['type'] === 'main' ? 'M' : 
-                                               ($image['type'] === 'legacy' ? 'L' : 
-                                               ($image['type'] === 'additional' ? 'A' : 'G')) }}
-                                        </span>
-                                    </div>
-                                @endif
+                            @foreach($allImages as $index => $image)
+                                <div class="relative">
+                                    <img src="{{ $image['url'] }}" 
+                                         alt="Image {{ $index + 1 }}"
+                                         class="w-full h-20 object-cover rounded-lg">
+                                    <span class="absolute top-1 left-1 px-1 py-0.5 text-xs bg-black bg-opacity-70 text-white rounded">
+                                        {{ $image['type'] === 'main' ? 'M' : 
+                                           ($image['type'] === 'legacy' ? 'L' : 
+                                           ($image['type'] === 'additional' ? 'A' : 'G')) }}
+                                    </span>
+                                </div>
                             @endforeach
                         </div>
-                        <p class="mt-3 text-sm text-gray-600 text-center">{{ count($product->all_images) }} images total</p>
+                        <p class="mt-3 text-sm text-gray-600 text-center">{{ count($allImages) }} images total</p>
                     @else
                         <p class="text-gray-500 text-center py-4">No images available</p>
                     @endif
@@ -689,14 +796,26 @@
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600">Category</span>
                         <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                            {{ $product->category_name }}
+                            @if($product->category)
+                                {{ ucfirst($product->category) }}
+                            @elseif($product->category_id && $product->categoryRelation)
+                                {{ $product->categoryRelation->name }}
+                            @else
+                                Unknown
+                            @endif
                         </span>
                     </div>
                     
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600">Category Type</span>
                         <span class="text-sm text-gray-800">
-                            {{ is_string($product->category) ? ucfirst($product->category) : 'Unknown' }}
+                            @if(is_string($product->category))
+                                {{ ucfirst($product->category) }}
+                            @elseif($product->categoryRelation)
+                                {{ $product->categoryRelation->type }}
+                            @else
+                                Unknown
+                            @endif
                         </span>
                     </div>
                     

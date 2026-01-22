@@ -83,13 +83,16 @@ unset($__defined_vars, $__key, $__value); ?>
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="quantity" value="1">
                     <button type="submit"
-                        class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-[#7209b7] hover:text-white transition-colors duration-200"
-                        title="Tambah ke Keranjang">
+                        class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-[#7209b7] hover:text-white transition-colors duration-200 add-to-cart-btn"
+                        title="Tambah ke Keranjang"
+                        data-product-id="<?php echo e($product->id); ?>"
+                        data-product-name="<?php echo e($product->name); ?>">
                         <i class="fas fa-shopping-cart text-gray-600 hover:text-white"></i>
                     </button>
                 </form>
             </div>
         </div>
+
 
         <!-- Product Info -->
         <div class="p-4 flex-grow flex flex-col">

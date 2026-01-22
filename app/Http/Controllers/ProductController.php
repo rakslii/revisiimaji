@@ -95,7 +95,7 @@ class ProductController extends Controller
     /**
      * API Endpoint for Live Search
      */
-    public function liveSearch(Request $request)
+     public function liveSearch(Request $request)
     {
         $query = Product::where('is_active', true);
 
