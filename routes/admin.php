@@ -19,7 +19,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-    
+
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
@@ -48,24 +48,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/{id}/edit', [AdminOrderController::class, 'edit'])->name('edit');
         Route::put('/{id}', [AdminOrderController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
-        
+
         // Order Status Routes
         Route::post('/{id}/update-status', [AdminOrderController::class, 'updateOrderStatus'])->name('update-status');
         Route::post('/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('confirm-payment');
         Route::post('/{id}/mark-processing', [AdminOrderController::class, 'markAsProcessing'])->name('mark-processing');
         Route::post('/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('mark-completed');
     });
-    
-    // ============ PRODUCTS ============
-    Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', [AdminProductController::class, 'index'])->name('index');
-        Route::get('/create', [AdminProductController::class, 'create'])->name('create');
-        Route::post('/', [AdminProductController::class, 'store'])->name('store');
-        Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
-        Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
-    });
+
+// ============ PRODUCTS ============
+Route::prefix('products')->name('products.')->group(function () {
+    Route::get('/', [AdminProductController::class, 'index'])->name('index');
+    Route::get('/create', [AdminProductController::class, 'create'])->name('create');
+    Route::post('/', [AdminProductController::class, 'store'])->name('store');
+    Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
+
+    // API routes untuk image handling (ditambahkan)
+    Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
+    Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
+});
 
     // ============ PROMO CODES ============
     Route::prefix('promo-codes')->name('promo-codes.')->group(function () {

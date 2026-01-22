@@ -48,14 +48,14 @@
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Low Stock (< 10)</p>
-                    <p class="text-2xl font-bold text-yellow-600">
-                        <?php echo e(App\Models\Product::where('stock', '>', 0)->where('stock', '<=', 10)->count()); ?>
+                    <p class="text-sm text-gray-500">Instan Products</p>
+                    <p class="text-2xl font-bold text-purple-600">
+                        <?php echo e(App\Models\Product::where('category', 'instan')->count()); ?>
 
                     </p>
                 </div>
-                <div class="bg-yellow-100 p-3 rounded-full">
-                    <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <i class="fas fa-bolt text-purple-600"></i>
                 </div>
             </div>
         </div>
@@ -63,14 +63,14 @@
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-500">Out of Stock</p>
-                    <p class="text-2xl font-bold text-red-600">
-                        <?php echo e(App\Models\Product::where('stock', 0)->count()); ?>
+                    <p class="text-sm text-gray-500">Non-Instan Products</p>
+                    <p class="text-2xl font-bold text-orange-600">
+                        <?php echo e(App\Models\Product::where('category', 'non-instan')->count()); ?>
 
                     </p>
                 </div>
-                <div class="bg-red-100 p-3 rounded-full">
-                    <i class="fas fa-times-circle text-red-600"></i>
+                <div class="bg-orange-100 p-3 rounded-full">
+                    <i class="fas fa-clock text-orange-600"></i>
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">Filters</h3>
-            <?php if(request()->anyFilled(['search', 'category', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
+            <?php if(request()->anyFilled(['search', 'category_type', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
             <a href="<?php echo e(route('admin.products.index')); ?>" 
                class="text-sm text-red-600 hover:text-red-800">
                 <i class="fas fa-times mr-1"></i> Clear All Filters
@@ -106,18 +106,18 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Category Filter -->
+                <!-- Product Type Filter (Instan/Non-Instan) -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select name="category" 
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
+                    <select name="category_type" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">All Categories</option>
-                        <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($category->id); ?>" 
-                                    <?php echo e(request('category') == $category->id ? 'selected' : ''); ?>>
-                                <?php echo e($category->name); ?> (<?php echo e($category->type); ?>)
-                            </option>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <option value="">All Types</option>
+                        <option value="instan" <?php echo e(request('category_type') == 'instan' ? 'selected' : ''); ?>>
+                            Instan
+                        </option>
+                        <option value="non-instan" <?php echo e(request('category_type') == 'non-instan' ? 'selected' : ''); ?>>
+                            Non-Instan
+                        </option>
                     </select>
                 </div>
 
@@ -156,7 +156,7 @@
                         <option value="price_high" <?php echo e(request('sort_by') == 'price_high' ? 'selected' : ''); ?>>Price: High to Low</option>
                         <option value="price_low" <?php echo e(request('sort_by') == 'price_low' ? 'selected' : ''); ?>>Price: Low to High</option>
                         <option value="stock_high" <?php echo e(request('sort_by') == 'stock_high' ? 'selected' : ''); ?>>Stock: High to Low</option>
-                        <option value="stock_low" <?php echo e(request('stock_low') == 'stock_low' ? 'selected' : ''); ?>>Stock: Low to High</option>
+                        <option value="stock_low" <?php echo e(request('sort_by') == 'stock_low' ? 'selected' : ''); ?>>Stock: Low to High</option>
                         <option value="name_asc" <?php echo e(request('sort_by') == 'name_asc' ? 'selected' : ''); ?>>Name: A-Z</option>
                         <option value="name_desc" <?php echo e(request('sort_by') == 'name_desc' ? 'selected' : ''); ?>>Name: Z-A</option>
                     </select>
@@ -213,19 +213,17 @@
             </div>
 
             <!-- Active Filters Badges -->
-            <?php if(request()->anyFilled(['category', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
+            <?php if(request()->anyFilled(['category_type', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
             <div class="border-t pt-4">
                 <p class="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
                 <div class="flex flex-wrap gap-2">
-                    <?php if(request('category')): ?>
-                    <?php
-                        $selectedCategory = $categories->firstWhere('id', request('category'));
-                    ?>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        Category: <?php echo e($selectedCategory->name ?? 'Unknown'); ?>
+                    <?php if(request('category_type')): ?>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                        <?php echo e(request('category_type') == 'instan' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'); ?>">
+                        Type: <?php echo e(ucfirst(request('category_type'))); ?>
 
-                        <a href="<?php echo e(request()->fullUrlWithQuery(['category' => null])); ?>" 
-                           class="ml-1 text-blue-600 hover:text-blue-800">
+                        <a href="<?php echo e(request()->fullUrlWithQuery(['category_type' => null])); ?>" 
+                           class="ml-1 hover:text-opacity-75">
                             <i class="fas fa-times"></i>
                         </a>
                     </span>
@@ -255,7 +253,7 @@
                     <?php endif; ?>
                     
                     <?php if(request('min_price') || request('max_price')): ?>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                         Price: 
                         <?php echo e(request('min_price') ? 'Rp ' . number_format(request('min_price'), 0, ',', '.') : 'Min'); ?>
 
@@ -314,6 +312,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
@@ -349,7 +348,18 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            <?php if($product->category == 'instan'): ?>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <i class="fas fa-bolt mr-1"></i> Instan
+                                </span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-clock mr-1"></i> Non-Instan
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                                 <?php echo e($product->category_name); ?>
 
                             </span>
@@ -400,11 +410,11 @@
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                             <div class="py-8">
                                 <i class="fas fa-box fa-2x text-gray-300 mb-2"></i>
                                 <p class="text-gray-500">No products found</p>
-                                <?php if(request()->anyFilled(['search', 'category', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
+                                <?php if(request()->anyFilled(['search', 'category_type', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
                                     <a href="<?php echo e(route('admin.products.index')); ?>" 
                                        class="inline-block mt-2 text-blue-600 hover:text-blue-800">
                                         <i class="fas fa-times mr-1"></i> Clear filters to see all products

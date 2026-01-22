@@ -31,11 +31,11 @@
             </nav>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('admin.products.edit', $product->id) }}" 
+            <a href="{{ route('admin.products.edit', $product->id) }}"
                class="flex items-center gap-2 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
                 <i class="fas fa-edit"></i> Edit
             </a>
-            <a href="{{ route('admin.products.index') }}" 
+            <a href="{{ route('admin.products.index') }}"
                class="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
                 <i class="fas fa-arrow-left"></i> Back
             </a>
@@ -45,23 +45,39 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left Column - Product Image & Basic Info -->
         <div class="lg:col-span-1 space-y-6">
-            <!-- Product Image Card -->
+            <!-- Main Product Image -->
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="text-center">
-                    @if($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" 
-                             alt="{{ $product->name }}" 
-                             class="w-full h-64 object-cover rounded-lg mb-4 mx-auto">
-                    @else
-                        <div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-image fa-4x text-gray-300"></i>
+                    @php
+                        $mainImage = $product->primary_image_url ?: $product->image_url;
+                    @endphp
+
+                    <div class="relative mb-4">
+                        <img src="{{ $mainImage }}"
+                             alt="{{ $product->name }}"
+                             id="mainProductImage"
+                             class="w-full h-64 object-cover rounded-lg mx-auto cursor-pointer hover:opacity-90 transition-opacity">
+
+                        <!-- Image badge -->
+                        <div class="absolute top-2 left-2">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-600 text-white">
+                                Main Image
+                            </span>
                         </div>
-                    @endif
-                    
+
+                        <!-- Zoom icon -->
+                        <div class="absolute bottom-2 right-2">
+                            <button onclick="openImageModal('{{ $mainImage }}')"
+                                    class="p-2 bg-white rounded-full shadow hover:bg-gray-100">
+                                <i class="fas fa-search-plus text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $product->name }}</h3>
-                    
+
                     <div class="flex justify-center gap-2 mb-4">
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full 
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full
                             {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $product->is_active ? 'Active' : 'Inactive' }}
                         </span>
@@ -69,65 +85,116 @@
                             {{ $product->category_name }}
                         </span>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4 mt-6">
                         <div class="text-center">
                             <p class="text-sm text-gray-500">Product ID</p>
                             <p class="text-lg font-bold text-gray-800">#{{ $product->id }}</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-sm text-gray-500">Stock</p>
-                            <p class="text-lg font-bold 
-                                {{ $product->stock > 10 ? 'text-green-600' : 
-                                   ($product->stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
-                                {{ $product->stock }}
+                            <p class="text-sm text-gray-500">Total Images</p>
+                            <p class="text-lg font-bold text-blue-600">
+                                {{ $product->getTotalImagesCount() }}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats Card -->
+            <!-- Image Gallery -->
+            @if(count($product->all_images) > 0)
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b">
-                    <h3 class="text-lg font-medium text-gray-900">Product Stats</h3>
+                    <h3 class="text-lg font-medium text-gray-900">Image Gallery</h3>
+                    <p class="text-sm text-gray-500 mt-1">{{ count($product->all_images) }} images available</p>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-4 gap-3" id="imageGallery">
+                        @foreach($product->all_images as $index => $image)
+                            @if($image['url'])
+                                <div class="relative group">
+                                    <img src="{{ $image['url'] }}"
+                                         alt="Product Image {{ $index + 1 }}"
+                                         onclick="changeMainImage('{{ $image['url'] }}')"
+                                         class="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity">
+
+                                    <!-- Image type badge -->
+                                    <div class="absolute top-1 left-1">
+                                        <span class="px-1 py-0.5 text-xs font-semibold rounded-full
+                                            {{ $image['type'] === 'main' ? 'bg-blue-600 text-white' :
+                                               ($image['type'] === 'legacy' ? 'bg-gray-600 text-white' :
+                                               'bg-green-600 text-white') }}">
+                                            {{ $image['type'] === 'main' ? 'M' :
+                                               ($image['type'] === 'legacy' ? 'L' : 'G') }}
+                                        </span>
+                                    </div>
+
+                                    <!-- View button -->
+                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onclick="openImageModal('{{ $image['url'] }}')"
+                                                class="p-2 bg-white rounded-full shadow hover:bg-gray-100">
+                                            <i class="fas fa-eye text-gray-600 text-sm"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Image info on hover -->
+                                    <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div class="truncate">{{ $image['field'] ?? 'Image' }}</div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Image Stats -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b">
+                    <h3 class="text-lg font-medium text-gray-900">Image Statistics</h3>
                 </div>
                 <div class="p-6 space-y-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                                <i class="fas fa-shopping-cart text-blue-600"></i>
+                                <i class="fas fa-image text-blue-600"></i>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">Sales Count</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $product->sales_count }}</p>
+                                <p class="text-sm text-gray-500">Total Images</p>
+                                <p class="text-lg font-bold text-gray-800">{{ $product->getTotalImagesCount() }}</p>
                             </div>
                         </div>
                     </div>
-                    
+
+                    @php
+                        $imageTypes = [];
+                        foreach($product->all_images as $image) {
+                            $type = $image['type'] ?? 'unknown';
+                            if(!isset($imageTypes[$type])) {
+                                $imageTypes[$type] = 0;
+                            }
+                            $imageTypes[$type]++;
+                        }
+                    @endphp
+
+                    @foreach($imageTypes as $type => $count)
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <div class="p-2 bg-yellow-100 rounded-lg mr-3">
-                                <i class="fas fa-star text-yellow-600"></i>
+                            <div class="p-2 {{ $type === 'main' ? 'bg-green-100' :
+                                                  ($type === 'legacy' ? 'bg-yellow-100' : 'bg-purple-100') }} rounded-lg mr-3">
+                                <i class="fas {{ $type === 'main' ? 'fa-star' :
+                                                  ($type === 'legacy' ? 'fa-archive' : 'fa-images') }}
+                                           {{ $type === 'main' ? 'text-green-600' :
+                                              ($type === 'legacy' ? 'text-yellow-600' : 'text-purple-600') }}"></i>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">Rating</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $product->rating ?? 'N/A' }}</p>
+                                <p class="text-sm text-gray-500">{{ ucfirst($type) }} Images</p>
+                                <p class="text-lg font-bold text-gray-800">{{ $count }}</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-indigo-100 rounded-lg mr-3">
-                                <i class="fas fa-box text-indigo-600"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Minimum Order</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $product->min_order }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -140,13 +207,13 @@
                     <h3 class="text-lg font-medium text-gray-900">Product Details</h3>
                 </div>
                 <div class="p-6">
-                    <!-- Price & Category -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Price & Stock -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Price</p>
                             <div class="flex items-baseline">
                                 <span class="text-2xl font-bold text-gray-800">
-                                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                                    {{ $product->formatted_price }}
                                 </span>
                                 @if($product->discount_percent > 0)
                                     <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
@@ -158,12 +225,29 @@
                                 <div class="mt-2">
                                     <p class="text-sm text-gray-500">Discounted Price</p>
                                     <p class="text-xl font-bold text-green-600">
-                                        Rp {{ number_format($product->discounted_price, 0, ',', '.') }}
+                                        {{ $product->formatted_final_price }}
                                     </p>
                                 </div>
                             @endif
                         </div>
-                        
+
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Stock</p>
+                            <div class="flex items-center">
+                                <p class="text-2xl font-bold
+                                    {{ $product->stock > 10 ? 'text-green-600' :
+                                       ($product->stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
+                                    {{ $product->stock }}
+                                </p>
+                                <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full
+                                    {{ $product->stock > 10 ? 'bg-green-100 text-green-800' :
+                                       ($product->stock > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                    {{ $product->stock > 10 ? 'Good' :
+                                       ($product->stock > 0 ? 'Low' : 'Empty') }}
+                                </span>
+                            </div>
+                        </div>
+
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Category</p>
                             <div class="flex items-center">
@@ -190,81 +274,104 @@
                         </div>
                     </div>
 
-                   <!-- Specifications -->
-@if($product->specifications && is_array($product->specifications) && count($product->specifications) > 0)
-<div class="mb-6">
-    <p class="text-sm text-gray-500 mb-3">Specifications</p>
-    <div class="bg-gray-50 rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <tbody class="divide-y divide-gray-200">
-                @php
-                    $specifications = $product->specifications;
-                    // Pastikan $specifications adalah array
-                    if (is_string($specifications)) {
-                        $specifications = json_decode($specifications, true);
-                    }
-                @endphp
-                
-                @if(is_array($specifications) && count($specifications) > 0)
-                    @foreach($specifications as $spec)
-                        @if(isset($spec['key']) || isset($spec['value']))
-                        <tr class="hover:bg-gray-100">
-                            <td class="px-4 py-3 text-sm font-medium text-gray-700 border-r border-gray-200 w-1/3">
-                                {{ $spec['key'] ?? 'N/A' }}
-                            </td>
-                            <td class="px-4 py-3 text-sm text-gray-600">
-                                {{ $spec['value'] ?? 'N/A' }}
-                            </td>
-                        </tr>
-                        @endif
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">
-                            No specifications available
-                        </td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
-    </div>
-</div>
-@endif
+                    <!-- Specifications -->
+                    @if($product->specifications && is_array($product->specifications) && count($product->specifications) > 0)
+                    <div class="mb-6">
+                        <p class="text-sm text-gray-500 mb-3">Specifications</p>
+                        <div class="bg-gray-50 rounded-lg overflow-hidden">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <tbody class="divide-y divide-gray-200">
+                                    @foreach($product->specifications as $spec)
+                                        @if(isset($spec['key']) || isset($spec['value']))
+                                        <tr class="hover:bg-gray-100">
+                                            <td class="px-4 py-3 text-sm font-medium text-gray-700 border-r border-gray-200 w-1/3">
+                                                {{ $spec['key'] ?? 'N/A' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-600">
+                                                {{ $spec['value'] ?? 'N/A' }}
+                                            </td>
+                                        </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    @endif
 
-                    <!-- Timestamps -->
+                    <!-- Additional Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Minimum Order</p>
+                            <p class="text-gray-700 font-medium">{{ $product->min_order }} item(s)</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Sales Count</p>
+                            <p class="text-gray-700 font-medium">{{ $product->sales_count }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Rating</p>
+                            <p class="text-gray-700 font-medium">{{ $product->rating ? number_format($product->rating, 1) : 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Discount</p>
+                            <p class="text-gray-700 font-medium">
+                                @if($product->discount_percent > 0)
+                                    {{ $product->discount_percent }}% ({{ $product->formatted_discount_amount }})
+                                @else
+                                    No Discount
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Timestamps - PERBAIKAN DI SINI -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Created At</p>
-                            <p class="text-gray-700">{{ $product->created_at->format('d M Y H:i') }}</p>
+                            <p class="text-gray-700">
+                                @if($product->created_at)
+                                    {{ $product->created_at->format('d M Y H:i') }}
+                                @else
+                                    N/A
+                                @endif
+                            </p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Last Updated</p>
-                            <p class="text-gray-700">{{ $product->updated_at->format('d M Y H:i') }}</p>
+                            <p class="text-gray-700">
+                                @if($product->updated_at)
+                                    {{ $product->updated_at->format('d M Y H:i') }}
+                                @else
+                                    N/A
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Actions Card -->
+            <!-- Product Actions -->
             <div class="bg-white rounded-lg shadow">
-                <div class="px-6 py-4 border-b flex justify-between items-center">
+                <div class="px-6 py-4 border-b">
                     <h3 class="text-lg font-medium text-gray-900">Product Actions</h3>
-                    <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                        {{ $product->stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                        {{ $product->stock > 0 ? 'In Stock' : 'Out of Stock' }}
-                    </span>
                 </div>
                 <div class="p-6">
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('admin.products.edit', $product->id) }}" 
-                           class="flex items-center gap-2 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
-                            <i class="fas fa-edit"></i> Edit Product
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <a href="{{ route('admin.products.edit', $product->id) }}"
+                           class="flex items-center justify-center gap-2 bg-yellow-600 text-white px-4 py-3 rounded-lg hover:bg-yellow-700 transition-colors">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit Product</span>
                         </a>
-                        <button type="button" 
+
+                        <button type="button"
                                 onclick="showDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                class="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                            <i class="fas fa-trash"></i> Delete Product
+                                class="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash"></i>
+                            <span>Delete Product</span>
                         </button>
+
+                        </a>
                     </div>
                 </div>
             </div>
@@ -272,17 +379,35 @@
     </div>
 </div>
 
+<!-- Image Modal -->
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center hidden z-50 p-4">
+    <div class="relative max-w-4xl w-full">
+        <button onclick="closeImageModal()"
+                class="absolute -top-10 right-0 text-white hover:text-gray-300 text-2xl">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modalImage" src="" alt="" class="w-full h-auto rounded-lg">
+        <div class="mt-4 text-center text-white">
+            <p id="imageCaption" class="text-sm opacity-75"></p>
+        </div>
+    </div>
+</div>
+
 <!-- Delete Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden">
+<div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b">
             <h3 class="text-lg font-medium text-gray-900">Confirm Delete</h3>
         </div>
         <div class="px-6 py-4">
             <p id="deleteModalBody" class="text-gray-700"></p>
+            <p class="text-sm text-red-600 mt-2">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                This will also delete all product images!
+            </p>
         </div>
         <div class="px-6 py-4 border-t flex justify-end gap-3">
-            <button type="button" 
+            <button type="button"
                     onclick="document.getElementById('deleteModal').classList.add('hidden')"
                     class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
                 Cancel
@@ -290,28 +415,83 @@
             <form id="deleteForm" method="POST" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" 
+                <button type="submit"
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                    Delete
+                    Delete Product
                 </button>
             </form>
         </div>
     </div>
 </div>
 
+@push('styles')
+<style>
+#imageGallery img {
+    transition: transform 0.2s ease;
+}
+#imageGallery img:hover {
+    transform: scale(1.05);
+}
+</style>
+@endpush
+
 @push('scripts')
 <script>
+// Change main image when clicking on gallery thumbnails
+function changeMainImage(imageUrl) {
+    const mainImage = document.getElementById('mainProductImage');
+    mainImage.src = imageUrl;
+
+    // Add visual feedback
+    mainImage.classList.add('opacity-50');
+    setTimeout(() => {
+        mainImage.classList.remove('opacity-50');
+    }, 300);
+}
+
+// Open image in modal
+function openImageModal(imageUrl) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = imageUrl;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+}
+
+// Close image modal
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = ''; // Re-enable scrolling
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('imageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeImageModal();
+    }
+});
+
+// Delete product modal
 function showDeleteModal(id, productName) {
     const form = document.getElementById('deleteForm');
     form.action = `/admin/products/${id}`;
-    
-    document.getElementById('deleteModalBody').innerHTML = 
-        `Are you sure you want to delete <strong>"${productName}"</strong>? This action cannot be undone.`;
-    
+
+    document.getElementById('deleteModalBody').innerHTML =
+        `Are you sure you want to delete <strong>"${productName}"</strong>?<br>
+         This action cannot be undone and will permanently delete the product and all its images.`;
+
     document.getElementById('deleteModal').classList.remove('hidden');
 }
 
-// Close modal when clicking outside
+// Close delete modal when clicking outside
 document.getElementById('deleteModal').addEventListener('click', function(e) {
     if (e.target === this) {
         this.classList.add('hidden');
@@ -319,5 +499,4 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 });
 </script>
 @endpush
-
 @endsection

@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Edit Product'); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -37,7 +35,7 @@
         <!-- Main Form -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow p-6">
-                <form action="<?php echo e(route('admin.products.update', $product->id)); ?>" method="POST" enctype="multipart/form-data">
+                <form action="<?php echo e(route('admin.products.update', $product->id)); ?>" method="POST" enctype="multipart/form-data" id="productForm">
                     <?php echo csrf_field(); ?>
                     <?php echo method_field('PUT'); ?>
 
@@ -264,7 +262,8 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
-<!-- Specifications Section -->
+
+                   <!-- Specifications Section -->
 <div class="mb-6">
     <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">Product Specifications</h3>
@@ -277,10 +276,35 @@ unset($__errorArgs, $__bag); ?>
     
     <div id="specifications-container" class="space-y-4">
         <?php
-            // Decode specifications dari database
-            $specifications = old('specifications', $product->specifications ?? []);
+            // PERBAIKAN: Ambil specifications dari database dengan benar
+            $specifications = [];
             
-            // Jika specifications kosong, buat satu field kosong
+            // Cek apakah ada old input (setelah submit form dengan error)
+            if (old('specifications')) {
+                $specifications = old('specifications');
+            } else {
+                // Ambil dari database
+                $dbSpecs = $product->specifications;
+                
+                // Handle berbagai format data
+                if (is_string($dbSpecs)) {
+                    // Jika adalah string JSON, decode
+                    $decoded = json_decode($dbSpecs, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $specifications = $decoded;
+                    }
+                } elseif (is_array($dbSpecs)) {
+                    // Jika sudah array, langsung gunakan
+                    $specifications = $dbSpecs;
+                }
+            }
+            
+            // Filter array kosong
+            $specifications = array_filter($specifications, function($spec) {
+                return !empty($spec['key']) || !empty($spec['value']);
+            });
+            
+            // Jika kosong setelah filter, buat satu field kosong
             if (empty($specifications)) {
                 $specifications = [['key' => '', 'value' => '']];
             }
@@ -289,12 +313,14 @@ unset($__errorArgs, $__bag); ?>
         <?php $__currentLoopData = $specifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $spec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="specification-item border border-gray-200 rounded-lg p-4">
             <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-medium text-gray-700">Specification #<?php echo e($index + 1); ?></span>
+                <span class="text-sm font-medium text-gray-700">Specification #<?php echo e($loop->iteration); ?></span>
+                <?php if($loop->iteration > 1 || (!empty($spec['key']) || !empty($spec['value']))): ?>
                 <button type="button" 
                         onclick="removeSpecification(this)" 
                         class="text-red-600 hover:text-red-800 text-sm">
                     <i class="fas fa-trash"></i> Remove
                 </button>
+                <?php endif; ?>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -302,7 +328,7 @@ unset($__errorArgs, $__bag); ?>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Key / Title</label>
                     <input type="text" 
                            name="specifications[<?php echo e($index); ?>][key]" 
-                           value="<?php echo e(old("specifications.{$index}.key", $spec['key'] ?? '')); ?>"
+                           value="<?php echo e($spec['key'] ?? ''); ?>"
                            placeholder="e.g., Material, Size, Weight"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
@@ -311,14 +337,11 @@ unset($__errorArgs, $__bag); ?>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Value / Description</label>
                     <input type="text" 
                            name="specifications[<?php echo e($index); ?>][value]" 
-                           value="<?php echo e(old("specifications.{$index}.value", $spec['value'] ?? '')); ?>"
+                           value="<?php echo e($spec['value'] ?? ''); ?>"
                            placeholder="e.g., High Quality Paper, A4, 100gr"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
             </div>
-            
-            <!-- Hidden field untuk menyimpan index asli -->
-            <input type="hidden" name="specifications[<?php echo e($index); ?>][id]" value="<?php echo e($spec['id'] ?? ''); ?>">
         </div>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
@@ -355,88 +378,254 @@ unset($__errorArgs, $__bag); ?>
         </div>
     </div>
 </div>
-                    <!-- Min Order & Image -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label for="min_order" class="block text-sm font-medium text-gray-700 mb-2">
-                                Minimum Order
-                            </label>
-                            <input type="number"
-                                   id="min_order"
-                                   name="min_order"
-                                   value="<?php echo e(old('min_order', $product->min_order)); ?>"
-                                   min="1"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['min_order'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>">
-                            <?php $__errorArgs = ['min_order'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+
+                    <!-- Image Management Section -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Product Images</h3>
+                        
+                        <!-- Main Image -->
+                        <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="font-medium text-gray-700">Main Product Image</h4>
+                            </div>
+                            
+                            <!-- main_image field -->
+                            <div class="mb-4">
+                                <label for="main_image" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Primary Image (Override)
+                                </label>
+                                <input type="file"
+                                       id="main_image"
+                                       name="main_image"
+                                       accept="image/*"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <?php if($product->main_image): ?>
+                                    <div class="mt-3">
+                                        <p class="text-sm text-gray-500 mb-1">Current Primary Image</p>
+                                        <div class="flex items-center gap-3">
+                                            <img src="<?php echo e($product->getImageUrl($product->main_image)); ?>"
+                                                 alt="Primary Image"
+                                                 class="w-20 h-20 object-cover rounded-lg border">
+                                            <div>
+                                                <p class="text-sm text-gray-600"><?php echo e(basename($product->main_image)); ?></p>
+                                                <div class="flex items-center">
+                                                    <input type="checkbox" 
+                                                           name="remove_main_image" 
+                                                           id="remove-main-image-checkbox"
+                                                           value="1"
+                                                           class="h-4 w-4 text-red-600 border-gray-300 rounded">
+                                                    <label for="remove-main-image-checkbox" class="ml-2 text-xs text-red-600 hover:text-red-800 cursor-pointer">
+                                                        <i class="fas fa-trash mr-1"></i> Remove this image
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Legacy image field (backward compatibility) -->
+                            <div>
+                                <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Legacy Main Image
+                                </label>
+                                <input type="file"
+                                       id="image"
+                                       name="image"
+                                       accept="image/*"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <?php if($product->image): ?>
+                                    <div class="mt-3">
+                                        <p class="text-sm text-gray-500 mb-1">Current Legacy Image</p>
+                                        <div class="flex items-center gap-3">
+                                            <img src="<?php echo e($product->getImageUrl($product->image)); ?>"
+                                                 alt="<?php echo e($product->name); ?>"
+                                                 class="w-20 h-20 object-cover rounded-lg border">
+                                            <div>
+                                                <p class="text-sm text-gray-600"><?php echo e(basename($product->image)); ?></p>
+                                                <div class="flex items-center">
+                                                    <input type="checkbox" 
+                                                           name="remove_image" 
+                                                           id="remove-image-checkbox"
+                                                           value="1"
+                                                           class="h-4 w-4 text-red-600 border-gray-300 rounded">
+                                                    <label for="remove-image-checkbox" class="ml-2 text-xs text-red-600 hover:text-red-800 cursor-pointer">
+                                                        <i class="fas fa-trash mr-1"></i> Remove this image
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
-                        <div>
-                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
-                                Product Image
-                            </label>
+                        <!-- Additional Images (image_2 to image_5) -->
+                        <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-700 mb-4">Additional Product Images</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <?php for($i = 2; $i <= 5; $i++): ?>
+                                    <?php
+                                        $field = "image_{$i}";
+                                        $removeField = "remove_image_{$i}";
+                                        $currentImage = $product->$field;
+                                    ?>
+                                    <div>
+                                        <label for="<?php echo e($field); ?>" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Image <?php echo e($i); ?>
+
+                                        </label>
+                                        <input type="file"
+                                               id="<?php echo e($field); ?>"
+                                               name="<?php echo e($field); ?>"
+                                               accept="image/*"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        
+                                        <?php if($currentImage): ?>
+                                            <div class="mt-3">
+                                                <div class="flex items-center gap-3">
+                                                    <img src="<?php echo e($product->getImageUrl($currentImage)); ?>"
+                                                         alt="Image <?php echo e($i); ?>"
+                                                         class="w-16 h-16 object-cover rounded-lg border">
+                                                    <div>
+                                                        <p class="text-xs text-gray-600"><?php echo e(basename($currentImage)); ?></p>
+                                                        <div class="flex items-center">
+                                                            <input type="checkbox" 
+                                                                   name="<?php echo e($removeField); ?>" 
+                                                                   id="remove-<?php echo e($field); ?>-checkbox"
+                                                                   value="1"
+                                                                   class="h-4 w-4 text-red-600 border-gray-300 rounded">
+                                                            <label for="remove-<?php echo e($field); ?>-checkbox" class="ml-2 text-xs text-red-600 hover:text-red-800 cursor-pointer">
+                                                                <i class="fas fa-trash mr-1"></i> Remove
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnail Image -->
+                        <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-700 mb-3">Thumbnail Image</h4>
                             <input type="file"
-                                   id="image"
-                                   name="image"
+                                   id="thumbnail"
+                                   name="thumbnail"
                                    accept="image/*"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['image'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>">
-                            <?php if($product->image): ?>
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <?php if($product->thumbnail): ?>
                                 <div class="mt-3">
-                                    <p class="text-sm text-gray-500 mb-1">Current Image</p>
+                                    <p class="text-sm text-gray-500 mb-1">Current Thumbnail</p>
                                     <div class="flex items-center gap-3">
-                                        <img src="<?php echo e(asset('storage/' . $product->image)); ?>"
-                                             alt="<?php echo e($product->name); ?>"
+                                        <img src="<?php echo e($product->getImageUrl($product->thumbnail)); ?>"
+                                             alt="Thumbnail"
                                              class="w-20 h-20 object-cover rounded-lg border">
                                         <div>
-                                            <p class="text-sm text-gray-600"><?php echo e(basename($product->image)); ?></p>
+                                            <p class="text-sm text-gray-600"><?php echo e(basename($product->thumbnail)); ?></p>
                                             <div class="flex items-center">
                                                 <input type="checkbox" 
-                                                       name="remove_image" 
-                                                       id="remove-image-checkbox"
+                                                       name="remove_thumbnail" 
+                                                       id="remove-thumbnail-checkbox"
                                                        value="1"
                                                        class="h-4 w-4 text-red-600 border-gray-300 rounded">
-                                                <label for="remove-image-checkbox" class="ml-2 text-xs text-red-600 hover:text-red-800 cursor-pointer">
-                                                    <i class="fas fa-trash mr-1"></i> Remove image
+                                                <label for="remove-thumbnail-checkbox" class="ml-2 text-xs text-red-600 hover:text-red-800 cursor-pointer">
+                                                    <i class="fas fa-trash mr-1"></i> Remove thumbnail
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            <p class="mt-1 text-xs text-gray-500">Leave empty to keep current image</p>
-                            <?php $__errorArgs = ['image'];
+                        </div>
+
+                        <!-- JSON Images Fields (additional_images, gallery_images) -->
+                        <div class="mb-6 p-4 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-700 mb-4">Gallery Images (JSON Fields)</h4>
+                            
+                            <!-- Current Gallery Images -->
+                            <?php
+                                $allGalleryImages = array_merge(
+                                    $product->additional_images ?? [],
+                                    $product->gallery_images ?? []
+                                );
+                            ?>
+                            
+                            <?php if(count($allGalleryImages) > 0): ?>
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">Current Gallery Images:</p>
+                                    <div class="grid grid-cols-4 gap-3">
+                                        <?php $__currentLoopData = $allGalleryImages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $imagePath): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <div class="relative group">
+                                                <img src="<?php echo e($product->getImageUrl($imagePath)); ?>"
+                                                     alt="Gallery Image <?php echo e($index + 1); ?>"
+                                                     class="w-full h-20 object-cover rounded-lg">
+                                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                    <button type="button"
+                                                            onclick="removeGalleryImage('<?php echo e($imagePath); ?>')"
+                                                            class="p-1 bg-white rounded-full text-red-600 hover:bg-red-50">
+                                                        <i class="fas fa-trash text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Upload new gallery images -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Upload New Gallery Images
+                                </label>
+                                <div id="gallery-upload-container" class="space-y-3">
+                                    <div class="flex items-center gap-3">
+                                        <input type="file"
+                                               name="gallery_images[]"
+                                               accept="image/*"
+                                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <button type="button" 
+                                                onclick="addGalleryUploadField()"
+                                                class="px-3 py-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">You can upload multiple gallery images</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Min Order -->
+                    <div class="mb-6">
+                        <label for="min_order" class="block text-sm font-medium text-gray-700 mb-2">
+                            Minimum Order
+                        </label>
+                        <input type="number"
+                               id="min_order"
+                               name="min_order"
+                               value="<?php echo e(old('min_order', $product->min_order)); ?>"
+                               min="1"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['min_order'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                        <?php $__errorArgs = ['min_order'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
-                            <?php unset($message);
+                            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                        </div>
                     </div>
 
                     <!-- Active Status -->
@@ -454,6 +643,10 @@ unset($__errorArgs, $__bag); ?>
                             </label>
                         </div>
                     </div>
+
+                    <!-- Hidden fields untuk JSON images -->
+                    <input type="hidden" name="additional_images_paths" id="additional_images_paths" value="<?php echo e(json_encode($product->additional_images ?? [])); ?>">
+                    <input type="hidden" name="gallery_images_paths" id="gallery_images_paths" value="<?php echo e(json_encode($product->gallery_images ?? [])); ?>">
 
                     <!-- Submit Buttons -->
                     <div class="flex justify-end gap-3">
@@ -511,14 +704,64 @@ unset($__errorArgs, $__bag); ?>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="p-2 bg-purple-100 rounded-lg mr-3">
-                                <i class="fas fa-calendar text-purple-600"></i>
+                                <i class="fas fa-images text-purple-600"></i>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">Created</p>
-                                <p class="text-lg font-bold text-gray-800"><?php echo e($product->created_at->format('d M Y')); ?></p>
+                                <p class="text-sm text-gray-500">Total Images</p>
+                                <p class="text-lg font-bold text-gray-800"><?php echo e($product->getTotalImagesCount()); ?></p>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-100 rounded-lg mr-3">
+                                <i class="fas fa-calendar text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Created</p>
+                                <p class="text-lg font-bold text-gray-800">
+                                    <?php if($product->created_at): ?>
+                                        <?php echo e($product->created_at->format('d M Y')); ?>
+
+                                    <?php else: ?>
+                                        N/A
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Images Preview -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b">
+                    <h3 class="text-lg font-medium text-gray-900">Current Images</h3>
+                </div>
+                <div class="p-4">
+                    <?php if(count($product->all_images) > 0): ?>
+                        <div class="grid grid-cols-3 gap-3">
+                            <?php $__currentLoopData = $product->all_images; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if($image['url']): ?>
+                                    <div class="relative">
+                                        <img src="<?php echo e($image['url']); ?>" 
+                                             alt="Image <?php echo e($index + 1); ?>"
+                                             class="w-full h-20 object-cover rounded-lg">
+                                        <span class="absolute top-1 left-1 px-1 py-0.5 text-xs bg-black bg-opacity-70 text-white rounded">
+                                            <?php echo e($image['type'] === 'main' ? 'M' : 
+                                               ($image['type'] === 'legacy' ? 'L' : 
+                                               ($image['type'] === 'additional' ? 'A' : 'G'))); ?>
+
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <p class="mt-3 text-sm text-gray-600 text-center"><?php echo e(count($product->all_images)); ?> images total</p>
+                    <?php else: ?>
+                        <p class="text-gray-500 text-center py-4">No images available</p>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -545,64 +788,62 @@ unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
-          <!-- Current Status -->
-<div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Current Status</h3>
-    <div class="space-y-3">
-        <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Product Status</span>
-            <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                <?php echo e($product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
-                <?php echo e($product->is_active ? 'Active' : 'Inactive'); ?>
+            <!-- Current Status -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Current Status</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Product Status</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full 
+                            <?php echo e($product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                            <?php echo e($product->is_active ? 'Active' : 'Inactive'); ?>
 
-            </span>
-        </div>
-        
-        <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Category</span>
-            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                <!-- Gunakan salah satu dari ini -->
-                <?php
-                    // Pilihan 1: Jika category adalah string
-                    if (is_string($product->category)) {
-                        echo ucfirst($product->category);
-                    }
-                    // Pilihan 2: Jika ada relationship category
-                    elseif ($product->categoryRelation && is_object($product->categoryRelation)) {
-                        echo $product->categoryRelation->name;
-                    }
-                    // Pilihan 3: Jika tidak ada kategori
-                    else {
-                        echo 'No Category';
-                    }
-                ?>
-            </span>
-        </div>
-        
-        <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Category Type</span>
-            <span class="text-sm text-gray-800">
-                <?php echo e(is_string($product->category) ? ucfirst($product->category) : 'Unknown'); ?>
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Category</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            <?php echo e($product->category_name); ?>
 
-            </span>
-        </div>
-        
-        <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Last Updated</span>
-            <span class="text-sm text-gray-800"><?php echo e($product->updated_at->format('d M Y H:i')); ?></span>
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Category Type</span>
+                        <span class="text-sm text-gray-800">
+                            <?php echo e(is_string($product->category) ? ucfirst($product->category) : 'Unknown'); ?>
+
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Last Updated</span>
+                        <span class="text-sm text-gray-800">
+                            <?php if($product->updated_at): ?>
+                                <?php echo e($product->updated_at->format('d M Y H:i')); ?>
+
+                            <?php else: ?>
+                                N/A
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Delete Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden">
+<div id="deleteModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden z-50">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="px-6 py-4 border-b">
             <h3 class="text-lg font-medium text-gray-900">Confirm Delete</h3>
         </div>
         <div class="px-6 py-4">
             <p id="deleteModalBody" class="text-gray-700">
-                Are you sure you want to delete "<strong><?php echo e($product->name); ?></strong>"? This action cannot be undone.
+                Are you sure you want to delete "<strong><?php echo e($product->name); ?></strong>"?<br>
+                <small class="text-red-600">This will delete ALL product images as well!</small>
             </p>
         </div>
         <div class="px-6 py-4 border-t flex justify-end gap-3">
@@ -625,55 +866,54 @@ unset($__errorArgs, $__bag); ?>
 
 <?php $__env->startPush('scripts'); ?>
 <script>
-function showDeleteModal(productId) {
-    const modal = document.getElementById('deleteModal');
-    modal.classList.remove('hidden');
-}
-
-// Close modal when clicking outside
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.classList.add('hidden');
-    }
-});
 // Specifications Management
-let specIndex = <?php echo e(count($specifications ?? [])); ?>;
+let specIndex = <?php echo e(count($specifications)); ?>;
 
 function addSpecification() {
     const container = document.getElementById('specifications-container');
     const template = document.getElementById('specification-template').innerHTML;
     
-    // Replace placeholder with current index
     const newSpec = template.replace(/__INDEX__/g, specIndex);
     
-    // Create new element
     const div = document.createElement('div');
     div.innerHTML = newSpec;
     container.appendChild(div);
     
-    // Update counter
     specIndex++;
+    
+    // Update nomor urut
+    updateSpecificationNumbers();
 }
 
 function removeSpecification(button) {
     const item = button.closest('.specification-item');
     
-    // Only remove if there's more than one specification
+    // Dapatkan semua item specifications
     const allItems = document.querySelectorAll('.specification-item');
-    if (allItems.length > 1) {
-        item.remove();
-        // Renumber the remaining items
-        renumberSpecifications();
-    } else {
-        // If only one left, just clear the inputs
-        const inputs = item.querySelectorAll('input[type="text"]');
+    
+    // Jika hanya ada 1 item dan kosong, jangan hapus
+    const inputs = item.querySelectorAll('input[type="text"]');
+    const isEmpty = Array.from(inputs).every(input => input.value.trim() === '');
+    
+    if (allItems.length === 1 && isEmpty) {
+        // Kosongkan input
         inputs.forEach(input => input.value = '');
-        alert('At least one specification field must remain. Fields have been cleared instead.');
+        return;
     }
+    
+    // Hapus item
+    item.remove();
+    
+    // Update nomor urut
+    updateSpecificationNumbers();
+    
+    // Update specIndex
+    specIndex = document.querySelectorAll('.specification-item').length;
 }
 
-function renumberSpecifications() {
+function updateSpecificationNumbers() {
     const items = document.querySelectorAll('.specification-item');
+    
     items.forEach((item, index) => {
         const title = item.querySelector('.text-sm.font-medium');
         if (title) {
@@ -693,8 +933,71 @@ function renumberSpecifications() {
     });
 }
 
-// Add validation for specifications
-document.querySelector('form').addEventListener('submit', function(e) {
+// Gallery Images Management
+function addGalleryUploadField() {
+    const container = document.getElementById('gallery-upload-container');
+    const newField = document.createElement('div');
+    newField.className = 'flex items-center gap-3';
+    newField.innerHTML = `
+        <input type="file"
+               name="gallery_images[]"
+               accept="image/*"
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <button type="button" 
+                onclick="removeGalleryUploadField(this)"
+                class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
+            <i class="fas fa-minus"></i>
+        </button>
+    `;
+    container.appendChild(newField);
+}
+
+function removeGalleryUploadField(button) {
+    const fieldDiv = button.closest('.flex.items-center');
+    if (document.querySelectorAll('#gallery-upload-container .flex.items-center').length > 1) {
+        fieldDiv.remove();
+    } else {
+        // If only one field left, just clear it
+        const input = fieldDiv.querySelector('input[type="file"]');
+        input.value = '';
+    }
+}
+
+function removeGalleryImage(imagePath) {
+    if (confirm('Remove this gallery image?')) {
+        // Remove from additional_images JSON
+        let additionalImages = JSON.parse(document.getElementById('additional_images_paths').value || '[]');
+        additionalImages = additionalImages.filter(img => img !== imagePath);
+        document.getElementById('additional_images_paths').value = JSON.stringify(additionalImages);
+        
+        // Remove from gallery_images JSON
+        let galleryImages = JSON.parse(document.getElementById('gallery_images_paths').value || '[]');
+        galleryImages = galleryImages.filter(img => img !== imagePath);
+        document.getElementById('gallery_images_paths').value = JSON.stringify(galleryImages);
+        
+        // Reload page to show updated images
+        window.location.reload();
+    }
+}
+
+// Delete product modal
+function showDeleteModal(productId) {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.remove('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.add('hidden');
+    }
+});
+
+// Form validation
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    let isValid = true;
+    
+    // Validate specifications
     const specItems = document.querySelectorAll('.specification-item');
     let hasValidSpec = false;
     
@@ -709,12 +1012,40 @@ document.querySelector('form').addEventListener('submit', function(e) {
     });
     
     if (!hasValidSpec) {
-        // Optional: Add warning or prevent submit
-        // alert('Please fill in at least one specification or remove all specification fields.');
+        if (!confirm('No specifications entered. Continue without specifications?')) {
+            isValid = false;
+        }
     }
+    
+    if (!isValid) {
+        e.preventDefault();
+    }
+});
+
+// Price calculation preview
+const priceInput = document.getElementById('price');
+const discountInput = document.getElementById('discount_percent');
+
+function calculateFinalPrice() {
+    const price = parseFloat(priceInput.value) || 0;
+    const discount = parseFloat(discountInput.value) || 0;
+    
+    if (discount > 0) {
+        const discountedPrice = price * (1 - discount / 100);
+        // You can show this in a preview element if needed
+        console.log('Final price:', discountedPrice);
+    }
+}
+
+priceInput.addEventListener('input', calculateFinalPrice);
+discountInput.addEventListener('input', calculateFinalPrice);
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Update specification numbers on page load
+    updateSpecificationNumbers();
 });
 </script>
 <?php $__env->stopPush(); ?>
-
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('pages.admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/admin/products/edit.blade.php ENDPATH**/ ?>
