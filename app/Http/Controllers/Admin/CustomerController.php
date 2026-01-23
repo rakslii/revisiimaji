@@ -8,36 +8,32 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CustomerController extends Controller
 {
-
     public function __construct()
-{
-    // ⚡ HAPUS INI: $this->middleware('auth');
-    // Karena ini yang bikin redirect ke /login
-    
-    // Cek role admin saja
-    $this->middleware(function ($request, $next) {
-        if (!auth()->check()) {
-            // Manual redirect ke admin.login
-            return redirect()->route('admin.login')
-                ->with('error', 'Please login first.');
-        }
-        
-        if (auth()->user()->role !== 'admin') {
-            auth()->logout();
-            return redirect()->route('admin.login')
-                ->with('error', 'Admin access only.');
-        }
-        
-        return $next($request);
-    });
-}
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check()) {
+                return redirect()->route('admin.login')
+                    ->with('error', 'Please login first.');
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                auth()->logout();
+                return redirect()->route('admin.login')
+                    ->with('error', 'Admin access only.');
+            }
+            
+            return $next($request);
+        });
+    }
+
     /**
      * Display a listing of customers.
      */
-    public function customers()
+    public function index()
     {
         $customers = User::withCount('orders')
             ->where('role', 'customer')
@@ -50,63 +46,28 @@ class CustomerController extends Controller
     /**
      * Display customer details.
      */
-    public function customerDetail($id)
-    {
-        $customer = User::with(['orders' => function($query) {
-            $query->latest()->limit(10);
-        }, 'locations'])
-            ->withCount('orders')
-            ->findOrFail($id);
+  /**
+ * Display customer details.
+ */
+public function show($id)
+{
+    $customer = User::with(['orders' => function($query) {
+        $query->latest()->limit(10);
+    }, 'locations'])
+        ->withCount('orders')
+        ->findOrFail($id);
 
-        // FIX: Gunakan kolom yang benar berdasarkan struktur database
-        // Coba beberapa kemungkinan nama kolom
-        $totalSpent = 0;
-        
-        try {
-            // Coba cek kolom yang tersedia di database
-            $orderColumns = DB::getSchemaBuilder()->getColumnListing('orders');
-            
-            if (in_array('total_amount', $orderColumns)) {
-                $totalSpent = Order::where('user_id', $id)
-                    ->where('status', 'completed')
-                    ->sum('total_amount');
-            } 
-            // Jika tidak ada total_amount, coba kolom lain
-            elseif (in_array('total', $orderColumns)) {
-                $totalSpent = Order::where('user_id', $id)
-                    ->where('status', 'completed')
-                    ->sum('total');
-            }
-            elseif (in_array('final_amount', $orderColumns)) {
-                $totalSpent = Order::where('user_id', $id)
-                    ->where('status', 'completed')
-                    ->sum('final_amount');
-            }
-            // Default jika tidak ada kolom total
-            else {
-                // Hitung manual dari order items
-                $completedOrders = Order::where('user_id', $id)
-                    ->where('status', 'completed')
-                    ->with('items')
-                    ->get();
-                
-                foreach ($completedOrders as $order) {
-                    foreach ($order->items as $item) {
-                        $totalSpent += ($item->price * $item->quantity);
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // Jika ada error, set ke 0
-            $totalSpent = 0;
-        }
+    // Calculate total spent - PERBAIKAN DI SINI
+    $totalSpent = Order::where('user_id', $id)
+        ->where('status', 'completed')
+        ->sum('total'); // Ubah dari 'total_amount' menjadi 'total'
 
-        $avgOrderValue = $customer->orders_count > 0 
-            ? $totalSpent / $customer->orders_count 
-            : 0;
+    $avgOrderValue = $customer->orders_count > 0 
+        ? $totalSpent / $customer->orders_count 
+        : 0;
 
-        return view('pages.admin.customers.show', compact('customer', 'totalSpent', 'avgOrderValue'));
-    }
+    return view('pages.admin.customers.show', compact('customer', 'totalSpent', 'avgOrderValue'));
+}
 
     /**
      * Show create customer form.
@@ -129,13 +90,20 @@ class CustomerController extends Controller
         ]);
 
         try {
-            $customer = User::create([
+            $customerData = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
                 'password' => Hash::make($validated['password']),
                 'role' => 'customer',
-            ]);
+            ];
+            
+            // Tambahkan status jika kolom ada
+            if (Schema::hasColumn('users', 'status')) {
+                $customerData['status'] = 'active';
+            }
+
+            $customer = User::create($customerData);
 
             return redirect()->route('admin.customers.show', $customer->id)
                 ->with('success', 'Customer created successfully.');
@@ -200,35 +168,43 @@ class CustomerController extends Controller
     {
         $customer = User::findOrFail($id);
 
-        // Check if customer has orders
-        if ($customer->orders()->count() > 0) {
-            return redirect()->back()
-                ->with('error', 'Cannot delete customer with existing orders. Consider deactivating instead.');
-        }
-
         try {
             DB::beginTransaction();
 
-            // Delete customer's locations
-            $customer->locations()->delete();
-
-            // Delete customer
-            $customer->delete();
+            // Gunakan soft delete jika ada
+            if (method_exists($customer, 'delete') && in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($customer))) {
+                $customer->delete(); // Soft delete
+            } else {
+                // Hard delete with related data
+                if ($customer->locations()->exists()) {
+                    $customer->locations()->delete();
+                }
+                
+                if ($customer->orders()->exists()) {
+                    $customer->orders()->delete();
+                }
+                
+                $customer->delete();
+            }
 
             DB::commit();
 
-            return redirect()->route('admin.customers')
-                ->with('success', 'Customer deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer deleted successfully.',
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Failed to delete customer: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete customer: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
-     * Update customer status.
+     * Update customer status (AJAX).
      */
     public function updateStatus(Request $request, $id)
     {
@@ -238,11 +214,28 @@ class CustomerController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        $customer->update(['status' => $request->status]);
+        try {
+            // Cek apakah kolom status ada
+            if (!Schema::hasColumn('users', 'status')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Status column does not exist in database.',
+                ], 400);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Customer status updated successfully.',
-        ]);
+            $customer->update(['status' => $request->status]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer status updated successfully.',
+                'new_status' => $request->status,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

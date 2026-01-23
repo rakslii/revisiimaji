@@ -437,36 +437,61 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update URL with current filters
     updateURL();
 });
-
 // Apply filter function
 function applyFilter(type, value) {
     currentFilters[type] = value;
     if (type !== 'page') {
         currentFilters.page = 1; // Reset to first page when changing filters
     }
+    
+    // Update UI untuk radio buttons jika type adalah 'sort'
+    if (type === 'sort') {
+        updateSortUI(value);
+    }
+    
     updateURL();
     performLiveSearch();
 }
 
-// Reset all filters
-function resetFilters() {
-    currentFilters = {
-        search: '',
-        category: '',
-        sort: 'latest',
-        page: 1
-    };
-
-    // Reset UI
-    document.getElementById('liveSearchInput').value = '';
+// Update UI untuk sort radio buttons
+function updateSortUI(selectedValue) {
+    // Reset semua radio buttons
     document.querySelectorAll('input[name="sort"]').forEach(radio => {
-        radio.checked = radio.value === 'latest';
+        radio.checked = false;
+        
+        // Hapus class active dari parent label
+        const label = radio.closest('label');
+        if (label) {
+            label.classList.remove('bg-[#193497]/10', 'border-2', 'border-[#193497]/30');
+            
+            // Update text color
+            const span = label.querySelector('span');
+            if (span) {
+                span.classList.remove('text-[#193497]');
+                span.classList.add('text-gray-700');
+            }
+        }
     });
-
-    updateURL();
-    performLiveSearch();
+    
+    // Set radio button yang dipilih
+    const selectedRadio = document.querySelector(`input[name="sort"][value="${selectedValue}"]`);
+    if (selectedRadio) {
+        selectedRadio.checked = true;
+        
+        // Add class active ke parent label
+        const label = selectedRadio.closest('label');
+        if (label) {
+            label.classList.add('bg-[#193497]/10', 'border-2', 'border-[#193497]/30');
+            
+            // Update text color
+            const span = label.querySelector('span');
+            if (span) {
+                span.classList.remove('text-gray-700');
+                span.classList.add('text-[#193497]');
+            }
+        }
+    }
 }
-
 // Update browser URL without reload
 function updateURL() {
     const url = new URL(window.location.href);

@@ -17,7 +17,7 @@
                        class="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        id="searchInput">
             </div>
-            <a href="{{ route('admin.customers.create') }}" 
+            <a href="{{ route('admin.customers.create') }}"
                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 <i class="fas fa-plus mr-2"></i>Add Customer
             </a>
@@ -37,7 +37,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -51,7 +51,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -65,7 +65,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white rounded-lg shadow p-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -92,7 +92,7 @@
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
-                    
+
                     <select id="dateFilter" class="px-3 py-1 border rounded-lg text-sm">
                         <option value="">All Time</option>
                         <option value="today">Today</option>
@@ -102,7 +102,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -127,11 +127,12 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="customersTable">
-                    @forelse($customers as $customer)
-                    <tr class="hover:bg-gray-50" 
-                        data-status="{{ $customer->status ?? '' }}" 
-                        data-date="{{ $customer->created_at ? $customer->created_at->format('Y-m-d') : '' }}">
+               <tbody class="bg-white divide-y divide-gray-200" id="customersTable">
+    @forelse($customers as $customer)
+    <tr class="hover:bg-gray-50"
+        data-customer-id="{{ $customer->id }}"
+        data-customer-status="{{ $customer->status ?? 'active' }}"
+        data-date="{{ $customer->created_at ? $customer->created_at->format('Y-m-d') : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -168,15 +169,17 @@
                                 @endif
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @php
-                                $status = $customer->status ?? 'inactive';
-                                $statusColor = $status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                            @endphp
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $statusColor }}">
-                                {{ ucfirst($status) }}
-                            </span>
-                        </td>
+                        <!-- Di bagian status badge di view: -->
+<td class="px-6 py-4 whitespace-nowrap">
+    @php
+        // Cek apakah status ada, jika tidak default 'active'
+        $status = $customer->status ?? 'active';
+        $statusColor = $status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+    @endphp
+    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $statusColor }}">
+        {{ ucfirst($status) }}
+    </span>
+</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             @if($customer->created_at)
                                 {{ $customer->created_at->format('d M Y') }}
@@ -186,13 +189,13 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex items-center space-x-2">
-                                <a href="{{ route('admin.customers.show', $customer->id) }}" 
-                                   class="text-blue-600 hover:text-blue-900" 
+                                <a href="{{ route('admin.customers.show', $customer->id) }}"
+                                   class="text-blue-600 hover:text-blue-900"
                                    title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.customers.edit', $customer->id) }}" 
-                                   class="text-yellow-600 hover:text-yellow-900" 
+                                <a href="{{ route('admin.customers.edit', $customer->id) }}"
+                                   class="text-yellow-600 hover:text-yellow-900"
                                    title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -210,7 +213,7 @@
                             <div class="py-8">
                                 <i class="fas fa-users fa-2x text-gray-300 mb-2"></i>
                                 <p class="text-gray-500">No customers found</p>
-                                <a href="{{ route('admin.customers.create') }}" 
+                                <a href="{{ route('admin.customers.create') }}"
                                    class="mt-2 inline-block text-blue-600 hover:text-blue-900">
                                     Add your first customer
                                 </a>
@@ -221,7 +224,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Pagination -->
         @if($customers->hasPages())
         <div class="px-6 py-4 border-t">
@@ -243,7 +246,7 @@
             </div>
         </div>
         <div class="px-6 py-4 border-t flex justify-end">
-            <button type="button" 
+            <button type="button"
                     onclick="closeActionsModal()"
                     class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
                 Close
@@ -253,6 +256,7 @@
 </div>
 
 @push('scripts')
+
 <script>
 let currentCustomerId = null;
 let currentCustomerName = null;
@@ -261,20 +265,22 @@ let currentCustomerStatus = null;
 function showCustomerActions(customerId, customerName) {
     currentCustomerId = customerId;
     currentCustomerName = customerName;
-    
-    // Get customer status from table row
-    const row = document.querySelector(`tr[data-status="${customerId}"]`);
+
+    // Get customer status from table row - PERBAIKAN DI SINI
+    const row = document.querySelector(`tr[data-customer-id="${customerId}"]`);
     if (row) {
-        currentCustomerStatus = row.getAttribute('data-status');
+        currentCustomerStatus = row.getAttribute('data-customer-status') || 'active';
+    } else {
+        currentCustomerStatus = 'active'; // default
     }
-    
+
     document.getElementById('customerName').textContent = `Actions for ${customerName}`;
-    
+
     // Set action buttons based on status
     const actionButtons = document.getElementById('actionButtons');
-    
+
     let buttonsHTML = '';
-    
+
     if (currentCustomerStatus === 'active') {
         buttonsHTML = `
             <button type="button" onclick="updateCustomerStatus('inactive')"
@@ -302,7 +308,7 @@ function showCustomerActions(customerId, customerName) {
             </button>
         `;
     }
-    
+
     buttonsHTML += `
     <button type="button" onclick="resetCustomerPassword()"
             class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-blue-200 hover:bg-blue-50">
@@ -314,7 +320,7 @@ function showCustomerActions(customerId, customerName) {
             </div>
         </div>
     </button>
-    
+
     <a href="/admin/customers/${currentCustomerId}/edit"
        class="block w-full text-left">
         <div class="flex items-center justify-between p-3 rounded-lg border border-purple-200 hover:bg-purple-50">
@@ -327,7 +333,7 @@ function showCustomerActions(customerId, customerName) {
             </div>
         </div>
     </a>
-    
+
     <button type="button" onclick="deleteCustomer()"
             class="w-full flex items-center justify-between p-3 text-left rounded-lg border border-red-200 hover:bg-red-50">
         <div class="flex items-center">
@@ -339,9 +345,9 @@ function showCustomerActions(customerId, customerName) {
         </div>
     </button>
 `;
-    
+
     actionButtons.innerHTML = buttonsHTML;
-    
+
     const modal = document.getElementById('actionsModal');
     modal.classList.remove('hidden');
 }
@@ -351,6 +357,9 @@ function closeActionsModal() {
 }
 
 function updateCustomerStatus(status) {
+    console.log('Updating status for customer:', currentCustomerId, 'to:', status);
+    console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.content);
+
     if (!confirm(`Are you sure you want to ${status === 'active' ? 'activate' : 'deactivate'} ${currentCustomerName}?`)) {
         return;
     }
@@ -428,21 +437,21 @@ function filterCustomers() {
     const dateFilter = document.getElementById('dateFilter').value;
     const searchQuery = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#customersTable tr');
-    
+
     rows.forEach(row => {
-        const status = row.getAttribute('data-status') || '';
+        const status = row.getAttribute('data-customer-status') || '';
         const dateStr = row.getAttribute('data-date');
         const rowText = row.textContent.toLowerCase();
-        
+
         // Status filter
         const statusMatch = !statusFilter || status === statusFilter;
-        
+
         // Date filter
         let dateMatch = true;
         if (dateFilter && dateStr) {
             const date = new Date(dateStr);
             const today = new Date();
-            
+
             if (dateFilter === 'today') {
                 dateMatch = date.toDateString() === today.toDateString();
             } else if (dateFilter === 'week') {
@@ -455,10 +464,10 @@ function filterCustomers() {
         } else if (dateFilter && !dateStr) {
             dateMatch = false; // Jika ada filter tanggal tapi data date kosong
         }
-        
+
         // Search filter
         const searchMatch = !searchQuery || rowText.includes(searchQuery);
-        
+
         if (statusMatch && dateMatch && searchMatch) {
             row.style.display = '';
         } else {
@@ -474,5 +483,6 @@ document.getElementById('actionsModal').addEventListener('click', function(e) {
     }
 });
 </script>
+
 @endpush
 @endsection

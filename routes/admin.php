@@ -15,55 +15,67 @@ use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 */
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Login routes (TANPA middleware)
+    // Login routes
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-    
+
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Customers - RESTful routes (Pindah ke CustomerController)
-    Route::get('/customers', [AdminCustomerController::class, 'customers'])->name('customers');
-    Route::get('/customers/create', [AdminCustomerController::class, 'create'])->name('customers.create');
-    Route::post('/customers', [AdminCustomerController::class, 'store'])->name('customers.store');
-    Route::get('/customers/{id}', [AdminCustomerController::class, 'customerDetail'])->name('customers.show');
-    Route::get('/customers/{id}/edit', [AdminCustomerController::class, 'edit'])->name('customers.edit');
-    Route::put('/customers/{id}', [AdminCustomerController::class, 'update'])->name('customers.update');
-    Route::delete('/customers/{id}', [AdminCustomerController::class, 'destroy'])->name('customers.destroy');
-    Route::put('/customers/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('customers.update-status');
+    // ============ CUSTOMERS ============
+    Route::prefix('customers')->name('customers.')->group(function () {
+        Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
+        Route::get('/create', [AdminCustomerController::class, 'create'])->name('create');
+        Route::post('/', [AdminCustomerController::class, 'store'])->name('store');
+        Route::get('/{id}', [AdminCustomerController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminCustomerController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminCustomerController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminCustomerController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('status.update');
+    });
 
-    // Settings (Tetap di AdminController)
+    // Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
 
-     // Orders - RESTful routes dengan method yang benar
-    Route::get('/orders', [AdminOrderController::class, 'orders'])->name('orders');
-    Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
-    Route::post('/orders', [AdminOrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{id}', [AdminOrderController::class, 'orderDetail'])->name('orders.show');
-    Route::get('/orders/{id}/edit', [AdminOrderController::class, 'edit'])->name('orders.edit');
-    Route::put('/orders/{id}', [AdminOrderController::class, 'update'])->name('orders.update');
-    Route::delete('/orders/{id}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
-    
-    // Order Status Routes - Gunakan POST untuk semua agar konsisten
-    Route::post('/orders/{id}/update-status', [AdminOrderController::class, 'updateOrderStatus'])->name('orders.update-status');
-    Route::post('/orders/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
-    Route::post('/orders/{id}/mark-processing', [AdminOrderController::class, 'markAsProcessing'])->name('orders.mark-processing');
-    Route::post('/orders/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('orders.mark-completed');
-    
-    // Products - RESTful routes
-    Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
-    Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
-    Route::post('/products', [AdminProductController::class, 'store'])->name('products.store');
-    Route::get('/products/{id}', [AdminProductController::class, 'show'])->name('products.show');
-    Route::get('/products/{id}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
-    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+    // ============ ORDERS ============
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::get('/create', [AdminOrderController::class, 'create'])->name('create');
+        Route::post('/', [AdminOrderController::class, 'store'])->name('store');
+        Route::get('/{id}', [AdminOrderController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminOrderController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminOrderController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
 
-    // Promo Codes
-    Route::get('/promo-codes', [AdminPromoCodeController::class, 'promoCodes'])->name('promo-codes');
-    Route::post('/promo-codes', [AdminPromoCodeController::class, 'storePromoCode'])->name('promo-codes.store');
-    Route::put('/promo-codes/{id}', [AdminPromoCodeController::class, 'updatePromoCode'])->name('promo-codes.update');
-    Route::delete('/promo-codes/{id}', [AdminPromoCodeController::class, 'deletePromoCode'])->name('promo-codes.delete');
+        // Order Status Routes
+        Route::post('/{id}/update-status', [AdminOrderController::class, 'updateOrderStatus'])->name('update-status');
+        Route::post('/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('confirm-payment');
+        Route::post('/{id}/mark-processing', [AdminOrderController::class, 'markAsProcessing'])->name('mark-processing');
+        Route::post('/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('mark-completed');
+    });
+
+// ============ PRODUCTS ============
+Route::prefix('products')->name('products.')->group(function () {
+    Route::get('/', [AdminProductController::class, 'index'])->name('index');
+    Route::get('/create', [AdminProductController::class, 'create'])->name('create');
+    Route::post('/', [AdminProductController::class, 'store'])->name('store');
+    Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
+
+    // API routes untuk image handling (ditambahkan)
+    Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
+    Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
+});
+
+    // ============ PROMO CODES ============
+    Route::prefix('promo-codes')->name('promo-codes.')->group(function () {
+        Route::get('/', [AdminPromoCodeController::class, 'index'])->name('index');
+        Route::post('/', [AdminPromoCodeController::class, 'store'])->name('store');
+        Route::put('/{id}', [AdminPromoCodeController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminPromoCodeController::class, 'destroy'])->name('destroy');
+    });
 });

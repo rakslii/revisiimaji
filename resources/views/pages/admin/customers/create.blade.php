@@ -11,7 +11,7 @@
             <p class="text-gray-600 mt-1">Add a new customer to the system</p>
         </div>
         <div>
-            <a href="{{ route('admin.customers') }}" 
+            <a href="{{ route('admin.customers.index') }}" 
                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
                 <i class="fas fa-arrow-left mr-2"></i>Back to Customers
             </a>
@@ -198,7 +198,7 @@
             
             <!-- Form Actions -->
             <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                <a href="{{ route('admin.customers') }}" 
+                <a href="{{ route('admin.customers.index') }}" 
                    class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
                     Cancel
                 </a>

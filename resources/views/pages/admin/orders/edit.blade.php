@@ -15,7 +15,7 @@
                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
                 <i class="fas fa-eye mr-2"></i>View Details
             </a>
-            <a href="{{ route('admin.orders') }}" 
+            <a href="{{ route('admin.orders.index') }}" 
                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">
                 <i class="fas fa-arrow-left mr-2"></i>Back to Orders
             </a>
@@ -47,21 +47,25 @@
             
             <div class="p-6 space-y-6">
                 <!-- Customer Selection -->
-                <div>
-                    <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
-                    <select name="user_id" id="user_id" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Select Customer</option>
-                        @foreach($customers as $customer)
-                            <option value="{{ $customer->id }}" {{ $order->user_id == $customer->id ? 'selected' : '' }}>
-                                {{ $customer->name }} - {{ $customer->phone }} ({{ $customer->email }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @if($customers->isEmpty())
-                    <p class="mt-2 text-sm text-red-600">No customers found. Please create customers first.</p>
-                    @endif
-                </div>
+<div>
+    <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
+    <select name="user_id" id="user_id" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('user_id') border-red-500 @enderror">
+        <option value="">Select Customer</option>
+        @foreach($customers as $customer)
+            <option value="{{ $customer->id }}" 
+                {{ old('user_id', $order->user_id) == $customer->id ? 'selected' : '' }}>
+                {{ $customer->name }} - {{ $customer->phone }} ({{ $customer->email }})
+            </option>
+        @endforeach
+    </select>
+    @error('user_id')
+        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+    @enderror
+    @if($customers->isEmpty())
+    <p class="mt-2 text-sm text-red-600">No customers found. Please create customers first.</p>
+    @endif
+</div>
 
                 <!-- Order Items (Readonly) -->
                 <div>
@@ -129,18 +133,21 @@
                     </div>
                 </div>
 
-                <!-- Payment Method -->
-                <div>
-                    <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                    <select name="payment_method" id="payment_method"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Select Payment Method</option>
-                        <option value="cash" {{ $order->payment_method == 'cash' ? 'selected' : '' }}>Cash</option>
-                        <option value="bank_transfer" {{ $order->payment_method == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
-                        <option value="credit_card" {{ $order->payment_method == 'credit_card' ? 'selected' : '' }}>Credit Card</option>
-                        <option value="ewallet" {{ $order->payment_method == 'ewallet' ? 'selected' : '' }}>E-Wallet</option>
-                    </select>
-                </div>
+               <!-- Payment Method -->
+<div>
+    <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">Payment Method *</label>
+    <select name="payment_method" id="payment_method" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <option value="">Select Payment Method</option>
+        <option value="cash" {{ $order->payment_method == 'cash' ? 'selected' : '' }}>Cash</option>
+        <option value="bank_transfer" {{ $order->payment_method == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
+        <option value="credit_card" {{ $order->payment_method == 'credit_card' ? 'selected' : '' }}>Credit Card</option>
+        <option value="ewallet" {{ $order->payment_method == 'ewallet' ? 'selected' : '' }}>E-Wallet</option>
+    </select>
+    @error('payment_method')
+        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+    @enderror
+</div>
 
                 <!-- Notes -->
                 <div>
