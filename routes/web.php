@@ -79,7 +79,10 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::post('/{item}', [CartController::class, 'update'])->name('update');
     Route::delete('/{item}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
+    
+    // ✅ TAMBAHKAN INI
     Route::get('/count', [CartController::class, 'getCartCount'])->name('count');
+    
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
 });
 

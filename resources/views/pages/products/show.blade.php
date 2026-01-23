@@ -2,17 +2,7 @@
 
 @section('title', $product->name . ' - Cipta Imaji')
 @push('styles')
-<style>
-#cartToast {
-  transform: translateX(400px);
-  transition: transform .3s ease;
-}
-#cartToast.show {
-  transform: translateX(0);
-}
 
-
-</style>
 @section('content')
 <div class="bg-[#f9f0f1] min-h-screen py-8">
     <div class="container mx-auto px-4">
@@ -288,17 +278,17 @@
 
                         <!-- Buttons -->
                         <div class="grid grid-cols-1 gap-3">
-                            <!-- Add to Cart -->
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST" id="add-to-cart-form">
-                                @csrf
-                                <input type="hidden" name="quantity" id="form-quantity" value="{{ $product->min_order }}">
-                                <input type="hidden" name="notes" id="form-notes">
-                                <input type="hidden" name="file" id="form-file">
-                                <button type="submit" class="w-full bg-white border-2 border-[#193497] text-[#193497] hover:bg-[#193497] hover:text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
-                                    <i class="fas fa-shopping-cart mr-3 text-xl"></i>
-                                    <span class="text-lg">Tambah ke Keranjang</span>
-                                </button>
-                            </form>
+                          <!-- Add to Cart -->
+<form action="{{ route('cart.add', $product->id) }}" method="POST" class="add-to-cart-form">
+    @csrf
+    <input type="hidden" name="quantity" id="form-quantity" value="{{ $product->min_order }}">
+    <input type="hidden" name="notes" id="form-notes">
+    <input type="hidden" name="file" id="form-file">
+    <button type="submit" class="w-full bg-white border-2 border-[#193497] text-[#193497] hover:bg-[#193497] hover:text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
+        <i class="fas fa-shopping-cart mr-3 text-xl add-to-cart-btn"></i>
+        <span class="text-lg">Tambah ke Keranjang</span>
+    </button>
+</form>
 
                             <!-- Buy Now -->
                             <button type="button" id="buy-now-btn" class="w-full bg-[#193497] hover:bg-[#0f2354] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
@@ -378,14 +368,6 @@
     </div>
 </div>
 
-<!-- Toast Notification -->
-<div id="cartToast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-x-[400px] transition-transform duration-300 z-[60] flex items-center gap-3">
-    <i class="fas fa-check-circle text-2xl"></i>
-    <div>
-        <div class="font-bold">Berhasil!</div>
-        <div class="text-sm">Produk ditambahkan ke keranjang</div>
-    </div>
-</div>
 @endsection
 
 @push('scripts')
@@ -733,42 +715,6 @@ Mohon informasi lebih lanjut untuk pemesanan ini. Terima kasih! 🙏`;
 
    updateTotal();
 
-const cartForm = document.getElementById('add-to-cart-form');
-const cartToast = document.getElementById('cartToast');
-
-cartForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const formData = new FormData(cartForm);
-
-  fetch(cartForm.action, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-    },
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      cartToast.classList.add('show');
-
-      setTimeout(() => {
-        cartToast.classList.remove('show');
-      }, 3000);
-
-      const cartCountEl = document.getElementById('cart-count');
-      if (cartCountEl && data.cart_count !== undefined) {
-        cartCountEl.textContent = data.cart_count;
-      }
-    } else {
-      alert(data.message || 'Gagal nambah ke keranjang');
-    }
-  })
-  .catch(() => {
-    alert('Error pas nambah ke keranjang');
-  });
-});
 
 });
 
