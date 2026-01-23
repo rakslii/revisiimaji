@@ -267,16 +267,19 @@
             @foreach($products->take(4) as $product)
             <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
                 <!-- Image -->
-                <div class="h-64 bg-gradient-to-br from-blue-100 to-purple-100 relative overflow-hidden">
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-print text-blue-300 text-7xl group-hover:scale-110 transition-transform duration-500"></i>
-                    </div>
-                    @if($loop->first)
-                    <div class="absolute top-4 left-4 bg-[#ff0f0f] text-white px-4 py-2 rounded-full text-xs font-bold">
-                        TERLARIS
-                    </div>
-                    @endif
-                </div>
+<div class="h-64 bg-gray-100 relative overflow-hidden">
+    <img src="{{ asset('storage/'.$product->image) }}"
+         alt="{{ $product->name }}"
+         class="w-full h-full object-cover"
+         onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+
+    @if($loop->first)
+    <div class="absolute top-4 left-4 bg-[#ff0f0f] text-white px-4 py-2 rounded-full text-xs font-bold">
+        TERLARIS
+    </div>
+    @endif
+</div>
+
 
                 <!-- Content -->
                 <div class="p-6">

@@ -1,7 +1,18 @@
 @extends('layouts.app')
 
 @section('title', $product->name . ' - Cipta Imaji')
+@push('styles')
+<style>
+#cartToast {
+  transform: translateX(400px);
+  transition: transform .3s ease;
+}
+#cartToast.show {
+  transform: translateX(0);
+}
 
+
+</style>
 @section('content')
 <div class="bg-[#f9f0f1] min-h-screen py-8">
     <div class="container mx-auto px-4">
@@ -22,7 +33,12 @@
                 <div class="p-8 lg:p-12 bg-[#f9f0f1]">
                     <!-- Main Image -->
                     <div class="bg-white rounded-3xl h-[500px] flex items-center justify-center mb-6 relative overflow-hidden group shadow-lg">
-                        <i class="fas fa-shopping-bag text-blue-200 text-9xl relative z-10 group-hover:scale-110 transition-transform duration-500"></i>
+    <img 
+        src="{{ asset('storage/'.$product->image) }}" 
+        alt="{{ $product->name }}"
+        class="w-full h-full object-cover"
+        onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+
                         <div class="absolute top-4 left-4 flex flex-col gap-2">
                             @if($product->discount_percent > 0)
                                 <span class="bg-[#f91f01] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">-{{ $product->discount_percent }}% OFF</span>
@@ -33,14 +49,14 @@
                         </div>
                     </div>
                     
-                    <!-- Thumbnails -->
-                    <div class="grid grid-cols-4 gap-3 mb-6">
-                        @for($i = 0; $i < 4; $i++)
-                        <div class="bg-white rounded-2xl h-28 flex items-center justify-center cursor-pointer hover:ring-4 ring-[#193497] transition-all duration-300 group shadow-md">
-                            <i class="fas fa-image text-gray-300 text-2xl group-hover:text-blue-500 transition-colors"></i>
-                        </div>
-                        @endfor
-                    </div>
+   <!-- Thumbnails -->
+<div class="grid grid-cols-4 gap-3 mb-6">
+    @for($i = 0; $i < 4; $i++)
+    <div class="rounded-2xl h-28 overflow-hidden cursor-pointer hover:ring-4 ring-[#193497] transition-all duration-300 shadow-md thumbnail-item">
+        <img src="{{ asset('storage/'.$product->image) }}" alt="Thumbnail {{ $i + 1 }}" class="w-full h-full object-cover">
+    </div>
+    @endfor
+</div>
 
                     <!-- Quick Info Cards -->
                     <div class="space-y-3">
@@ -351,10 +367,127 @@
         </div>
     </div>
 </div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
+    <div class="relative max-w-4xl max-h-[90vh]">
+        <button id="closeModal" class="absolute -top-12 right-0 text-white hover:text-gray-300 text-4xl font-bold">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modalImage" src="" alt="Product Image" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl">
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="cartToast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl transform translate-x-[400px] transition-transform duration-300 z-[60] flex items-center gap-3">
+    <i class="fas fa-check-circle text-2xl"></i>
+    <div>
+        <div class="font-bold">Berhasil!</div>
+        <div class="text-sm">Produk ditambahkan ke keranjang</div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+
+// Image Modal
+const imageModal = document.getElementById('imageModal');
+const modalImage = document.getElementById('modalImage');
+const closeModal = document.getElementById('closeModal');
+const thumbnails = document.querySelectorAll('.thumbnail-item');
+const mainImage = document.querySelector('.bg-white.rounded-3xl.h-\\[500px\\] img');
+
+// Array untuk menyimpan semua gambar
+let imageArray = [];
+let currentImageIndex = 0;
+
+// Populate image array (1 main image + 4 thumbnails = 5 total)
+imageArray.push(mainImage.src); // Main image
+thumbnails.forEach(thumb => {
+    imageArray.push(thumb.querySelector('img').src);
+});
+
+// Function to show image at index
+function showImageAtIndex(index) {
+    if (index < 0) index = imageArray.length - 1;
+    if (index >= imageArray.length) index = 0;
+    
+    currentImageIndex = index;
+    modalImage.src = imageArray[index];
+}
+
+// Click on thumbnail
+thumbnails.forEach((thumb, index) => {
+    thumb.addEventListener('click', function() {
+        showImageAtIndex(index + 1); // +1 karena index 0 adalah main image
+        imageModal.classList.remove('hidden');
+        imageModal.classList.add('flex');
+    });
+});
+
+// Click on main image
+if (mainImage) {
+    mainImage.parentElement.style.cursor = 'pointer';
+    mainImage.parentElement.addEventListener('click', function() {
+        showImageAtIndex(0); // Main image ada di index 0
+        imageModal.classList.remove('hidden');
+        imageModal.classList.add('flex');
+    });
+}
+
+// Close modal
+closeModal.addEventListener('click', function() {
+    imageModal.classList.add('hidden');
+    imageModal.classList.remove('flex');
+});
+
+// Close on background click
+imageModal.addEventListener('click', function(e) {
+    if (e.target === imageModal) {
+        imageModal.classList.add('hidden');
+        imageModal.classList.remove('flex');
+    }
+});
+
+// Keyboard navigation - Arrow keys untuk slide
+document.addEventListener('keydown', function(e) {
+    if (!imageModal.classList.contains('hidden')) {
+        if (e.key === 'ArrowLeft') {
+            showImageAtIndex(currentImageIndex - 1);
+        } else if (e.key === 'ArrowRight') {
+            showImageAtIndex(currentImageIndex + 1);
+        } else if (e.key === 'Escape') {
+            imageModal.classList.add('hidden');
+            imageModal.classList.remove('flex');
+        }
+    }
+});
+
+// Swipe support untuk mobile (optional)
+let touchStartX = 0;
+let touchEndX = 0;
+
+modalImage.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+modalImage.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    if (touchEndX < touchStartX - 50) {
+        // Swipe left - next image
+        showImageAtIndex(currentImageIndex + 1);
+    }
+    if (touchEndX > touchStartX + 50) {
+        // Swipe right - previous image
+        showImageAtIndex(currentImageIndex - 1);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const minusBtn = document.querySelector('.qty-minus');
     const plusBtn = document.querySelector('.qty-plus');
@@ -525,8 +658,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    updateTotal();
-
     // Buy Now Button
     const buyNowBtn = document.getElementById('buy-now-btn');
     buyNowBtn.addEventListener('click', function() {
@@ -600,7 +731,46 @@ Mohon informasi lebih lanjut untuk pemesanan ini. Terima kasih! 🙏`;
         window.open(whatsappUrl, '_blank');
     });
 
-    updateTotal();
+   updateTotal();
+
+const cartForm = document.getElementById('add-to-cart-form');
+const cartToast = document.getElementById('cartToast');
+
+cartForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const formData = new FormData(cartForm);
+
+  fetch(cartForm.action, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+    },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      cartToast.classList.add('show');
+
+      setTimeout(() => {
+        cartToast.classList.remove('show');
+      }, 3000);
+
+      const cartCountEl = document.getElementById('cart-count');
+      if (cartCountEl && data.cart_count !== undefined) {
+        cartCountEl.textContent = data.cart_count;
+      }
+    } else {
+      alert(data.message || 'Gagal nambah ke keranjang');
+    }
+  })
+  .catch(() => {
+    alert('Error pas nambah ke keranjang');
+  });
 });
+
+});
+
 </script>
 @endpush

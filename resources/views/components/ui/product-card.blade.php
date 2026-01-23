@@ -41,13 +41,12 @@
                 </div>
             @endif
 
-            <!-- Product Image -->
-            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                <img src="{{ $imageUrl }}" 
-                     alt="{{ $product->name }}"
-                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                     onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
-            </div>
+            <div class="w-full h-full flex items-center justify-center bg-white p-2">
+    <img src="{{ $imageUrl }}" 
+         alt="{{ $product->name }}"
+         class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+         onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+</div>
 
             <!-- Add to Cart Button -->
             <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
