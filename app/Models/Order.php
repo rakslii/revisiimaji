@@ -11,76 +11,85 @@ class Order extends Model
 {
     use HasFactory;
 
-    // Status constants
-    const STATUS_PENDING = 'pending';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_SHIPPED = 'shipped';
-    const STATUS_DELIVERED = 'delivered';
-    const STATUS_CANCELLED = 'cancelled';
+    /* =========================
+     | STATUS CONSTANTS (SAMA DENGAN DB)
+     ========================= */
+    const STATUS_PENDING          = 'pending';
+    const STATUS_WAITING_PAYMENT  = 'waiting_payment';
+    const STATUS_PAID             = 'paid';
+    const STATUS_PROCESSING       = 'processing';
+    const STATUS_COMPLETED        = 'completed';
+    const STATUS_CANCELLED        = 'cancelled';
 
-    // Payment status constants
-    const PAYMENT_PENDING = 'pending';
-    const PAYMENT_PAID = 'paid';
-    const PAYMENT_FAILED = 'failed';
-    const PAYMENT_EXPIRED = 'expired';
+    const PAYMENT_UNPAID    = 'unpaid';
+    const PAYMENT_PAID      = 'paid';
+    const PAYMENT_FAILED    = 'failed';
+    const PAYMENT_EXPIRED   = 'expired';
+    const PAYMENT_CANCELLED = 'cancelled';
 
+    /* =========================
+     | MASS ASSIGNMENT
+     ========================= */
     protected $fillable = [
         'order_code',
         'user_id',
 
-        // CUSTOMER
+        // customer
         'customer_name',
         'customer_phone',
         'customer_email',
 
-        // SHIPPING
+        // shipping
         'shipping_address',
         'shipping_city',
         'shipping_postal_code',
         'shipping_method',
-
-        // PAYMENT
-        'payment_method',
-        'snap_token',
-        'midtrans_order_id',
-
-        // MAP
+        'shipping_note',
         'latitude',
         'longitude',
 
-        // PRICE
+        // payment
+        'payment_method',
+        'payment_status',
+        'snap_token',
+        'midtrans_order_id',
+
+        // price
         'subtotal',
         'shipping_cost',
         'discount',
         'total',
 
-        // STATUS
+        // status
         'status',
-        'payment_status',
-
-        // NOTES
         'notes',
-        'design_notes',
-        'design_files',
+        'paid_at',
+        'completed_at',
     ];
 
-
+    /* =========================
+     | CASTS
+     ========================= */
     protected $casts = [
-        'subtotal' => 'decimal:2',
-        'shipping_cost' => 'decimal:2',
-        'discount' => 'decimal:2',
-        'total' => 'decimal:2',
-        'paid_at' => 'datetime',
-        'completed_at' => 'datetime',
+        'subtotal'       => 'decimal:2',
+        'shipping_cost'  => 'decimal:2',
+        'discount'       => 'decimal:2',
+        'total'          => 'decimal:2',
+        'paid_at'        => 'datetime',
+        'completed_at'   => 'datetime',
     ];
 
+    /* =========================
+     | APPENDS (YANG AMAN)
+     ========================= */
     protected $appends = [
-        'customer_name',
-        'customer_phone',
         'formatted_total',
         'items_count',
     ];
 
+    /* =========================
+     | BOOT
+     ========================= */
     protected static function boot()
     {
         parent::boot();
@@ -92,14 +101,14 @@ class Order extends Model
         });
     }
 
-    /**
-     * Generate unique order number
-     */
-    public static function generateOrderNumber()
+    /* =========================
+     | GENERATE ORDER CODE
+     ========================= */
+    public static function generateOrderNumber(): string
     {
         $prefix = 'ORD-' . date('Ymd');
         $lastOrder = static::where('order_code', 'like', $prefix . '%')
-            ->orderBy('id', 'desc')
+            ->orderByDesc('id')
             ->first();
 
         $number = 1;
@@ -111,162 +120,76 @@ class Order extends Model
         return $prefix . '-' . str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Get the user that owns the order
-     */
+    /* =========================
+     | RELATIONSHIPS
+     ========================= */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the location for the order - INI YANG PERLU DITAMBAHKAN
-     */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
-    /**
-     * Get the order items
-     */
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    /**
-     * Get the payments for the order
-     */
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
     }
 
-    /**
-     * Alias untuk payment() jika ada yang masih panggil singular
-     */
+
+    // 🔥 ALIAS BIAR GA ERROR
     public function payment(): HasMany
     {
         return $this->payments();
     }
 
-    /**
-     * Check if order can be cancelled
-     */
-    public function canBeCancelled(): bool
-    {
-        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_PROCESSING]);
-    }
 
-    /**
-     * Get status badge color
-     */
-    public function getStatusBadgeAttribute(): string
-    {
-        $colors = [
-            self::STATUS_PENDING => 'warning',
-            self::STATUS_PROCESSING => 'info',
-            self::STATUS_SHIPPED => 'primary',
-            self::STATUS_DELIVERED => 'success',
-            self::STATUS_CANCELLED => 'danger',
-        ];
-
-        return $colors[$this->status] ?? 'secondary';
-    }
-
-    /**
-     * Get payment status badge color
-     */
-    public function getPaymentStatusBadgeAttribute(): string
-    {
-        $colors = [
-            self::PAYMENT_PENDING => 'warning',
-            self::PAYMENT_PAID => 'success',
-            self::PAYMENT_FAILED => 'danger',
-            self::PAYMENT_EXPIRED => 'secondary',
-        ];
-
-        return $colors[$this->payment_status] ?? 'secondary';
-    }
-
-    /**
-     * Get formatted total
-     */
+    /* =========================
+     | ACCESSORS (AMAN)
+     ========================= */
     public function getFormattedTotalAttribute(): string
     {
         return 'Rp ' . number_format($this->total ?? 0, 0, ',', '.');
     }
 
-    /**
-     * Get customer name from user relationship
-     */
-    public function getCustomerNameAttribute()
-    {
-        return $this->user ? $this->user->name : 'N/A';
-    }
-
-    /**
-     * Get customer phone from user relationship
-     */
-    public function getCustomerPhoneAttribute()
-    {
-        return $this->user ? $this->user->phone : 'No phone';
-    }
-
-    /**
-     * Get items count
-     */
-    public function getItemsCountAttribute()
+    public function getItemsCountAttribute(): int
     {
         return $this->items()->count();
     }
 
-    /**
-     * Get formatted subtotal
-     */
-    public function getFormattedSubtotalAttribute(): string
-    {
-        return 'Rp ' . number_format($this->subtotal ?? 0, 0, ',', '.');
-    }
-
-    /**
-     * Get formatted shipping cost
-     */
-    public function getFormattedShippingCostAttribute(): string
-    {
-        return 'Rp ' . number_format($this->shipping_cost ?? 0, 0, ',', '.');
-    }
-
-    /**
-     * Get formatted discount
-     */
-    public function getFormattedDiscountAttribute(): string
-    {
-        return 'Rp ' . number_format($this->discount ?? 0, 0, ',', '.');
-    }
-
-    /**
-     * Scope a query to only include orders for authenticated user
-     */
+    /* =========================
+     | SCOPES
+     ========================= */
     public function scopeForCurrentUser($query)
     {
         return $query->where('user_id', auth()->id());
     }
 
-    /**
-     * Scope a query to only include pending orders
-     */
     public function scopePending($query)
     {
         return $query->where('status', self::STATUS_PENDING);
     }
 
-    /**
-     * Scope a query to only include paid orders
-     */
     public function scopePaid($query)
     {
         return $query->where('payment_status', self::PAYMENT_PAID);
+    }
+
+    /* =========================
+     | HELPERS
+     ========================= */
+    public function canBeCancelled(): bool
+    {
+        return in_array($this->status, [
+            self::STATUS_PENDING,
+            self::STATUS_WAITING_PAYMENT,
+        ]);
     }
 }
