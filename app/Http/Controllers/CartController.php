@@ -199,4 +199,92 @@ class CartController extends Controller
         'count' => $count
     ]);
 }
+public function processCheckout(Request $request)
+{
+    DB::beginTransaction();
+    
+    try {
+        // Validasi input
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'city' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+            'notes' => 'nullable|string|max:500'
+        ]);
+
+        $cart = Cart::getCurrentCart();
+        $cartItems = $cart->items()->with('product')->get();
+
+        // Validasi keranjang
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
+        }
+
+        // Hitung total
+        $subtotal = 0;
+        foreach ($cartItems as $item) {
+            // Cek stok
+            if ($item->quantity > $item->product->stock) {
+                return back()->with('error', 'Stok ' . $item->product->name . ' tidak cukup.');
+            }
+            $subtotal += $item->price * $item->quantity;
+        }
+
+        $discount = 0;
+        $total = $subtotal - $discount;
+
+        // Buat order
+        $order = Order::create([
+            'user_id' => Auth::id(),
+            'order_number' => 'ORD-' . strtoupper(uniqid()),
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'city' => $validated['city'],
+            'postal_code' => $validated['postal_code'],
+            'notes' => $validated['notes'] ?? null,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'total' => $total,
+            'status' => 'pending',
+            'payment_status' => 'pending'
+        ]);
+
+        // Buat order items & kurangi stok
+        foreach ($cartItems as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'subtotal' => $item->price * $item->quantity
+            ]);
+
+            // Kurangi stok
+            $item->product->decrement('stock', $item->quantity);
+        }
+
+        // Buat payment via Midtrans
+        $snapToken = $this->midtrans->createTransaction($order);
+        
+        $order->update([
+            'snap_token' => $snapToken
+        ]);
+
+        // Kosongkan keranjang
+        $cart->items()->delete();
+
+        DB::commit();
+
+        // Redirect ke halaman payment
+        return redirect()->route('orders.show', $order->id)
+            ->with('success', 'Order berhasil dibuat!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->with('error', 'Gagal membuat order: ' . $e->getMessage());
+    }
+}
 }
