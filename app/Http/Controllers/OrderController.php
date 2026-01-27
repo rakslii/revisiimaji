@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Location;
 use App\Models\PromoCode;
@@ -15,30 +16,6 @@ use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
     protected $paymentService;
-
-    public function payment($id)
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
-        $order = Order::where('user_id', Auth::id())
-            ->where('id', $id)
-            ->firstOrFail();
-
-        if (!$order->snap_token) {
-            return redirect()
-                ->route('orders.show', $order->id)
-                ->with('error', 'Token pembayaran belum tersedia');
-        }
-
-        return view('pages.orders.payment', [
-            'order' => $order,
-            'snapToken' => $order->snap_token,
-        ]);
-    }
-
-
 
     public function __construct(PaymentService $paymentService = null)
     {
@@ -60,7 +37,7 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        $orders = Order::with(['items.product', 'payment', 'location'])
+        $orders = Order::with(['items.product', 'payments', 'location'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -79,7 +56,7 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        $order = Order::with(['items.product', 'location', 'payment'])
+        $order = Order::with(['items.product', 'location', 'payments'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
@@ -87,6 +64,122 @@ class OrderController extends Controller
             'order' => $order
         ]);
     }
+
+    /**
+     * Display payment page for order.
+     */
+    public function payment($id)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $order = Order::where('user_id', Auth::id())
+            ->with(['items.product', 'payments'])
+            ->findOrFail($id);
+
+        // Jika ada snap_token (Midtrans), tampilkan dengan Midtrans
+        if ($order->snap_token) {
+            return view('pages.orders.payment', [
+                'order' => $order,
+                'snapToken' => $order->snap_token,
+                'payment' => null,
+            ]);
+        }
+
+        // Pastikan ada payment record untuk QRIS
+        $payment = $order->payments()->latest()->first();
+
+        if (!$payment) {
+            // Buat payment record jika belum ada
+            $payment = Payment::create([
+                'order_id' => $order->id,
+                'payment_method' => 'qris',
+                'status' => Payment::STATUS_PENDING,
+                'amount' => $order->total,
+                'expired_at' => now()->addHours(1),
+                'qr_code' => $this->generateQRCode($order),
+                'qr_url' => '#',
+                'external_id' => 'QR-' . $order->order_code . '-' . time(),
+            ]);
+        }
+
+        return view('pages.orders.payment', compact('order', 'payment'));
+    }
+
+    /**
+     * Check payment status.
+     */
+    public function checkPaymentStatus(Request $request, $id)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $order = Order::where('user_id', Auth::id())->findOrFail($id);
+        $payment = $order->payments()->latest()->first();
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment record not found'
+            ]);
+        }
+
+        // Di production, ini akan memanggil API payment gateway
+        // Untuk demo, kita simulasikan random status update
+
+        $status = $payment->status;
+
+        // Simulasi: kadang-kadang status berubah menjadi paid
+        if ($payment->status === Payment::STATUS_PENDING && rand(1, 10) === 1) {
+            $status = Payment::STATUS_PAID;
+            $payment->update([
+                'status' => Payment::STATUS_PAID,
+                'payment_data' => ['verified_at' => now()]
+            ]);
+
+            $order->update([
+                'payment_status' => 'paid',
+                'status' => 'processing',
+                'paid_at' => now()
+            ]);
+        }
+
+        // Simulasi: jika sudah expired
+        if ($payment->expired_at && $payment->expired_at->isPast() && $payment->status === Payment::STATUS_PENDING) {
+            $status = Payment::STATUS_EXPIRED;
+            $payment->update(['status' => Payment::STATUS_EXPIRED]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $status,
+            'order_status' => $order->status,
+            'payment_status' => $order->payment_status,
+            'message' => 'Payment status checked successfully'
+        ]);
+    }
+
+    /**
+     * Generate QR code for order (demo version).
+     */
+    private function generateQRCode($order)
+    {
+        $orderCode = $order->order_code;
+        $amount = $order->total;
+
+        // Untuk demo: generate QR code dengan data order
+        // Di production, ini akan datang dari Midtrans/Xendit/dll
+        $qrData = "Order: {$orderCode}|Amount: {$amount}|Date: " . now()->format('YmdHis');
+
+        // Menggunakan QR code generator online untuk demo
+        return "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrData);
+    }
+
     /**
      * Create new order
      */
@@ -184,11 +277,25 @@ class OrderController extends Controller
             }
 
             // Create QRIS payment
-            $payment = $this->paymentService->createQRISPayment($order);
+            if ($this->paymentService) {
+                $payment = $this->paymentService->createQRISPayment($order);
+            } else {
+                // Fallback jika payment service tidak tersedia
+                $payment = Payment::create([
+                    'order_id' => $order->id,
+                    'payment_method' => 'qris',
+                    'status' => Payment::STATUS_PENDING,
+                    'amount' => $finalAmount,
+                    'expired_at' => now()->addHours(1),
+                    'qr_code' => $this->generateQRCode($order),
+                    'qr_url' => '#',
+                    'external_id' => 'QR-' . $order->order_number . '-' . time(),
+                ]);
+            }
 
             return response()->json([
                 'message' => 'Order berhasil dibuat',
-                'order' => $order->load(['items.product', 'location', 'payment']),
+                'order' => $order->load(['items.product', 'location', 'payments']),
                 'payment' => $payment,
             ], 201);
         });
