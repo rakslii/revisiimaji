@@ -45,6 +45,13 @@ class PromoCode extends Model
                      ->whereRaw('used_count < quota');
     }
 
+    // Scope untuk search
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('code', 'like', "%{$search}%")
+                     ->orWhere('name', 'like', "%{$search}%");
+    }
+
     // Method untuk cek apakah promo valid
     public function isValid()
     {
@@ -54,23 +61,43 @@ class PromoCode extends Model
                $this->used_count < $this->quota;
     }
 
+    // Method untuk cek status
+    public function getStatusAttribute()
+    {
+        if (!$this->is_active) return 'inactive';
+        if (now() < $this->valid_from) return 'upcoming';
+        if (now() > $this->valid_until) return 'expired';
+        if ($this->used_count >= $this->quota) return 'quota_exceeded';
+        return 'active';
+    }
+
     // Method untuk apply promo
-    public function applyTo($amount)
+    public function calculateDiscount($amount)
     {
         if (!$this->isValid() || ($this->min_purchase && $amount < $this->min_purchase)) {
             return 0;
         }
 
         if ($this->type === self::TYPE_PERCENTAGE) {
-            return ($amount * $this->value) / 100;
+            $discount = ($amount * $this->value) / 100;
+            return $discount;
         }
 
-        return min($this->value, $amount); // Tidak boleh lebih dari total
+        return $this->value;
     }
 
     // Method untuk increment used count
     public function markAsUsed()
     {
         $this->increment('used_count');
+    }
+
+    // Format value untuk display
+    public function getFormattedValueAttribute()
+    {
+        if ($this->type === self::TYPE_PERCENTAGE) {
+            return $this->value . '%';
+        }
+        return 'Rp ' . number_format($this->value, 0, ',', '.');
     }
 }
