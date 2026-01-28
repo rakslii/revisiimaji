@@ -63,15 +63,21 @@
                     Produk
                 </a>
                 
-               <!-- ONLINE STORES DROPDOWN -->
-                <div class="relative dropdown-container" data-dropdown-id="stores">
-                    <button class="dropdown-toggle text-white hover:text-yellow-400 font-medium transition-colors duration-300 flex items-center space-x-1">
+               <!-- ONLINE STORES DROPDOWN - TAMBAHKAN STYLE UNTUK FORCE HIDE -->
+                <div class="relative dropdown-container" 
+                     onmouseenter="showDropdown('stores')" 
+                     onmouseleave="hideDropdownWithDelay('stores')">
+                    <button class="text-white hover:text-yellow-400 font-medium transition-colors duration-300 flex items-center space-x-1 focus:outline-none">
                         <span>Online Store</span>
-                        <i class="fas fa-chevron-down text-xs transition-transform duration-300 dropdown-arrow"></i>
+                        <i class="fas fa-chevron-down text-xs transition-transform duration-300" id="stores-arrow"></i>
                     </button>
                     
-                    <!-- Dropdown Menu -->
-                    <div class="dropdown-menu left-1/2 transform -translate-x-1/2 mt-2 w-72 py-4 border border-gray-100">
+                    <!-- Transparent gap -->
+                    <div class="dropdown-gap"></div>
+                    
+                    <!-- Dropdown Menu - TAMBAHKAN STYLE -->
+                    <div id="stores-dropdown" class="dropdown-menu left-1/2 transform -translate-x-1/2 mt-2 w-72 py-4 border border-gray-100" 
+                         style="display: none; opacity: 0; visibility: hidden;">
                         <!-- Header -->
                         <div class="px-4 pb-3 border-b border-gray-100">
                             <h3 class="font-bold text-gray-900 text-sm">Toko Online Kami</h3>
@@ -79,7 +85,7 @@
                         </div>
                         
                         <!-- Store Links -->
-                        <div class="px-2 py-2">
+                        <div class="px-2 py-2" onmouseenter="keepDropdownOpen('stores')" onmouseleave="hideDropdownWithDelay('stores')">
                             <!-- Shopee -->
                             <a href="https://shopee.co.id/ciptaimaji" 
                                target="_blank"
@@ -189,9 +195,11 @@
                             <?php endif; ?>
                         </a>
 
-                        <!-- USER PROFILE DROPDOWN -->
-                        <div class="relative dropdown-container" data-dropdown-id="profile">
-                            <button class="dropdown-toggle flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all duration-300">
+                        <!-- USER PROFILE DROPDOWN - TAMBAHKAN STYLE UNTUK FORCE HIDE -->
+                        <div class="relative dropdown-container" 
+                             onmouseenter="showDropdown('profile')" 
+                             onmouseleave="hideDropdownWithDelay('profile')">
+                            <button class="flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all duration-300 focus:outline-none">
                                 <?php if(auth()->user()->avatar): ?>
                                     <img src="<?php echo e(auth()->user()->avatar); ?>" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-yellow-400">
                                 <?php else: ?>
@@ -201,17 +209,21 @@
                                     </div>
                                 <?php endif; ?>
                                 <span class="text-white font-medium"><?php echo e(Str::limit(auth()->user()->name, 15)); ?></span>
-                                <i class="fas fa-chevron-down text-white text-sm dropdown-arrow"></i>
+                                <i class="fas fa-chevron-down text-white text-sm" id="profile-arrow"></i>
                             </button>
                             
-                            <!-- Dropdown Menu -->
-                            <div class="dropdown-menu right-0 mt-2 w-56 py-2">
+                            <!-- Transparent gap -->
+                            <div class="dropdown-gap"></div>
+                            
+                            <!-- Dropdown Menu - TAMBAHKAN STYLE -->
+                            <div id="profile-dropdown" class="dropdown-menu right-0 mt-2 w-56 py-2" 
+                                 style="display: none; opacity: 0; visibility: hidden;">
                                 <div class="px-4 py-3 border-b border-gray-100">
                                     <p class="text-sm font-bold text-gray-900"><?php echo e(auth()->user()->name); ?></p>
                                     <p class="text-xs text-gray-500"><?php echo e(auth()->user()->email); ?></p>
                                 </div>
                                 
-                                <div>
+                                <div onmouseenter="keepDropdownOpen('profile')" onmouseleave="hideDropdownWithDelay('profile')">
                                     <a href="<?php echo e(route('orders.index')); ?>" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200">
                                         <i class="fas fa-box text-blue-600 w-5"></i>
                                         <span class="ml-3">Pesanan Saya</span>
@@ -410,542 +422,362 @@
     </div>
 </nav>
 
-<style>
-/* ================= DROPDOWN STYLES ================= */
-.dropdown-container {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px) scale(0.95);
-    transform-origin: top center;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-    z-index: 1000;
-    border: 1px solid #f3f4f6;
-    overflow: hidden;
-    /* FORCE HIDDEN ON LOAD */
-    display: none;
-}
-
-.dropdown-menu.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
-    display: block;
-}
-
-.dropdown-arrow {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dropdown-container:hover .dropdown-arrow,
-.dropdown-menu.show + .dropdown-toggle .dropdown-arrow {
-    transform: rotate(180deg);
-}
-
-/* Mobile dropdown */
-#mobile-store-links {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-#mobile-store-links.expanded {
-    max-height: 500px;
-    transition: max-height 0.5s ease-in;
-}
-
-/* ================= ANIMATIONS ================= */
-.rotate-180 {
-    transform: rotate(180deg);
-}
-
-/* ================= CART COUNTER ================= */
-.cart-counter {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* ================= NOTIFICATION STYLES ================= */
-.notification-container {
-    position: fixed;
-    top: 24px;
-    right: 24px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 380px;
-    pointer-events: none;
-}
-
-.notification {
-    background: white;
-    border-radius: 16px;
-    padding: 18px;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    border: 1px solid #e5e7eb;
-    transform: translateX(400px);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    pointer-events: auto;
-    position: relative;
-    overflow: hidden;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
-.notification.hide {
-    transform: translateX(400px);
-}
-</style>
+<!-- Alpine.js for dropdown interactions -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <script>
-/* ================= DROPDOWN MANAGEMENT ================= */
-class DropdownManager {
-    constructor() {
-        this.dropdowns = new Map();
-        this.hideTimeouts = new Map();
-        this.HIDE_DELAY = 200;
-        this.init();
-    }
+/* ================= FIX DROPDOWN AUTOMATIC OPEN ================= */
+// Pastikan semua dropdown tertutup saat page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Force hide semua dropdown
+    document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+        dropdown.style.display = 'none';
+        dropdown.style.opacity = '0';
+        dropdown.style.visibility = 'hidden';
+    });
+    
+    // Reset semua arrow
+    document.querySelectorAll('[id$="-arrow"]').forEach(arrow => {
+        arrow.classList.remove('rotate-180');
+    });
+});
 
-    init() {
-        // Close all dropdowns first
-        this.closeAllDropdowns();
+/* ================= DROPDOWN FUNCTIONS ================= */
+function showDropdown(id) {
+    const dropdown = document.getElementById(id + '-dropdown');
+    const arrow = document.getElementById(id + '-arrow');
+    
+    if (dropdown && arrow) {
+        dropdown.style.display = 'block';
+        dropdown.style.opacity = '1';
+        dropdown.style.visibility = 'visible';
+        arrow.classList.add('rotate-180');
         
-        // Initialize dropdowns
-        document.querySelectorAll('.dropdown-container').forEach(container => {
-            const dropdown = container.querySelector('.dropdown-menu');
-            const toggle = container.querySelector('.dropdown-toggle');
-            const arrow = container.querySelector('.dropdown-arrow');
-            
-            if (dropdown && toggle) {
-                const id = container.dataset.dropdownId || `dropdown-${this.dropdowns.size}`;
-                this.dropdowns.set(id, { container, dropdown, toggle, arrow });
-                
-                // Setup event listeners
-                this.setupDropdownEvents(container, dropdown, toggle, arrow);
-            }
-        });
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (e) => this.handleClickOutside(e));
-        
-        // Close dropdowns on ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') this.closeAllDropdowns();
-        });
-        
-        // Close dropdowns on window resize
-        window.addEventListener('resize', () => this.closeAllDropdowns());
+        // Tutup dropdown lainnya
+        closeOtherDropdowns(id);
     }
+}
 
-    setupDropdownEvents(container, dropdown, toggle, arrow) {
-        let hideTimeout;
-
-        // Show dropdown on hover
-        container.addEventListener('mouseenter', () => {
-            clearTimeout(hideTimeout);
-            this.showDropdown(dropdown, arrow);
-        });
-
-        // Hide dropdown with delay on leave
-        container.addEventListener('mouseleave', () => {
-            hideTimeout = setTimeout(() => {
-                this.hideDropdown(dropdown, arrow);
-            }, this.HIDE_DELAY);
-        });
-
-        // Keep dropdown open when hovering over it
-        dropdown.addEventListener('mouseenter', () => {
-            clearTimeout(hideTimeout);
-            this.showDropdown(dropdown, arrow);
-        });
-
-        // Hide dropdown when leaving dropdown area
-        dropdown.addEventListener('mouseleave', () => {
-            hideTimeout = setTimeout(() => {
-                this.hideDropdown(dropdown, arrow);
-            }, this.HIDE_DELAY / 2);
-        });
-
-        // Store timeout reference
-        this.hideTimeouts.set(dropdown, hideTimeout);
+function hideDropdown(id) {
+    const dropdown = document.getElementById(id + '-dropdown');
+    const arrow = document.getElementById(id + '-arrow');
+    
+    if (dropdown && arrow) {
+        dropdown.style.opacity = '0';
+        dropdown.style.visibility = 'hidden';
+        arrow.classList.remove('rotate-180');
+        
+        // Tunggu transisi selesai baru sembunyikan display
+        setTimeout(() => {
+            dropdown.style.display = 'none';
+        }, 300);
     }
+}
 
-    showDropdown(dropdown, arrow) {
-        if (dropdown && !dropdown.classList.contains('show')) {
-            dropdown.classList.add('show');
-            if (arrow) arrow.classList.add('rotate-180');
-            
-            // Close other dropdowns
-            this.closeOtherDropdowns(dropdown);
+function hideDropdownWithDelay(id) {
+    setTimeout(() => hideDropdown(id), 200);
+}
+
+function keepDropdownOpen(id) {
+    // Hanya untuk mencegah auto-hide saat masih di dalam dropdown
+}
+
+function closeOtherDropdowns(currentId) {
+    ['stores', 'profile'].forEach(id => {
+        if (id !== currentId) {
+            hideDropdown(id);
         }
-    }
-
-    hideDropdown(dropdown, arrow) {
-        if (dropdown && dropdown.classList.contains('show')) {
-            dropdown.classList.remove('show');
-            if (arrow) arrow.classList.remove('rotate-180');
-        }
-    }
-
-    closeOtherDropdowns(currentDropdown) {
-        this.dropdowns.forEach(({ dropdown, arrow }) => {
-            if (dropdown !== currentDropdown && dropdown.classList.contains('show')) {
-                this.hideDropdown(dropdown, arrow);
-            }
-        });
-    }
-
-    closeAllDropdowns() {
-        this.dropdowns.forEach(({ dropdown, arrow }) => {
-            this.hideDropdown(dropdown, arrow);
-        });
-    }
-
-    handleClickOutside(e) {
-        let isDropdown = false;
-        
-        this.dropdowns.forEach(({ container, dropdown }) => {
-            if (container.contains(e.target) || dropdown.contains(e.target)) {
-                isDropdown = true;
-            }
-        });
-
-        if (!isDropdown) {
-            this.closeAllDropdowns();
-        }
-    }
+    });
 }
 
 /* ================= MOBILE MENU ================= */
-function setupMobileMenu() {
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    
-    if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', function () {
-            const icon = this.querySelector('i');
-            mobileMenu.classList.toggle('hidden');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-        });
-    }
+document.getElementById('mobile-menu-button')?.addEventListener('click', function () {
+    const menu = document.getElementById('mobile-menu');
+    const icon = this.querySelector('i');
 
-    // Mobile store links toggle
-    const mobileStoreLinks = document.getElementById('mobile-store-links');
-    const mobileStoreArrow = document.getElementById('mobile-store-arrow');
-    
-    if (mobileStoreLinks && mobileStoreArrow) {
-        const storeContainer = mobileStoreLinks.closest('div');
-        storeContainer.addEventListener('click', function(e) {
-            if (!e.target.closest('a')) {
-                mobileStoreLinks.classList.toggle('expanded');
-                mobileStoreArrow.classList.toggle('rotate-180');
-            }
-        });
-    }
+    menu.classList.toggle('hidden');
+    icon.classList.toggle('fa-bars');
+    icon.classList.toggle('fa-times');
+});
+
+/* ================= MOBILE STORE LINKS TOGGLE ================= */
+const mobileStoreArrow = document.getElementById('mobile-store-arrow');
+if (mobileStoreArrow) {
+    const storeContainer = mobileStoreArrow.closest('div');
+    storeContainer.addEventListener('click', function(e) {
+        if (!e.target.closest('a')) {
+            const links = document.getElementById('mobile-store-links');
+            links.classList.toggle('hidden');
+            mobileStoreArrow.classList.toggle('rotate-180');
+        }
+    });
 }
 
-/* ================= CART SYSTEM ================= */
-class CartSystem {
-    constructor() {
-        this.init();
-    }
+/* ================= ADD TO CART (AJAX) - PERTAHANKAN INI KARENA NOTIF BERFUNGSI ================= */
+function addToCart(event, productId, productName) {
+    event.preventDefault();
 
-    async addToCart(event, productId, productName) {
-        event.preventDefault();
+    const form = event.target.closest('form');
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
 
-        const form = event.target.closest('form');
-        const button = event.target.closest('button');
-        const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
 
-        // Show loading
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        button.disabled = true;
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(res => res.json())
+    .then(() => {
+        button.innerHTML = '<i class="fas fa-check text-green-600"></i>';
+        updateCartCount();
+        showToast('success', `"${productName}" ditambahkan ke keranjang`);
 
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: new FormData(form),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                // Show success state
-                button.innerHTML = '<i class="fas fa-check text-green-600"></i>';
-                
-                // Update cart count
-                this.updateCartCount();
-                
-                // Reset button after 1.5 seconds
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.innerHTML = originalHTML;
-                }, 1500);
-            } else {
-                throw new Error(data.message || 'Gagal menambahkan ke keranjang');
-            }
-        } catch (error) {
-            console.error('Cart error:', error);
-            
-            // Reset button
-            button.disabled = false;
+        setTimeout(() => {
             button.innerHTML = originalHTML;
-        }
-    }
+            button.disabled = false;
+        }, 1500);
+    })
+    .catch(() => {
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        showToast('error', 'Gagal menambahkan ke keranjang');
+    });
+}
 
-    async updateCartCount() {
-        try {
-            const response = await fetch('<?php echo e(route("cart.count")); ?>');
-            const data = await response.json();
-            
+/* ================= CART COUNT ================= */
+function updateCartCount() {
+    fetch('<?php echo e(route("cart.count")); ?>')
+        .then(res => res.json())
+        .then(data => {
             document.querySelectorAll('.cart-counter').forEach(counter => {
                 counter.textContent = data.count;
                 counter.classList.toggle('hidden', data.count === 0);
             });
-        } catch (error) {
-            console.error('Error updating cart count:', error);
-        }
-    }
-
-    init() {
-        // Add to cart forms
-        document.addEventListener('submit', (e) => {
-            const form = e.target;
-            if (form.matches('.add-to-cart-form')) {
-                e.preventDefault();
-                const productId = form.querySelector('[data-product-id]')?.value;
-                const productName = form.querySelector('[data-product-name]')?.value;
-                this.addToCart(e, productId, productName);
-            }
         });
+}
 
-        // Initial cart count
-        document.addEventListener('DOMContentLoaded', () => {
-            this.updateCartCount();
+document.addEventListener('DOMContentLoaded', () => {
+    <?php if(auth()->guard()->check()): ?> updateCartCount(); <?php endif; ?>
+});
+
+/* ================= TOAST NOTIFICATION - INI YANG BERFUNGSI ================= */
+function showToast(type, message) {
+    // Gunakan notification system dari app.blade.php jika ada
+    if (window.notificationSystem) {
+        window.notificationSystem.show({
+            type: type,
+            title: type === 'success' ? 'Berhasil Ditambahkan!' : 'Gagal',
+            message: message,
+            duration: 3000
         });
+    } else {
+        // Fallback ke toast sederhana
+        const toast = document.createElement('div');
+        toast.className = `fixed top-20 right-4 z-50 px-6 py-4 rounded-2xl shadow-xl ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white animate-slideIn`;
+        toast.innerHTML = `
+            <div class="flex items-center gap-3">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
 }
 
-/* ================= LIVE SEARCH SYSTEM ================= */
-class LiveSearch {
-    constructor() {
-        this.timeout = null;
-        this.config = {
-            desktop: {
-                input: 'navbarSearchInput',
-                results: 'navbarSearchResults',
-                list: 'searchResultsList',
-                loading: 'searchLoading',
-                empty: 'searchNoResults'
+/* ================= LIVE SEARCH ================= */
+let searchTimeout = null;
+
+const searchConfig = {
+    desktop: {
+        input: 'navbarSearchInput',
+        results: 'navbarSearchResults',
+        list: 'searchResultsList',
+        loading: 'searchLoading',
+        empty: 'searchNoResults'
+    },
+    mobile: {
+        input: 'mobileSearchInput',
+        results: 'mobileSearchResults',
+        list: 'mobileSearchResultsList',
+        loading: 'mobileSearchLoading',
+        empty: 'mobileSearchNoResults'
+    }
+};
+
+function performSearch(query, mode) {
+    if (query.length < 2) return hideResults(mode);
+
+    showLoading(mode);
+    clearTimeout(searchTimeout);
+
+    searchTimeout = setTimeout(() => {
+        fetch('<?php echo e(route("products.live-search")); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
             },
-            mobile: {
-                input: 'mobileSearchInput',
-                results: 'mobileSearchResults',
-                list: 'mobileSearchResultsList',
-                loading: 'mobileSearchLoading',
-                empty: 'mobileSearchNoResults'
-            }
-        };
-        this.init();
-    }
+            body: JSON.stringify({ search: query, per_page: 5 })
+        })
+        .then(res => res.json())
+        .then(data => renderResults(data, mode))
+        .catch(() => hideResults(mode));
+    }, 300);
+}
 
-    init() {
-        // Setup desktop search
-        const desktopInput = document.getElementById(this.config.desktop.input);
-        if (desktopInput) {
-            desktopInput.addEventListener('input', (e) => {
-                this.performSearch(e.target.value, 'desktop');
+function renderResults(data, mode) {
+    const cfg = searchConfig[mode];
+    const list = document.getElementById(cfg.list);
+    const container = document.getElementById(cfg.results);
+    const empty = document.getElementById(cfg.empty);
+    document.getElementById(cfg.loading).classList.add('hidden');
+
+    let products = [];
+    if (data.html) {
+        const doc = new DOMParser().parseFromString(data.html, 'text/html');
+        doc.querySelectorAll('[data-product-id]').forEach(card => {
+            products.push({
+                id: card.dataset.productId,
+                name: card.querySelector('[data-product-name]')?.innerText || '',
+                price: card.querySelector('[data-product-price]')?.innerText || '',
+                image: card.querySelector('img')?.src || ''
             });
-        }
-
-        // Setup mobile search
-        const mobileInput = document.getElementById(this.config.mobile.input);
-        if (mobileInput) {
-            mobileInput.addEventListener('input', (e) => {
-                this.performSearch(e.target.value, 'mobile');
-            });
-        }
-
-        // Close search results when clicking outside
-        document.addEventListener('click', (e) => {
-            const desktopContainer = document.getElementById('navbarSearchContainer');
-            const mobileContainer = document.getElementById('mobileSearchContainer');
-            
-            if (desktopContainer && !desktopContainer.contains(e.target)) {
-                this.hideResults('desktop');
-            }
-            
-            if (mobileContainer && !mobileContainer.contains(e.target)) {
-                this.hideResults('mobile');
-            }
         });
     }
 
-    performSearch(query, mode) {
-        if (query.length < 2) {
-            this.hideResults(mode);
-            return;
-        }
-
-        this.showLoading(mode);
-        clearTimeout(this.timeout);
-
-        this.timeout = setTimeout(async () => {
-            try {
-                const response = await fetch('<?php echo e(route("products.live-search")); ?>', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
-                    },
-                    body: JSON.stringify({ search: query, per_page: 5 })
-                });
-
-                const data = await response.json();
-                this.renderResults(data, mode);
-            } catch (error) {
-                console.error('Search error:', error);
-                this.hideResults(mode);
-            }
-        }, 300);
+    if (!products.length) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        container.classList.remove('hidden');
+        return;
     }
 
-    renderResults(data, mode) {
-        const cfg = this.config[mode];
-        const list = document.getElementById(cfg.list);
-        const container = document.getElementById(cfg.results);
-        const empty = document.getElementById(cfg.empty);
-        const loading = document.getElementById(cfg.loading);
+    empty.classList.add('hidden');
+    list.innerHTML = products.map(p => `
+        <a href="/products/${p.id}"
+           class="flex gap-4 px-4 py-3 hover:bg-[#f9f0f1] transition border-b border-[#191f01]/10">
+            <div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center border overflow-hidden">
+                <img src="${p.image}" class="max-w-full max-h-full object-contain">
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-[#191f01] truncate">${p.name}</p>
+                <p class="text-sm font-bold text-[#193497]">${p.price}</p>
+            </div>
+            <i class="fas fa-chevron-right text-[#191f01]/40 self-center"></i>
+        </a>
+    `).join('');
 
-        if (loading) loading.classList.add('hidden');
+    container.classList.remove('hidden');
+}
 
-        let products = [];
-        if (data.html) {
-            const doc = new DOMParser().parseFromString(data.html, 'text/html');
-            doc.querySelectorAll('[data-product-id]').forEach(card => {
-                products.push({
-                    id: card.dataset.productId,
-                    name: card.querySelector('[data-product-name]')?.innerText || '',
-                    price: card.querySelector('[data-product-price]')?.innerText || '',
-                    image: card.querySelector('img')?.src || ''
-                });
-            });
-        }
+function showLoading(mode) {
+    const cfg = searchConfig[mode];
+    document.getElementById(cfg.results).classList.remove('hidden');
+    document.getElementById(cfg.loading).classList.remove('hidden');
+    document.getElementById(cfg.list).innerHTML = '';
+    document.getElementById(cfg.empty).classList.add('hidden');
+}
 
-        if (!products.length) {
-            list.innerHTML = '';
-            empty?.classList.remove('hidden');
-            container?.classList.remove('hidden');
-            return;
-        }
+function hideResults(mode) {
+    document.getElementById(searchConfig[mode].results).classList.add('hidden');
+}
 
-        empty?.classList.add('hidden');
-        list.innerHTML = products.map(p => `
-            <a href="/products/${p.id}"
-               class="flex gap-4 px-4 py-3 hover:bg-[#f9f0f1] transition border-b border-[#191f01]/10">
-                <div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center border overflow-hidden">
-                    <img src="${p.image}" class="max-w-full max-h-full object-contain">
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-[#191f01] truncate">${p.name}</p>
-                    <p class="text-sm font-bold text-[#193497]">${p.price}</p>
-                </div>
-                <i class="fas fa-chevron-right text-[#191f01]/40 self-center"></i>
-            </a>
-        `).join('');
+/* ================= EVENTS ================= */
+['desktop','mobile'].forEach(mode => {
+    const input = document.getElementById(searchConfig[mode].input);
+    input?.addEventListener('input', e => performSearch(e.target.value, mode));
+});
 
-        container?.classList.remove('hidden');
+document.addEventListener('click', e => {
+    if (!document.getElementById('navbarSearchContainer')?.contains(e.target)) hideResults('desktop');
+    if (!document.getElementById('mobileSearchContainer')?.contains(e.target)) hideResults('mobile');
+});
+
+// Tutup dropdown saat klik di luar
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown-container') && !e.target.closest('.dropdown-menu')) {
+        ['stores', 'profile'].forEach(id => {
+            hideDropdown(id);
+        });
     }
+});
+</script>
 
-    showLoading(mode) {
-        const cfg = this.config[mode];
-        const container = document.getElementById(cfg.results);
-        const loading = document.getElementById(cfg.loading);
-        const list = document.getElementById(cfg.list);
-        const empty = document.getElementById(cfg.empty);
-
-        if (container) container.classList.remove('hidden');
-        if (loading) loading.classList.remove('hidden');
-        if (list) list.innerHTML = '';
-        if (empty) empty.classList.add('hidden');
+<style>
+/* Custom animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
     }
-
-    hideResults(mode) {
-        const container = document.getElementById(this.config[mode].results);
-        if (container) container.classList.add('hidden');
+    to {
+        transform: translateX(0);
+        opacity: 1;
     }
 }
 
-/* ================= INITIALIZE EVERYTHING ================= */
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize dropdown manager
-    window.dropdownManager = new DropdownManager();
-    
-    // Initialize cart system
-    window.cartSystem = new CartSystem();
-    
-    // Initialize live search
-    window.liveSearch = new LiveSearch();
-    
-    // Setup mobile menu
-    setupMobileMenu();
-    
-    // Force close all dropdowns on load (just in case)
-    setTimeout(() => {
-        if (window.dropdownManager) {
-            window.dropdownManager.closeAllDropdowns();
-        }
-    }, 100);
-    
-    // Close dropdowns when clicking on a link inside dropdown
-    document.querySelectorAll('.dropdown-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.dropdownManager) {
-                window.dropdownManager.closeAllDropdowns();
-            }
-        });
-    });
-});
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+}
 
-// Close dropdowns on page unload
-window.addEventListener('beforeunload', function() {
-    if (window.dropdownManager) {
-        window.dropdownManager.closeAllDropdowns();
-    }
-});
+/* Rotate transition */
+.rotate-180 {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+}
 
-// Close dropdowns when navigating (for SPA/Turbo links)
-document.addEventListener('turbolinks:before-visit', function() {
-    if (window.dropdownManager) {
-        window.dropdownManager.closeAllDropdowns();
-    }
-});
-</script><?php /**PATH C:\laragon\www\revisiimaji\resources\views/layouts/navbar.blade.php ENDPATH**/ ?>
+/* Dropdown Hover Intent Styles */
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+    z-index: 100;
+    /* INI YANG PERBAIKAN - Force hide dulu */
+    display: none !important;
+}
+
+/* Hanya tampilkan saat di-hover */
+.dropdown-container:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    display: block !important;
+}
+
+/* Add a transparent gap between button and dropdown */
+.dropdown-gap {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 16px;
+    background: transparent;
+    pointer-events: none;
+}
+
+.dropdown-container:hover .dropdown-gap {
+    pointer-events: auto;
+}
+</style><?php /**PATH C:\laragon\www\revisiimaji\resources\views/layouts/navbar.blade.php ENDPATH**/ ?>
