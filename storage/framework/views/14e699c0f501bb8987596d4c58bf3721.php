@@ -1,6 +1,34 @@
-@props(['product'])
+<?php $attributes ??= new \Illuminate\View\ComponentAttributeBag;
 
-@php
+$__newAttributes = [];
+$__propNames = \Illuminate\View\ComponentAttributeBag::extractPropNames((['product']));
+
+foreach ($attributes->all() as $__key => $__value) {
+    if (in_array($__key, $__propNames)) {
+        $$__key = $$__key ?? $__value;
+    } else {
+        $__newAttributes[$__key] = $__value;
+    }
+}
+
+$attributes = new \Illuminate\View\ComponentAttributeBag($__newAttributes);
+
+unset($__propNames);
+unset($__newAttributes);
+
+foreach (array_filter((['product']), 'is_string', ARRAY_FILTER_USE_KEY) as $__key => $__value) {
+    $$__key = $$__key ?? $__value;
+}
+
+$__defined_vars = get_defined_vars();
+
+foreach ($attributes->all() as $__key => $__value) {
+    if (array_key_exists($__key, $__defined_vars)) unset($$__key);
+}
+
+unset($__defined_vars, $__key, $__value); ?>
+
+<?php
     $categoryType = $product->category_type ?? 'unknown';
     $categoryName = $product->category_name ?? 'Produk';
     $isInstan = $categoryType === 'instan';
@@ -24,42 +52,43 @@
     $discountPercent = $product->discount_percent ?? 0;
 
     $imageUrl = $product->image_url ?? asset('images/default-product.jpg');
-@endphp
+?>
 
 <div 
-    {{ $attributes->merge(['class' => 'group']) }}
-    data-product-id="{{ $product->id }}"
+    <?php echo e($attributes->merge(['class' => 'group'])); ?>
+
+    data-product-id="<?php echo e($product->id); ?>"
 >
     <div class="bg-[#f9f0f1] rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-[#191f01]/10 h-full flex flex-col hover:border-[#193497]">
 
         <!-- Product Image -->
         <div class="relative overflow-hidden h-48 bg-[#f9f0f1]">
-            @if ($hasDiscount && $discountPercent > 0)
+            <?php if($hasDiscount && $discountPercent > 0): ?>
                 <div class="absolute top-3 left-3 z-10">
                     <span class="bg-[#f91f01] text-[#f9f0f1] text-xs font-bold px-3 py-1 rounded-full">
-                        -{{ $discountPercent }}%
+                        -<?php echo e($discountPercent); ?>%
                     </span>
                 </div>
-            @endif
+            <?php endif; ?>
 
             <div class="w-full h-full flex items-center justify-center bg-white p-2">
                 <img 
-                    src="{{ $imageUrl }}" 
-                    alt="{{ $product->name }}"
+                    src="<?php echo e($imageUrl); ?>" 
+                    alt="<?php echo e($product->name); ?>"
                     class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+                    onerror="this.onerror=null; this.src='<?php echo e(asset('images/default-product.jpg')); ?>'">
             </div>
 
             <!-- Add to Cart -->
             <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="add-to-cart-form">
-                    @csrf
+                <form action="<?php echo e(route('cart.add', $product->id)); ?>" method="POST" class="add-to-cart-form">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="quantity" value="1">
                     <button
                         type="submit"
                         class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-[#7209b7] hover:text-white transition-colors duration-200"
-                        data-product-id="{{ $product->id }}"
-                        data-product-name="{{ $product->name }}"
+                        data-product-id="<?php echo e($product->id); ?>"
+                        data-product-name="<?php echo e($product->name); ?>"
                         title="Tambah ke Keranjang"
                     >
                         <i class="fas fa-shopping-cart text-gray-600"></i>
@@ -74,8 +103,9 @@
             <!-- Category -->
             <div class="mb-2">
                 <span class="inline-block px-2 py-1 text-xs font-semibold rounded
-                    {{ $isInstan ? 'bg-[#193497]/10 text-[#193497]' : 'bg-[#7209b7]/10 text-[#7209b7]' }}">
-                    {{ $categoryName }}
+                    <?php echo e($isInstan ? 'bg-[#193497]/10 text-[#193497]' : 'bg-[#7209b7]/10 text-[#7209b7]'); ?>">
+                    <?php echo e($categoryName); ?>
+
                 </span>
             </div>
 
@@ -84,63 +114,68 @@
                 class="font-bold text-gray-800 mb-2 line-clamp-1 group-hover:text-[#193497] transition-colors"
                 data-product-name
             >
-                <a href="{{ route('products.show', $product->id) }}" class="hover:underline">
-                    {{ $product->name }}
+                <a href="<?php echo e(route('products.show', $product->id)); ?>" class="hover:underline">
+                    <?php echo e($product->name); ?>
+
                 </a>
             </h3>
 
             <!-- Description -->
             <p class="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow">
-                {{ $shortDescription }}
+                <?php echo e($shortDescription); ?>
+
             </p>
 
             <!-- Price -->
             <div class="mb-3">
-                @if ($hasDiscount && $discountPercent > 0)
+                <?php if($hasDiscount && $discountPercent > 0): ?>
                     <div class="flex items-center gap-2">
                         <span 
                             class="text-lg font-bold text-[#f91f01]"
                             data-product-price
                         >
-                            Rp {{ number_format($finalPrice, 0, ',', '.') }}
+                            Rp <?php echo e(number_format($finalPrice, 0, ',', '.')); ?>
+
                         </span>
                         <span class="text-sm text-gray-400 line-through">
-                            Rp {{ number_format($originalPrice, 0, ',', '.') }}
+                            Rp <?php echo e(number_format($originalPrice, 0, ',', '.')); ?>
+
                         </span>
                     </div>
-                @else
+                <?php else: ?>
                     <span 
                         class="text-lg font-bold text-[#7209b7]"
                         data-product-price
                     >
-                        Rp {{ number_format($originalPrice, 0, ',', '.') }}
+                        Rp <?php echo e(number_format($originalPrice, 0, ',', '.')); ?>
+
                     </span>
-                @endif
+                <?php endif; ?>
             </div>
 
             <!-- Rating -->
             <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <div class="flex items-center">
                     <div class="flex text-yellow-400 mr-1">
-                        @for ($i = 1; $i <= 5; $i++)
-                            @if ($i <= floor($rating))
+                        <?php for($i = 1; $i <= 5; $i++): ?>
+                            <?php if($i <= floor($rating)): ?>
                                 <i class="fas fa-star text-sm"></i>
-                            @elseif($i == ceil($rating) && $rating - floor($rating) >= 0.3)
+                            <?php elseif($i == ceil($rating) && $rating - floor($rating) >= 0.3): ?>
                                 <i class="fas fa-star-half-alt text-sm"></i>
-                            @else
+                            <?php else: ?>
                                 <i class="far fa-star text-sm"></i>
-                            @endif
-                        @endfor
+                            <?php endif; ?>
+                        <?php endfor; ?>
                     </div>
-                    <span class="ml-1">{{ number_format($rating, 1) }}</span>
+                    <span class="ml-1"><?php echo e(number_format($rating, 1)); ?></span>
                 </div>
-                <span>Terjual {{ number_format($salesCount) }}</span>
+                <span>Terjual <?php echo e(number_format($salesCount)); ?></span>
             </div>
 
             <!-- Action -->
             <div class="mt-auto">
                 <a 
-                    href="{{ route('products.show', $product->id) }}"
+                    href="<?php echo e(route('products.show', $product->id)); ?>"
                     class="block w-full bg-[#193497] hover:bg-[#f72585] text-white text-center font-semibold py-2.5 px-4 rounded-lg transition-colors duration-300 hover:shadow-lg"
                 >
                     <i class="fas fa-eye mr-2"></i> Lihat Detail
@@ -148,4 +183,4 @@
             </div>
         </div>
     </div>
-</div>    
+</div>    <?php /**PATH C:\laragon\www\revisiimaji\resources\views/components/ui/product-card.blade.php ENDPATH**/ ?>

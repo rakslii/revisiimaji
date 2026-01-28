@@ -1,8 +1,8 @@
-@extends('layouts.app')
 
-@section('title', 'Produk Digital Printing - Cipta Imaji')
 
-@section('content')
+<?php $__env->startSection('title', 'Produk Digital Printing - Cipta Imaji'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="bg-gradient-to-b from-gray-50 to-white min-h-screen">
     <!-- Hero Section -->
     <div class="relative bg-[#193497] text-white overflow-hidden">
@@ -25,7 +25,7 @@
                         <input type="text"
                                id="liveSearchInput"
                                name="search"
-                               value="{{ request('search') }}"
+                               value="<?php echo e(request('search')); ?>"
                                placeholder="Cari produk: brosur, banner, kartu nama..."
                                class="w-full px-6 py-5 pr-16 rounded-2xl bg-[#f9f0f1] text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-yellow-400/50 shadow-2xl text-lg">
                         <button type="button" id="searchButton" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#d2f801] hover:bg-yellow-300 text-blue-900 p-4 rounded-xl transition-colors shadow-lg">
@@ -41,7 +41,7 @@
                 <!-- Quick Stats -->
                 <div class="grid grid-cols-3 gap-6 mt-8">
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-[#d2f801]">{{ $products->total() }}+</div>
+                        <div class="text-3xl font-bold text-[#d2f801]"><?php echo e($products->total()); ?>+</div>
                         <div class="text-sm text-[#f9f0f1]/70">Produk Tersedia</div>
                     </div>
                     <div class="text-center">
@@ -74,34 +74,34 @@
         <!-- Semua Produk -->
         <button type="button"
                onclick="applyFilter('category', '')"
-               class="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ !request('category') ? 'bg-[#193497] text-white shadow-lg' : 'text-gray-600 hover:bg-gray-50' }}">
-            <i class="fas fa-th-large mr-3 {{ !request('category') ? 'text-[#d2f801]' : 'text-[#193497]' }}"></i>
+               class="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300 <?php echo e(!request('category') ? 'bg-[#193497] text-white shadow-lg' : 'text-gray-600 hover:bg-gray-50'); ?>">
+            <i class="fas fa-th-large mr-3 <?php echo e(!request('category') ? 'text-[#d2f801]' : 'text-[#193497]'); ?>"></i>
             <span class="font-semibold">Semua Produk</span>
-            @if(!request('category'))
+            <?php if(!request('category')): ?>
             <i class="fas fa-check ml-auto"></i>
-            @endif
+            <?php endif; ?>
         </button>
 
         <!-- Produk Instan -->
         <button type="button"
                onclick="applyFilter('category', 'instan')"
-               class="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == 'instan' ? 'bg-blue-50 text-[#193497] font-semibold border-2 border-[#193497]/30' : 'text-gray-600 hover:bg-gray-50' }}">
+               class="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300 <?php echo e(request('category') == 'instan' ? 'bg-blue-50 text-[#193497] font-semibold border-2 border-[#193497]/30' : 'text-gray-600 hover:bg-gray-50'); ?>">
             <i class="fas fa-bolt mr-3 text-[#193497]"></i>
             <span>Produk Instan</span>
-            @if(request('category') == 'instan')
+            <?php if(request('category') == 'instan'): ?>
             <i class="fas fa-check ml-auto text-[#193497]"></i>
-            @endif
+            <?php endif; ?>
         </button>
 
         <!-- Produk Non-Instan -->
         <button type="button"
                onclick="applyFilter('category', 'non-instan')"
-               class="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300 {{ request('category') == 'non-instan' ? 'bg-purple-50 text-[#7209b7] font-semibold border-2 border-purple-200' : 'text-gray-600 hover:bg-gray-50' }}">
+               class="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300 <?php echo e(request('category') == 'non-instan' ? 'bg-purple-50 text-[#7209b7] font-semibold border-2 border-purple-200' : 'text-gray-600 hover:bg-gray-50'); ?>">
             <i class="fas fa-gem mr-3 text-[#7209b7]"></i>
             <span>Produk Non Instan</span>
-            @if(request('category') == 'non-instan')
+            <?php if(request('category') == 'non-instan'): ?>
             <i class="fas fa-check ml-auto text-[#7209b7]"></i>
-            @endif
+            <?php endif; ?>
         </button>
     </div>
 </div>
@@ -116,40 +116,45 @@
                         </h3>
                         <div id="sortForm">
                             <div class="space-y-2">
-                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'latest' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
+                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 <?php echo e($selectedSort == 'latest' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50'); ?>">
                                     <input type="radio" name="sort" value="latest"
-                                           {{ $selectedSort == 'latest' ? 'checked' : '' }}
+                                           <?php echo e($selectedSort == 'latest' ? 'checked' : ''); ?>
+
                                            onchange="applyFilter('sort', 'latest')"
                                            class="mr-3 w-5 h-5 text-[#193497] focus:ring-[#193497]">
-                                    <span class="font-medium {{ $selectedSort == 'latest' ? 'text-[#193497]' : 'text-gray-700' }}">Terbaru</span>
+                                    <span class="font-medium <?php echo e($selectedSort == 'latest' ? 'text-[#193497]' : 'text-gray-700'); ?>">Terbaru</span>
                                 </label>
-                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'popular' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
+                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 <?php echo e($selectedSort == 'popular' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50'); ?>">
                                     <input type="radio" name="sort" value="popular"
-                                           {{ $selectedSort == 'popular' ? 'checked' : '' }}
+                                           <?php echo e($selectedSort == 'popular' ? 'checked' : ''); ?>
+
                                            onchange="applyFilter('sort', 'popular')"
                                            class="mr-3 w-5 h-5 text-[#193497] focus:ring-[#193497]">
-                                    <span class="font-medium {{ $selectedSort == 'popular' ? 'text-[#193497]' : 'text-gray-700' }}">Terlaris</span>
+                                    <span class="font-medium <?php echo e($selectedSort == 'popular' ? 'text-[#193497]' : 'text-gray-700'); ?>">Terlaris</span>
                                 </label>
-                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'price_asc' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
+                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 <?php echo e($selectedSort == 'price_asc' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50'); ?>">
                                     <input type="radio" name="sort" value="price_asc"
-                                           {{ $selectedSort == 'price_asc' ? 'checked' : '' }}
+                                           <?php echo e($selectedSort == 'price_asc' ? 'checked' : ''); ?>
+
                                            onchange="applyFilter('sort', 'price_asc')"
                                            class="mr-3 w-5 h-5 text-[#193497] focus:ring-[#193497]">
-                                    <span class="font-medium {{ $selectedSort == 'price_asc' ? 'text-[#193497]' : 'text-gray-700' }}">Harga Terendah</span>
+                                    <span class="font-medium <?php echo e($selectedSort == 'price_asc' ? 'text-[#193497]' : 'text-gray-700'); ?>">Harga Terendah</span>
                                 </label>
-                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'price_desc' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
+                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 <?php echo e($selectedSort == 'price_desc' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50'); ?>">
                                     <input type="radio" name="sort" value="price_desc"
-                                           {{ $selectedSort == 'price_desc' ? 'checked' : '' }}
+                                           <?php echo e($selectedSort == 'price_desc' ? 'checked' : ''); ?>
+
                                            onchange="applyFilter('sort', 'price_desc')"
                                            class="mr-3 w-5 h-5 text-[#193497] focus:ring-[#193497]">
-                                    <span class="font-medium {{ $selectedSort == 'price_desc' ? 'text-[#193497]' : 'text-gray-700' }}">Harga Tertinggi</span>
+                                    <span class="font-medium <?php echo e($selectedSort == 'price_desc' ? 'text-[#193497]' : 'text-gray-700'); ?>">Harga Tertinggi</span>
                                 </label>
-                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 {{ $selectedSort == 'discount' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50' }}">
+                                <label class="flex items-center px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 <?php echo e($selectedSort == 'discount' ? 'bg-[#193497]/10 border-2 border-[#193497]/30' : 'hover:bg-gray-50'); ?>">
                                     <input type="radio" name="sort" value="discount"
-                                           {{ $selectedSort == 'discount' ? 'checked' : '' }}
+                                           <?php echo e($selectedSort == 'discount' ? 'checked' : ''); ?>
+
                                            onchange="applyFilter('sort', 'discount')"
                                            class="mr-3 w-5 h-5 text-[#193497] focus:ring-[#193497]">
-                                    <span class="font-medium {{ $selectedSort == 'discount' ? 'text-[#193497]' : 'text-gray-700' }}">Diskon Terbesar</span>
+                                    <span class="font-medium <?php echo e($selectedSort == 'discount' ? 'text-[#193497]' : 'text-gray-700'); ?>">Diskon Terbesar</span>
                                 </label>
                             </div>
                         </div>
@@ -160,7 +165,7 @@
                         <i class="fas fa-gift text-white text-4xl mb-3"></i>
                         <h4 class="font-bold text-white mb-2">Promo Spesial!</h4>
                         <p class="text-white text-sm mb-4">Diskon hingga 30% untuk order pertama</p>
-                        <a href="{{ route('whatsapp.chat') }}" target="_blank" class="inline-block bg-[#f9f0f1] text-orange-600 px-4 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors">
+                        <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" class="inline-block bg-[#f9f0f1] text-orange-600 px-4 py-2 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors">
                             Klaim Sekarang
                         </a>
                     </div>
@@ -174,28 +179,28 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between">
                         <div>
                             <h2 class="text-3xl font-bold text-gray-800 mb-2" id="resultsTitle">
-                                @if(request('search'))
+                                <?php if(request('search')): ?>
                                     <i class="fas fa-search text-[#193497] mr-2"></i>
-                                    "{{ request('search') }}"
-                                @elseif(request('category'))
-                                    @if(request('category') == 'instan')
+                                    "<?php echo e(request('search')); ?>"
+                                <?php elseif(request('category')): ?>
+                                    <?php if(request('category') == 'instan'): ?>
                                         <i class="fas fa-bolt text-[#193497] mr-2"></i>
                                         Produk Instan
-                                    @elseif(request('category') == 'non-instan')
+                                    <?php elseif(request('category') == 'non-instan'): ?>
                                         <i class="fas fa-gem text-[#7209b7] mr-2"></i>
                                         Produk Non Instan
-                                    @else
+                                    <?php else: ?>
                                         <i class="fas fa-tag text-[#193497] mr-2"></i>
                                         Semua Produk
-                                    @endif
-                                @else
+                                    <?php endif; ?>
+                                <?php else: ?>
                                     <i class="fas fa-th-large text-[#193497] mr-2"></i>
                                     Semua Produk
-                                @endif
+                                <?php endif; ?>
                             </h2>
                             <p class="text-gray-600 flex items-center" id="resultsCount">
                                 <i class="fas fa-box mr-2 text-[#193497]"></i>
-                                <strong>{{ $products->total() }}</strong>&nbsp;produk ditemukan
+                                <strong><?php echo e($products->total()); ?></strong>&nbsp;produk ditemukan
                             </p>
                         </div>
 
@@ -217,9 +222,28 @@
 
                 <!-- Products Grid Container -->
                 <div id="productsContainer">
-                    @if($products->count() > 0)
-                        <x-partials.products.grid :products="$products" />
-                    @else
+                    <?php if($products->count() > 0): ?>
+                        <?php if (isset($component)) { $__componentOriginal62fd43497a41ce52ec2b2a2b96b6ad7c = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal62fd43497a41ce52ec2b2a2b96b6ad7c = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.partials.products.grid','data' => ['products' => $products]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('partials.products.grid'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['products' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($products)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal62fd43497a41ce52ec2b2a2b96b6ad7c)): ?>
+<?php $attributes = $__attributesOriginal62fd43497a41ce52ec2b2a2b96b6ad7c; ?>
+<?php unset($__attributesOriginal62fd43497a41ce52ec2b2a2b96b6ad7c); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal62fd43497a41ce52ec2b2a2b96b6ad7c)): ?>
+<?php $component = $__componentOriginal62fd43497a41ce52ec2b2a2b96b6ad7c; ?>
+<?php unset($__componentOriginal62fd43497a41ce52ec2b2a2b96b6ad7c); ?>
+<?php endif; ?>
+                    <?php else: ?>
                         <!-- Empty State -->
                         <div class="bg-[#f9f0f1] rounded-3xl shadow-lg p-12 text-center">
                             <i class="fas fa-search text-gray-300 text-8xl mb-6"></i>
@@ -231,22 +255,23 @@
                                 <button onclick="resetFilters()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
                                     <i class="fas fa-th-large mr-2"></i> Lihat Semua Produk
                                 </button>
-                                <a href="{{ route('whatsapp.chat') }}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                                <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
                                     <i class="fab fa-whatsapp mr-2"></i> Konsultasi
                                 </a>
                             </div>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
 
                 <!-- Pagination Container -->
-                @if($products->hasPages())
+                <?php if($products->hasPages()): ?>
                 <div id="paginationContainer" class="mt-12">
                     <div class="flex justify-center">
-                        {{ $products->withQueryString()->links() }}
+                        <?php echo e($products->withQueryString()->links()); ?>
+
                     </div>
                 </div>
-                @endif
+                <?php endif; ?>
 
                 <!-- Call to Action -->
                 <div class="mt-12 relative bg-gradient-to-r bg-[#193497] text-white rounded-3xl p-12 overflow-hidden">
@@ -265,13 +290,13 @@
                             Tim desainer profesional kami siap membantu mewujudkan ide kreatif Anda. Konsultasi gratis tanpa biaya!
                         </p>
                         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="{{ route('whatsapp.chat') }}" target="_blank"
+                            <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank"
                                class="group inline-flex items-center justify-center bg-[#d2f801] hover:bg-yellow-300 text-blue-900 font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-2xl hover:shadow-yellow-400/50 transform hover:scale-105">
                                 <i class="fab fa-whatsapp mr-3 text-2xl"></i>
                                 <span class="text-lg">Chat WhatsApp</span>
                                 <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
                             </a>
-                            <a href="tel:{{ env('SITE_PHONE', '+6281234567890') }}"
+                            <a href="tel:<?php echo e(env('SITE_PHONE', '+6281234567890')); ?>"
                                class="inline-flex items-center justify-center bg-[#f9f0f1]/10 backdrop-blur-sm border-2 border-white text-white hover:bg-[#f9f0f1] hover:text-blue-900 font-bold px-8 py-4 rounded-xl transition-all duration-300">
                                 <i class="fas fa-phone mr-3 text-xl"></i>
                                 <span class="text-lg">Telepon Kami</span>
@@ -299,9 +324,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 .line-clamp-1 {
     display: -webkit-box;
@@ -382,17 +407,18 @@
     100% { transform: rotate(360deg); }
 }
 </style>
-@endpush
-@push('scripts')
+<?php $__env->stopPush(); ?>
+<?php $__env->startPush('scripts'); ?>
 <script>
 console.log('🔧 Products page loaded - Debug mode ON');
 
 // State variables
 let currentFilters = {
-    search: "{{ request('search', '') }}",
-    category: "{{ request('category', '') }}",
-    sort: "{{ $selectedSort ?? 'latest' }}",
-    page: {{ request('page', 1) }}
+    search: "<?php echo e(request('search', '')); ?>",
+    category: "<?php echo e(request('category', '')); ?>",
+    sort: "<?php echo e($selectedSort ?? 'latest'); ?>",
+    page: <?php echo e(request('page', 1)); ?>
+
 };
 
 let isSearching = false;
@@ -626,12 +652,12 @@ async function performLiveSearch() {
         formData.append('category', currentFilters.category || '');
         formData.append('sort', currentFilters.sort || 'latest');
         formData.append('page', currentFilters.page || 1);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}');
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '<?php echo e(csrf_token()); ?>');
         
-        console.log('📤 Sending POST to:', '{{ route("products.live-search") }}');
+        console.log('📤 Sending POST to:', '<?php echo e(route("products.live-search")); ?>');
         
         // Send request
-        const response = await fetch('{{ route("products.live-search") }}', {
+        const response = await fetch('<?php echo e(route("products.live-search")); ?>', {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -756,4 +782,5 @@ window.performLiveSearch = performLiveSearch;
 window.currentFilters = currentFilters;
 window.updateCategoryUI = updateCategoryUI;
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/products/index.blade.php ENDPATH**/ ?>

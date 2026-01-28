@@ -47,54 +47,68 @@ class CartController extends Controller
         return view('pages.cart.index', compact('cartItems', 'subtotal', 'cart'));
     }
 
-    public function add(Request $request, Product $product)
-    {
-        $request->validate([
-            'quantity' => 'required|integer|min:1|max:' . $product->stock
-        ]);
+public function add(Request $request, Product $product)
+{
+    $request->validate([
+        'quantity' => 'required|integer|min:1|max:' . $product->stock
+    ]);
 
-        if (!$product->is_active) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produk tidak tersedia.'
-            ], 400);
-        }
-
-        if ($product->stock < $request->quantity) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Stok tidak cukup.'
-            ], 400);
-        }
-
-        $cart = Cart::getCurrentCart();
-        $cartItem = $cart->items()->where('product_id', $product->id)->first();
-
-        if ($cartItem) {
-            $newQty = $cartItem->quantity + $request->quantity;
-            if ($newQty > $product->stock) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Stok tidak cukup untuk jumlah ini.'
-                ], 400);
-            }
-            $cartItem->update(['quantity' => $newQty]);
-        } else {
-            $cart->items()->create([
-                'product_id' => $product->id,
-                'quantity' => $request->quantity,
-                'price' => $product->price
-            ]);
-        }
-
-        $totalItems = $cart->items()->sum('quantity');
-
+    if (!$product->is_active) {
         return response()->json([
-            'success' => true,
-            'message' => $product->name . ' ditambahkan ke keranjang!',
-            'cart_count' => $totalItems
+            'success' => false,
+            'title' => 'Produk Tidak Tersedia',
+            'message' => 'Produk ini sedang tidak tersedia.',
+            'type' => 'error'
+        ], 400);
+    }
+
+    if ($product->stock < $request->quantity) {
+        return response()->json([
+            'success' => false,
+            'title' => 'Stok Tidak Cukup',
+            'message' => 'Stok produk ini tidak mencukupi.',
+            'type' => 'warning'
+        ], 400);
+    }
+
+    $cart = Cart::getCurrentCart();
+    $cartItem = $cart->items()->where('product_id', $product->id)->first();
+
+    if ($cartItem) {
+        $newQty = $cartItem->quantity + $request->quantity;
+        if ($newQty > $product->stock) {
+            return response()->json([
+                'success' => false,
+                'title' => 'Stok Tidak Cukup',
+                'message' => 'Stok tidak cukup untuk jumlah ini.',
+                'type' => 'warning'
+            ], 400);
+        }
+        $cartItem->update(['quantity' => $newQty]);
+    } else {
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'quantity' => $request->quantity,
+            'price' => $product->price
         ]);
     }
+
+    $totalItems = $cart->items()->sum('quantity');
+
+    return response()->json([
+        'success' => true,
+        'title' => 'Berhasil Ditambahkan!',
+        'message' => $product->name . ' telah ditambahkan ke keranjang.',
+        'type' => 'success',
+        'cart_count' => $totalItems,
+        'product' => [
+            'name' => $product->name,
+            'price' => 'Rp ' . number_format($product->final_price, 0, ',', '.'),
+            'image' => $product->image_url,
+            'quantity' => $request->quantity
+        ]
+    ]);
+}
     public function update(Request $request, $itemId)
     {
         $request->validate([

@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Cipta Imaji - Digital Printing')</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo $__env->yieldContent('title', 'Cipta Imaji - Digital Printing'); ?></title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body class="font-sans bg-gray-50">
-    @include('layouts.navbar')
+    <?php echo $__env->make('layouts.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     
     <!-- Modern Notification Container -->
     <div id="notificationContainer" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-md pointer-events-none"></div>
     
     <main class="min-h-screen">
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
     
-    @include('layouts.footer')
+    <?php echo $__env->make('layouts.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     
-    @vite(['resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/js/app.js']); ?>
     
     <!-- Modern Notification System -->
     <script>
@@ -239,7 +239,7 @@
     
     // Update cart count function
     function updateCartCount() {
-        fetch('{{ route("cart.count") }}')
+        fetch('<?php echo e(route("cart.count")); ?>')
             .then(response => response.json())
             .then(data => {
                 // Update all cart counter elements
@@ -312,6 +312,6 @@
     });
     </script>
     
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\revisiimaji\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -1,1 +1,0 @@
-<?php /**PATH C:\laragon\www\IMAJI\revisiimaji\resources\views\pages\profile\view.blade.php ENDPATH**/ ?>
