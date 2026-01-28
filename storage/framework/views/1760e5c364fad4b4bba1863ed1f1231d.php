@@ -3,35 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Cipta Imaji - Digital Printing')</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo $__env->yieldContent('title', 'Cipta Imaji - Digital Printing'); ?></title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body class="font-sans bg-gray-50">
-    @include('layouts.navbar')
+    <?php echo $__env->make('layouts.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     
     <main class="min-h-screen">
-        @yield('content')
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
     
-    @include('layouts.footer')
+    <?php echo $__env->make('layouts.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-20 right-4 z-50 space-y-2"></div>
     
-    <!-- modal-->
-   @include('components.promo-modal')
-
-    @vite(['resources/js/app.js', 'resources/js/promo.js'])
-
-
     <!-- Cart Toast Script -->
 <!-- Cart Toast Script -->
 <script>
@@ -71,7 +65,7 @@
     
     // Update Cart Count
     function updateCartCount() {
-        fetch('{{ route("cart.count") }}')
+        fetch('<?php echo e(route("cart.count")); ?>')
             .then(response => response.json())
             .then(data => {
                 const cartCounters = document.querySelectorAll('.cart-counter');
@@ -141,6 +135,6 @@
     });
 </script>
     
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\IMAJI\revisiimaji\resources\views\layouts\app.blade.php ENDPATH**/ ?>

@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
+
+
 // =======================
 // LOGIN (CUSTOM POST)
 // =======================
@@ -45,6 +50,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [FrontProductController::class, 'index'])->name('products.index');
 Route::get('/products/{id}', [FrontProductController::class, 'show'])->name('products.show');
 Route::get('/categories', [FrontProductController::class, 'categories'])->name('products.categories');
+
 
 // Route untuk Live Search
 Route::post('/products/live-search', [FrontProductController::class, 'liveSearch'])->name('products.live-search');

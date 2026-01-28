@@ -2,8 +2,8 @@
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
 <!-- Logo -->
-<a href="{{ route('home') }}" class="flex items-center group">
-    <img src="{{ asset('img/LOGO.png') }}" 
+<a href="<?php echo e(route('home')); ?>" class="flex items-center group">
+    <img src="<?php echo e(asset('img/LOGO.png')); ?>" 
          alt="Cipta Imaji Logo" 
          class="w-24 h-24 object-contain transform group-hover:scale-110 transition-all duration-300 -my-4 ml-6 mr-5">
     <div>
@@ -56,84 +56,86 @@ transition-colors duration-300 shadow-lg">
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex items-center space-x-6">
-                <a href="{{ route('home') }}" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300 {{ request()->routeIs('home') ? 'text-yellow-400' : '' }}">
+                <a href="<?php echo e(route('home')); ?>" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300 <?php echo e(request()->routeIs('home') ? 'text-yellow-400' : ''); ?>">
                     Beranda
                 </a>
-                <a href="{{ route('products.index') }}" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300 {{ request()->routeIs('products.*') ? 'text-yellow-400' : '' }}">
+                <a href="<?php echo e(route('products.index')); ?>" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300 <?php echo e(request()->routeIs('products.*') ? 'text-yellow-400' : ''); ?>">
                     Produk
                 </a>
-                <a href="{{ route('whatsapp.chat') }}" target="_blank" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300">
+                <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300">
                     <i class="fab fa-whatsapp mr-1"></i> Chat
                 </a>
-                <a href="{{ route('about') }}" 
+                <a href="<?php echo e(route('about')); ?>" 
                    class="text-white hover:text-yellow-400 font-medium transition-colors duration-300 
-                {{ request()->routeIs('about') ? 'text-yellow-400' : '' }}">
+                <?php echo e(request()->routeIs('about') ? 'text-yellow-400' : ''); ?>">
                     About Us
                 </a>
 
                 
 
-                @auth
+                <?php if(auth()->guard()->check()): ?>
                     <div class="flex items-center space-x-4">
                         <!-- Cart Icon -->
-                        <a href="{{ route('cart.index') }}" class="relative group">
+                        <a href="<?php echo e(route('cart.index')); ?>" class="relative group">
                             <div class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-300">
                                 <i class="fas fa-shopping-cart text-xl text-white group-hover:text-yellow-400"></i>
                             </div>
-                            @php
+                            <?php
                                 $cartCount = auth()->user()->cart_items_count;
-                            @endphp
-                            @if($cartCount > 0)
+                            ?>
+                            <?php if($cartCount > 0): ?>
                                 <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center cart-counter animate-pulse">
-                                    {{ $cartCount }}
+                                    <?php echo e($cartCount); ?>
+
                                 </span>
-                            @else
+                            <?php else: ?>
                                 <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center cart-counter hidden">
                                     0
                                 </span>
-                            @endif
+                            <?php endif; ?>
                         </a>
 
                         <!-- User Dropdown -->
                         <div class="relative group">
                             <button class="flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all duration-300 focus:outline-none">
-                                @if(auth()->user()->avatar)
-                                    <img src="{{ auth()->user()->avatar }}" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-yellow-400">
-                                @else
+                                <?php if(auth()->user()->avatar): ?>
+                                    <img src="<?php echo e(auth()->user()->avatar); ?>" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-yellow-400">
+                                <?php else: ?>
                                     <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-blue-900 font-bold">
-                                        {{ substr(auth()->user()->name, 0, 1) }}
+                                        <?php echo e(substr(auth()->user()->name, 0, 1)); ?>
+
                                     </div>
-                                @endif
-                                <span class="text-white font-medium">{{ Str::limit(auth()->user()->name, 15) }}</span>
+                                <?php endif; ?>
+                                <span class="text-white font-medium"><?php echo e(Str::limit(auth()->user()->name, 15)); ?></span>
                                 <i class="fas fa-chevron-down text-white text-sm"></i>
                             </button>
 
                             <!-- Dropdown Menu -->
                             <div class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl py-2 hidden group-hover:block transform origin-top-right transition-all duration-200">
                                 <div class="px-4 py-3 border-b border-gray-100">
-                                    <p class="text-sm font-bold text-gray-900">{{ auth()->user()->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                                    <p class="text-sm font-bold text-gray-900"><?php echo e(auth()->user()->name); ?></p>
+                                    <p class="text-xs text-gray-500"><?php echo e(auth()->user()->email); ?></p>
                                 </div>
                                 
-                                <a href="{{ route('orders.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200">
+                                <a href="<?php echo e(route('orders.index')); ?>" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200">
                                     <i class="fas fa-box text-blue-600 w-5"></i>
                                     <span class="ml-3">Pesanan Saya</span>
                                 </a>
                                 
-                                <a href="{{ route('profile.index') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200">
+                                <a href="<?php echo e(route('profile.index')); ?>" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200">
                                     <i class="fas fa-user text-blue-600 w-5"></i>
                                     <span class="ml-3">Profil</span>
                                 </a>
                                 
-                                @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-purple-50 border-t border-gray-100 transition-colors duration-200">
+                                <?php if(auth()->user()->isAdmin()): ?>
+                                <a href="<?php echo e(route('admin.dashboard')); ?>" class="flex items-center px-4 py-3 text-gray-700 hover:bg-purple-50 border-t border-gray-100 transition-colors duration-200">
                                     <i class="fas fa-cog text-purple-600 w-5"></i>
                                     <span class="ml-3">Admin Panel</span>
                                 </a>
-                                @endif
+                                <?php endif; ?>
                                 
-                                <form method="POST" action="{{ route('logout') }}" class="border-t border-gray-100">
-                                    @csrf
+                                <form method="POST" action="<?php echo e(route('logout')); ?>" class="border-t border-gray-100">
+                                    <?php echo csrf_field(); ?>
                                     <button type="submit" class="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200">
                                         <i class="fas fa-sign-out-alt w-5"></i>
                                         <span class="ml-3">Logout</span>
@@ -142,12 +144,12 @@ transition-colors duration-300 shadow-lg">
                             </div>
                         </div>
                     </div>
-                @else
-                    <a href="{{ route('google.login') }}" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2">
+                <?php else: ?>
+                    <a href="<?php echo e(route('google.login')); ?>" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 px-6 py-2.5 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2">
                         <i class="fab fa-google"></i>
                         <span>Login</span>
                     </a>
-                @endauth
+                <?php endif; ?>
             </div>
 
             <!-- Mobile Menu Button -->
@@ -194,59 +196,60 @@ transition-colors duration-300">
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden hidden pb-4 border-t border-white/10">
             <div class="flex flex-col space-y-2 pt-4">
-                <a href="{{ route('home') }}" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 {{ request()->routeIs('home') ? 'bg-white/10 text-yellow-400' : '' }}">
+                <a href="<?php echo e(route('home')); ?>" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 <?php echo e(request()->routeIs('home') ? 'bg-white/10 text-yellow-400' : ''); ?>">
                     <i class="fas fa-home mr-3"></i> Beranda
                 </a>
-                <a href="{{ route('products.index') }}" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 {{ request()->routeIs('products.*') ? 'bg-white/10 text-yellow-400' : '' }}">
+                <a href="<?php echo e(route('products.index')); ?>" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 <?php echo e(request()->routeIs('products.*') ? 'bg-white/10 text-yellow-400' : ''); ?>">
                     <i class="fas fa-box mr-3"></i> Produk
                 </a>
-                   <a href="{{ route('about') }}" 
+                   <a href="<?php echo e(route('about')); ?>" 
    class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 
-   {{ request()->routeIs('about') ? 'bg-white/10 text-yellow-400' : '' }}">
+   <?php echo e(request()->routeIs('about') ? 'bg-white/10 text-yellow-400' : ''); ?>">
     <i class="fas fa-info-circle mr-3"></i> About Us
 </a>
-                <a href="{{ route('whatsapp.chat') }}" target="_blank" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
+                <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
                     <i class="fab fa-whatsapp mr-3"></i> Chat WhatsApp
                 </a>
              
 
 
-                @auth
+                <?php if(auth()->guard()->check()): ?>
                     <div class="border-t border-white/10 pt-2 mt-2">
-                        <a href="{{ route('cart.index') }}" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-between">
+                        <a href="<?php echo e(route('cart.index')); ?>" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-between">
                             <span><i class="fas fa-shopping-cart mr-3"></i> Keranjang</span>
-                            @php
+                            <?php
                                 $cartCount = auth()->user()->cart_items_count;
-                            @endphp
-                            @if($cartCount > 0)
+                            ?>
+                            <?php if($cartCount > 0): ?>
                                 <span class="bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                                    {{ $cartCount }}
+                                    <?php echo e($cartCount); ?>
+
                                 </span>
-                            @endif
+                            <?php endif; ?>
                         </a>
-                        <a href="{{ route('orders.index') }}" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
+                        <a href="<?php echo e(route('orders.index')); ?>" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
                             <i class="fas fa-box mr-3"></i> Pesanan Saya
                         </a>
-                        <a href="{{ route('profile.index') }}" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
+                        <a href="<?php echo e(route('profile.index')); ?>" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
                             <i class="fas fa-user mr-3"></i> Profil
                         </a>
-                        @if(auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
+                        <?php if(auth()->user()->isAdmin()): ?>
+                        <a href="<?php echo e(route('admin.dashboard')); ?>" class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
                             <i class="fas fa-cog mr-3"></i> Admin Panel
                         </a>
-                        @endif
-                        <form method="POST" action="{{ route('logout') }}" class="mt-2">
-                            @csrf
+                        <?php endif; ?>
+                        <form method="POST" action="<?php echo e(route('logout')); ?>" class="mt-2">
+                            <?php echo csrf_field(); ?>
                             <button type="submit" class="w-full text-left text-red-400 hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
                                 <i class="fas fa-sign-out-alt mr-3"></i> Logout
                             </button>
                         </form>
                     </div>
-                @else
-                    <a href="{{ route('google.login') }}" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 px-6 py-3 rounded-full font-bold transition-all duration-300 text-center shadow-lg mt-4">
+                <?php else: ?>
+                    <a href="<?php echo e(route('google.login')); ?>" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 px-6 py-3 rounded-full font-bold transition-all duration-300 text-center shadow-lg mt-4">
                         <i class="fab fa-google mr-2"></i> Login dengan Google
                     </a>
-                @endauth
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -278,7 +281,7 @@ function addToCart(event, productId, productName) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
             'Accept': 'application/json'
         },
         body: JSON.stringify({ quantity: 1 })
@@ -303,7 +306,7 @@ function addToCart(event, productId, productName) {
 
 /* ================= CART COUNT ================= */
 function updateCartCount() {
-    fetch('{{ route("cart.count") }}')
+    fetch('<?php echo e(route("cart.count")); ?>')
         .then(res => res.json())
         .then(data => {
             document.querySelectorAll('.cart-counter').forEach(counter => {
@@ -314,7 +317,7 @@ function updateCartCount() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    @auth updateCartCount(); @endauth
+    <?php if(auth()->guard()->check()): ?> updateCartCount(); <?php endif; ?>
 });
 
 /* ================= TOAST ================= */
@@ -360,11 +363,11 @@ function performSearch(query, mode) {
     clearTimeout(searchTimeout);
 
     searchTimeout = setTimeout(() => {
-        fetch('{{ route("products.live-search") }}', {
+        fetch('<?php echo e(route("products.live-search")); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
             },
             body: JSON.stringify({ search: query, per_page: 5 })
         })
@@ -442,3 +445,4 @@ document.addEventListener('click', e => {
     if (!document.getElementById('mobileSearchContainer')?.contains(e.target)) hideResults('mobile');
 });
 </script>
+<?php /**PATH C:\laragon\www\IMAJI\revisiimaji\resources\views/layouts/navbar.blade.php ENDPATH**/ ?>

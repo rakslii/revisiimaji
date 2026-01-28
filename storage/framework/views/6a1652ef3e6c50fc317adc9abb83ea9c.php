@@ -1,8 +1,8 @@
-@extends('layouts.app')
 
-@section('title', 'Cipta Imaji - Digital Printing Terpercaya')
 
-@section('content')
+<?php $__env->startSection('title', 'Cipta Imaji - Digital Printing Terpercaya'); ?>
+
+<?php $__env->startSection('content'); ?>
 <!-- Hero Section dengan image 3D -->
 <section class="relative bg-[#193497] text-white overflow-hidden min-h-screen flex items-center">
     <!-- Decorative Elements -->
@@ -24,12 +24,12 @@
                 </p>
                 
                 <div class="flex flex-wrap gap-4 mb-12">
-                    <a href="{{ route('products.index') }}" 
+                    <a href="<?php echo e(route('products.index')); ?>" 
                        class="bg-[#c0f820] text-[#193497] px-8 py-4 rounded-full font-bold hover:bg-[#d4ff40] transition duration-300 shadow-2xl hover:shadow-[#c0f820]/50 flex items-center text-lg">
                         Mulai Sekarang
                         <i class="fas fa-arrow-right ml-3"></i>
                     </a>
-                    <a href="{{ route('whatsapp.chat') }}" target="_blank" 
+                    <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" 
                        class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition duration-300 flex items-center text-lg">
                         <i class="fab fa-whatsapp mr-3"></i> Konsultasi
                     </a>
@@ -57,7 +57,7 @@
                 <div class="relative w-full h-[500px] flex items-center justify-center">
                     <!-- Main 3D Image -->
                     <div class="relative z-20 animate-float-slow">
-                        <img src="{{ asset('img/MASKOT.png') }}" 
+                        <img src="<?php echo e(asset('img/MASKOT.png')); ?>" 
                              alt="Creative 3D Design" 
                              class="w-full max-w-[450px] h-auto object-contain"
                              style="filter: drop-shadow(0 25px 50px rgba(0,0,0,0.4));">
@@ -113,312 +113,36 @@
     </div>
 </section>
 
-<!-- Best Selling Products - DIPINDAH SETELAH HERO -->
-@if($products->isNotEmpty())
-<section class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Produk <span class="text-[#193497]">Terlaris</span>
-            </h2>
-            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
-                Pilihan favorit pelanggan kami
-            </p>
-        </div>
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            @foreach($products->take(4) as $product)
-            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
-                <!-- Image -->
-                <div class="h-64 bg-gray-100 relative overflow-hidden">
-                    <img src="{{ asset('storage/'.$product->image) }}"
-                         alt="{{ $product->name }}"
-                         class="w-full h-full object-cover"
-                         onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+@keyframes float-delayed {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
 
-                    @if($loop->first)
-                    <div class="absolute top-4 left-4 bg-[#ff0f0f] text-white px-4 py-2 rounded-full text-xs font-bold">
-                        TERLARIS
-                    </div>
-                    @endif
-                </div>
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+}
 
-                <!-- Content -->
-                <div class="p-6">
-                    <h3 class="font-bold text-xl mb-3 group-hover:text-[#193497] transition-colors">
-                        {{ $product->name }}
-                    </h3>
-                    <p class="text-gray-700 text-sm mb-4 line-clamp-2">
-                        {{ Str::limit($product->description, 60) }}
-                    </p>
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
 
-                    <!-- Rating -->
-                    <div class="flex text-[#c0f820] mr-2 mb-4">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i class="fas fa-star text-xs drop-shadow-[0_0_1px_#193497]"></i>
-                        @endfor
-                    </div>
+.animate-float-delayed {
+    animation: float-delayed 4s ease-in-out infinite;
+}
 
-                    <!-- Price & Button -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-2xl text-[#193497]">
-                                {{ number_format($product->price / 1000, 0) }}K
-                            </div>
-                            <div class="text-xs text-gray-600">per item</div>
-                        </div>
-                        <a href="{{ route('products.show', $product->id) }}" 
-                           class="w-12 h-12 bg-[#193497] hover:bg-[#f72585] text-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
+.animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+}
+</style>
 
-<!-- Banner Manajemen -->
-<section class="py-20 bg-[#193497]">
-    <div class="container mx-auto px-4">
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div class="grid md:grid-cols-2 gap-8 items-center">
-                <!-- Left Content -->
-                <div class="p-12">
-                    <h2 class="text-4xl font-bold mb-6 text-[#193497]">
-                        Banner Management
-                    </h2>
-                    <p class="text-gray-700 text-lg mb-8">
-                        Kelola semua kebutuhan banner untuk bisnis dan event Anda dengan mudah. Dari desain hingga pemasangan.
-                    </p>
-                    
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div class="bg-[#193497]/10 p-6 rounded-2xl">
-                            <div class="text-3xl font-bold text-[#193497] mb-2">100+</div>
-                            <div class="text-sm text-gray-600">Desain Template</div>
-                        </div>
-                        <div class="bg-[#720e87]/10 p-6 rounded-2xl">
-                            <div class="text-3xl font-bold text-[#720e87] mb-2">24h</div>
-                            <div class="text-sm text-gray-600">Pengerjaan</div>
-                        </div>
-                    </div>
-
-                    <a href="{{ route('products.index') }}" 
-                       class="inline-flex items-center bg-[#193497] text-white px-8 py-4 rounded-full font-bold hover:shadow-2xl transition-all duration-300">
-                        Lihat Katalog
-                        <i class="fas fa-arrow-right ml-3"></i>
-                    </a>
-                </div>
-
-                <!-- Right Visual -->
-                <div class="bg-[#720e87] h-full min-h-[400px] flex items-center justify-center relative">
-                    <div class="absolute inset-0 bg-black opacity-10"></div>
-                    <i class="fas fa-image text-white text-9xl opacity-20"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Process Steps -->
-<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
-    <!-- Decorative Background -->
-    <div class="absolute top-0 left-0 w-full h-full opacity-5">
-        <div class="absolute top-20 left-20 w-72 h-72 bg-[#193497] rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-20 w-72 h-72 bg-[#720e87] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-    </div>
-
-    <div class="container mx-auto px-4 relative z-10">
-        <div class="text-center mb-20">
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Cara <span class="text-[#193497]">Kerja</span>
-            </h2>
-            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
-                4 langkah mudah untuk mewujudkan kebutuhan printing Anda
-            </p>
-        </div>
-
-        <div class="max-w-6xl mx-auto">
-            @php
-            $steps = [
-                [
-                    'icon' => 'fa-search', 
-                    'title' => 'Pilih Produk', 
-                    'desc' => 'Browse katalog lengkap kami dan pilih produk yang sesuai dengan kebutuhan Anda', 
-                    'gradient' => 'from-[#193497] to-[#193497]',
-                    'bg' => 'bg-[#193497]'
-                ],
-                [
-                    'icon' => 'fa-palette', 
-                    'title' => 'Upload Desain', 
-                    'desc' => 'Upload file desain Anda atau konsultasikan dengan tim desainer profesional kami', 
-                    'gradient' => 'from-[#193497] to-[#193497]',
-                    'bg' => 'bg-[#720e87]'
-                ],
-                [
-                    'icon' => 'fa-credit-card', 
-                    'title' => 'Bayar', 
-                    'desc' => 'Pilih metode pembayaran yang paling nyaman untuk Anda', 
-                    'gradient' => 'from-[#193497] to-[#193497]',
-                    'bg' => 'bg-[#f72585]'
-                ],
-                [
-                    'icon' => 'fa-rocket', 
-                    'title' => 'Terima Produk', 
-                    'desc' => 'Produk berkualitas tinggi dikirim langsung ke alamat Anda dengan aman', 
-                    'gradient' => 'from-[#193497] to-[#193497]',
-                    'bg' => 'bg-[#ff0f0f]'
-                ]
-            ];
-            @endphp
-
-            <div class="grid md:grid-cols-2 gap-8">
-                @foreach($steps as $index => $step)
-                <div class="group relative">
-                    <!-- Main Card -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-transparent hover:-translate-y-2">
-                        
-                        <!-- Number Badge with Gradient -->
-                        <div class="absolute -top-5 -left-5 w-16 h-16 bg-gradient-to-br {{ $step['gradient'] }} rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 z-20">
-                            <span class="text-white font-bold text-2xl">{{ $index + 1 }}</span>
-                        </div>
-
-                        <!-- Content Wrapper -->
-                        <div class="flex items-start gap-6">
-                            <!-- Icon Container -->
-                            <div class="w-20 h-20 bg-gradient-to-br {{ $step['gradient'] }} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0">
-                                <i class="fas {{ $step['icon'] }} text-white text-3xl"></i>
-                            </div>
-                            
-                            <!-- Text Content -->
-                            <div class="flex-1 pt-2">
-                                <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#193497] transition-colors">
-                                    {{ $step['title'] }}
-                                </h3>
-                                <p class="text-gray-600 leading-relaxed text-sm">
-                                    {{ $step['desc'] }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="mt-6 flex items-center gap-2">
-                            @for($i = 0; $i < 4; $i++)
-                            <div class="h-2 flex-1 rounded-full transition-all duration-500 {{ $i <= $index ? 'bg-gradient-to-r ' . $step['gradient'] : 'bg-gray-200' }}"></div>
-                            @endfor
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials -->
-<section class="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden opacity-5">
-        <div class="absolute top-40 -left-20 w-96 h-96 bg-[#193497] rounded-full blur-3xl"></div>
-        <div class="absolute bottom-40 -right-20 w-96 h-96 bg-[#720e87] rounded-full blur-3xl"></div>
-    </div>
-
-    <div class="container mx-auto px-4 relative z-10">
-        <div class="text-center mb-20">
-            <div class="inline-block mb-4">
-                <span class="bg-[#193497]/10 text-[#193497] px-6 py-2 rounded-full text-sm font-semibold border border-[#193497]/20">
-                    ⭐ Testimonials
-                </span>
-            </div>
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Kata <span class="text-[#193497]">Mereka</span>
-            </h2>
-            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
-                Kepercayaan pelanggan adalah prioritas kami
-            </p>
-        </div>
-
-        <div class="max-w-6xl mx-auto">
-            @php
-            $testimonials = [
-                [
-                    'name' => 'Ahmad Surya', 
-                    'role' => 'CEO Startup', 
-                    'initial' => 'AS', 
-                    'gradient' => 'from-[#193497] to-[#1e40af]',
-                    'text' => 'Pelayanan sangat memuaskan! Hasil cetakan berkualitas tinggi dan pengerjaan cepat. Sangat recommended untuk kebutuhan printing.',
-                    'rating' => 5
-                ],
-                [
-                    'name' => 'Rina Wijaya', 
-                    'role' => 'Event Organizer', 
-                    'initial' => 'RW', 
-                    'gradient' => 'from-[#720e87] to-[#9333ea]',
-                    'text' => 'Tim Cipta Imaji sangat profesional dan responsif. Banner untuk event kami sempurna dan tepat waktu. Highly recommended!',
-                    'rating' => 5
-                ],
-                [
-                    'name' => 'Dewi Fitri', 
-                    'role' => 'Marketing Manager', 
-                    'initial' => 'DF', 
-                    'gradient' => 'from-[#f72585] to-[#ec4899]',
-                    'text' => 'Kualitas cetak terbaik yang pernah saya temui. Harga kompetitif dan hasilnya selalu memuaskan. Partner terpercaya!',
-                    'rating' => 5
-                ]
-            ];
-            @endphp
-
-            <div class="grid md:grid-cols-3 gap-8">
-                @foreach($testimonials as $testimonial)
-                <div class="group relative">
-                    <div class="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br {{ $testimonial['gradient'] }} rounded-2xl flex items-center justify-center opacity-10 group-hover:opacity-20 transition-all duration-300 group-hover:scale-110">
-                        <i class="fas fa-quote-left text-white text-2xl"></i>
-                    </div>
-
-                    <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-transparent hover:-translate-y-2 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br {{ $testimonial['gradient'] }} opacity-5 rounded-bl-full"></div>
-
-                        <div class="flex items-center mb-6 relative z-10">
-                            <div class="w-16 h-16 bg-gradient-to-br {{ $testimonial['gradient'] }} rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
-                                {{ $testimonial['initial'] }}
-                            </div>
-                            
-                            <div class="ml-4">
-                                <h4 class="font-bold text-lg text-gray-900">{{ $testimonial['name'] }}</h4>
-                                <p class="text-gray-500 text-sm">{{ $testimonial['role'] }}</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-1 mb-4">
-                            @for($i = 0; $i < $testimonial['rating']; $i++)
-                            <i class="fas fa-star text-[#c0f820] text-lg"></i>
-                            @endfor
-                        </div>
-
-                        <div class="mb-4">
-                            <i class="fas fa-quote-left text-3xl bg-gradient-to-br {{ $testimonial['gradient'] }} bg-clip-text text-transparent"></i>
-                        </div>
-
-                        <p class="text-gray-700 leading-relaxed mb-4 relative z-10">
-                            {{ $testimonial['text'] }}
-                        </p>
-
-                        <div class="flex items-center gap-2 mt-6 pt-6 border-t border-gray-100">
-                            <div class="w-6 h-6 bg-gradient-to-br {{ $testimonial['gradient'] }} rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </div>
-                            <span class="text-sm text-gray-500 font-medium">Verified Customer</span>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Why Choose Cipta Imaji Section - DIPINDAH SETELAH TESTIMONIALS -->
+<!-- Why Choose Cipta Imaji Section -->
 <section class="py-20 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
     <!-- Decorative Background -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-[#c0f820] rounded-full opacity-10 blur-3xl"></div>
@@ -484,6 +208,318 @@
     </div>
 </section>
 
+<!-- Banner Manajemen -->
+<section class="py-20 bg-[#193497]">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <!-- Left Content -->
+                <div class="p-12">
+                    <h2 class="text-4xl font-bold mb-6 text-[#193497]">
+                        Banner Management
+                    </h2>
+                    <p class="text-gray-700 text-lg mb-8">
+                        Kelola semua kebutuhan banner untuk bisnis dan event Anda dengan mudah. Dari desain hingga pemasangan.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="bg-[#193497]/10 p-6 rounded-2xl">
+                            <div class="text-3xl font-bold text-[#193497] mb-2">100+</div>
+                            <div class="text-sm text-gray-600">Desain Template</div>
+                        </div>
+                        <div class="bg-[#720e87]/10 p-6 rounded-2xl">
+                            <div class="text-3xl font-bold text-[#720e87] mb-2">24h</div>
+                            <div class="text-sm text-gray-600">Pengerjaan</div>
+                        </div>
+                    </div>
+
+                    <a href="<?php echo e(route('products.index')); ?>" 
+                       class="inline-flex items-center bg-[#193497] text-white px-8 py-4 rounded-full font-bold hover:shadow-2xl transition-all duration-300">
+                        Lihat Katalog
+                        <i class="fas fa-arrow-right ml-3"></i>
+                    </a>
+                </div>
+
+                <!-- Right Visual -->
+                <div class="bg-[#720e87] h-full min-h-[400px] flex items-center justify-center relative">
+                    <div class="absolute inset-0 bg-black opacity-10"></div>
+                    <i class="fas fa-image text-white text-9xl opacity-20"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Best Selling Products -->
+<?php if($products->isNotEmpty()): ?>
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Produk <span class="text-[#193497]">Terlaris</span>
+            </h2>
+            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
+                Pilihan favorit pelanggan kami
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <?php $__currentLoopData = $products->take(4); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <!-- Image -->
+<div class="h-64 bg-gray-100 relative overflow-hidden">
+    <img src="<?php echo e(asset('storage/'.$product->image)); ?>"
+         alt="<?php echo e($product->name); ?>"
+         class="w-full h-full object-cover"
+         onerror="this.onerror=null; this.src='<?php echo e(asset('images/default-product.jpg')); ?>'">
+
+    <?php if($loop->first): ?>
+    <div class="absolute top-4 left-4 bg-[#ff0f0f] text-white px-4 py-2 rounded-full text-xs font-bold">
+        TERLARIS
+    </div>
+    <?php endif; ?>
+</div>
+
+
+                <!-- Content -->
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-3 group-hover:text-[#193497] transition-colors">
+                        <?php echo e($product->name); ?>
+
+                    </h3>
+                    <p class="text-gray-700 text-sm mb-4 line-clamp-2">
+                        <?php echo e(Str::limit($product->description, 60)); ?>
+
+                    </p>
+
+                    <!-- Rating -->
+                    <div class="flex text-[#c0f820] mr-2 mb-4">
+                        <?php for($i = 1; $i <= 5; $i++): ?>
+                            <i class="fas fa-star text-xs drop-shadow-[0_0_1px_#193497]"></i>
+                        <?php endfor; ?>
+                    </div>
+
+                    <!-- Price & Button -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-2xl text-[#193497]">
+                                <?php echo e(number_format($product->price / 1000, 0)); ?>K
+                            </div>
+                            <div class="text-xs text-gray-600">per item</div>
+                        </div>
+                        <a href="<?php echo e(route('products.show', $product->id)); ?>" 
+                           class="w-12 h-12 bg-[#193497] hover:bg-[#f72585] text-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Process Steps -->
+<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+    <!-- Decorative Background -->
+    <div class="absolute top-0 left-0 w-full h-full opacity-5">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-[#193497] rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-20 w-72 h-72 bg-[#720e87] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Cara <span class="text-[#193497]">Kerja</span>
+            </h2>
+            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
+                4 langkah mudah untuk mewujudkan kebutuhan printing Anda
+            </p>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+            <?php
+            $steps = [
+                [
+                    'icon' => 'fa-search', 
+                    'title' => 'Pilih Produk', 
+                    'desc' => 'Browse katalog lengkap kami dan pilih produk yang sesuai dengan kebutuhan Anda', 
+                    'gradient' => 'from-[#193497] to-[#193497]',
+                    'bg' => 'bg-[#193497]'
+                ],
+                [
+                    'icon' => 'fa-palette', 
+                    'title' => 'Upload Desain', 
+                    'desc' => 'Upload file desain Anda atau konsultasikan dengan tim desainer profesional kami', 
+                    'gradient' => 'from-[#193497] to-[#193497]',
+                    'bg' => 'bg-[#720e87]'
+                ],
+                [
+                    'icon' => 'fa-credit-card', 
+                    'title' => 'Bayar', 
+                    'desc' => 'Pilih metode pembayaran yang paling nyaman untuk Anda', 
+                    'gradient' => 'from-[#193497] to-[#193497]',
+                    'bg' => 'bg-[#f72585]'
+                ],
+                [
+                    'icon' => 'fa-rocket', 
+                    'title' => 'Terima Produk', 
+                    'desc' => 'Produk berkualitas tinggi dikirim langsung ke alamat Anda dengan aman', 
+                    'gradient' => 'from-[#193497] to-[#193497]',
+                    'bg' => 'bg-[#ff0f0f]'
+                ]
+            ];
+            ?>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <?php $__currentLoopData = $steps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="group relative">
+                    <!-- Main Card -->
+                    <div class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-transparent hover:-translate-y-2">
+                        
+                        <!-- Number Badge with Gradient -->
+                        <div class="absolute -top-5 -left-5 w-16 h-16 bg-gradient-to-br <?php echo e($step['gradient']); ?> rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 z-20">
+                            <span class="text-white font-bold text-2xl"><?php echo e($index + 1); ?></span>
+                        </div>
+
+                        <!-- Content Wrapper -->
+                        <div class="flex items-start gap-6">
+                            <!-- Icon Container -->
+                            <div class="w-20 h-20 bg-gradient-to-br <?php echo e($step['gradient']); ?> rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 flex-shrink-0">
+                                <i class="fas <?php echo e($step['icon']); ?> text-white text-3xl"></i>
+                            </div>
+                            
+                            <!-- Text Content -->
+                            <div class="flex-1 pt-2">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#193497] transition-colors">
+                                    <?php echo e($step['title']); ?>
+
+                                </h3>
+                                <p class="text-gray-600 leading-relaxed text-sm">
+                                    <?php echo e($step['desc']); ?>
+
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mt-6 flex items-center gap-2">
+                            <?php for($i = 0; $i < 4; $i++): ?>
+                            <div class="h-2 flex-1 rounded-full transition-all duration-500 <?php echo e($i <= $index ? 'bg-gradient-to-r ' . $step['gradient'] : 'bg-gray-200'); ?>"></div>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden opacity-5">
+        <div class="absolute top-40 -left-20 w-96 h-96 bg-[#193497] rounded-full blur-3xl"></div>
+        <div class="absolute bottom-40 -right-20 w-96 h-96 bg-[#720e87] rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-20">
+            <div class="inline-block mb-4">
+                <span class="bg-[#193497]/10 text-[#193497] px-6 py-2 rounded-full text-sm font-semibold border border-[#193497]/20">
+                    ⭐ Testimonials
+                </span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Kata <span class="text-[#193497]">Mereka</span>
+            </h2>
+            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
+                Kepercayaan pelanggan adalah prioritas kami
+            </p>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+            <?php
+            $testimonials = [
+                [
+                    'name' => 'Ahmad Surya', 
+                    'role' => 'CEO Startup', 
+                    'initial' => 'AS', 
+                    'gradient' => 'from-[#193497] to-[#1e40af]',
+                    'text' => 'Pelayanan sangat memuaskan! Hasil cetakan berkualitas tinggi dan pengerjaan cepat. Sangat recommended untuk kebutuhan printing.',
+                    'rating' => 5
+                ],
+                [
+                    'name' => 'Rina Wijaya', 
+                    'role' => 'Event Organizer', 
+                    'initial' => 'RW', 
+                    'gradient' => 'from-[#720e87] to-[#9333ea]',
+                    'text' => 'Tim Cipta Imaji sangat profesional dan responsif. Banner untuk event kami sempurna dan tepat waktu. Highly recommended!',
+                    'rating' => 5
+                ],
+                [
+                    'name' => 'Dewi Fitri', 
+                    'role' => 'Marketing Manager', 
+                    'initial' => 'DF', 
+                    'gradient' => 'from-[#f72585] to-[#ec4899]',
+                    'text' => 'Kualitas cetak terbaik yang pernah saya temui. Harga kompetitif dan hasilnya selalu memuaskan. Partner terpercaya!',
+                    'rating' => 5
+                ]
+            ];
+            ?>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <?php $__currentLoopData = $testimonials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $testimonial): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="group relative">
+                    <div class="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br <?php echo e($testimonial['gradient']); ?> rounded-2xl flex items-center justify-center opacity-10 group-hover:opacity-20 transition-all duration-300 group-hover:scale-110">
+                        <i class="fas fa-quote-left text-white text-2xl"></i>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-transparent hover:-translate-y-2 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br <?php echo e($testimonial['gradient']); ?> opacity-5 rounded-bl-full"></div>
+
+                        <div class="flex items-center mb-6 relative z-10">
+                            <div class="w-16 h-16 bg-gradient-to-br <?php echo e($testimonial['gradient']); ?> rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
+                                <?php echo e($testimonial['initial']); ?>
+
+                            </div>
+                            
+                            <div class="ml-4">
+                                <h4 class="font-bold text-lg text-gray-900"><?php echo e($testimonial['name']); ?></h4>
+                                <p class="text-gray-500 text-sm"><?php echo e($testimonial['role']); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1 mb-4">
+                            <?php for($i = 0; $i < $testimonial['rating']; $i++): ?>
+                            <i class="fas fa-star text-[#c0f820] text-lg"></i>
+                            <?php endfor; ?>
+                        </div>
+
+                        <div class="mb-4">
+                            <i class="fas fa-quote-left text-3xl bg-gradient-to-br <?php echo e($testimonial['gradient']); ?> bg-clip-text text-transparent"></i>
+                        </div>
+
+                        <p class="text-gray-700 leading-relaxed mb-4 relative z-10">
+                            <?php echo e($testimonial['text']); ?>
+
+                        </p>
+
+                        <div class="flex items-center gap-2 mt-6 pt-6 border-t border-gray-100">
+                            <div class="w-6 h-6 bg-gradient-to-br <?php echo e($testimonial['gradient']); ?> rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 font-medium">Verified Customer</span>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- CTA Section -->
 <section class="py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] text-white relative overflow-hidden">
     <!-- Background Blur -->
@@ -500,13 +536,13 @@
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-                <a href="{{ route('whatsapp.chat') }}" target="_blank"
+                <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank"
                    class="bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 flex items-center justify-center gap-3">
                     <i class="fab fa-whatsapp text-2xl"></i>
                     Chat WhatsApp
                 </a>
 
-                <a href="tel:{{ env('SITE_PHONE', '+6281234567890') }}"
+                <a href="tel:<?php echo e(env('SITE_PHONE', '+6281234567890')); ?>"
                    class="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 hover:bg-white hover:text-[#193497] hover:scale-105 flex items-center justify-center gap-3">
                     <i class="fas fa-phone"></i>
                     Telepon Kami
@@ -534,9 +570,9 @@
         </div>
     </div>
 </section>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
 .line-clamp-2 {
     display: -webkit-box;
@@ -572,4 +608,5 @@
     animation: float-slow 5s ease-in-out infinite;
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\IMAJI\revisiimaji\resources\views\pages\home\index.blade.php ENDPATH**/ ?>

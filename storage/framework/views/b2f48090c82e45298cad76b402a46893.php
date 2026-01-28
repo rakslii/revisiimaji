@@ -1,1 +1,0 @@
-<?php /**PATH D:\ciptaimaji\revisiimaji\resources\views\pages\profile\view.blade.php ENDPATH**/ ?>
