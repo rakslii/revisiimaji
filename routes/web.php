@@ -49,7 +49,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [FrontProductController::class, 'index'])->name('products.index');
 Route::get('/products/{id}', [FrontProductController::class, 'show'])->name('products.show');
-Route::get('/categories', [FrontProductController::class, 'categories'])->name('products.categories');
+Route::get('/categories', [FrontProductController::class, 'categories'])->name('products.index');
 
 
 // Route untuk Live Search

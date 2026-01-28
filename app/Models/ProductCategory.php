@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class ProductCategory extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'type', 'description', 'icon', 'order', 'is_active'
+        'name', 'slug', 'type', 'description', 'icon', 'order', 'is_active',
+        'featured_image_1', 'featured_image_2', 'featured_image_3',
+        'featured_image_4', 'featured_image_5', 'featured_image_6',
+        'category_color', 'accent_color'
     ];
 
     protected $casts = [
@@ -26,9 +29,10 @@ class ProductCategory extends Model
         return $query->orderBy('order');
     }
 
-    // Relationships
+    // Relationships - PERBAIKAN INI
     public function products()
     {
-        return $this->hasMany(Product::class);
+        // Gunakan 'category_id' bukan 'product_category_id'
+        return $this->hasMany(Product::class, 'category_id');
     }
 }

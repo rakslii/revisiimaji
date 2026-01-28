@@ -112,8 +112,113 @@
         </div>
     </div>
 </section>
+<!-- Creative Categories Section - COMPACT VERSION -->
+<section class="py-16 bg-white relative overflow-hidden">
+    <!-- Decorative Background -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-[#193497] opacity-5 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#720e87] opacity-5 blur-3xl"></div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-3">
+                Jelajahi <span class="text-[#193497]">Kategori</span>
+            </h2>
+            <p class="text-gray-700 max-w-2xl mx-auto">
+                Temukan produk terbaik dari berbagai kategori yang kami sediakan
+            </p>
+        </div>
 
-<!-- Best Selling Products - DIPINDAH SETELAH HERO -->
+        @if(isset($categories) && $categories->count() > 0)
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            @foreach($categories as $category)
+            <div class="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-transparent overflow-hidden">
+                <!-- Image Container - Persegi Panjang -->
+                <div class="relative h-48 overflow-hidden">
+                    <!-- Main Image -->
+                    @if($category->featured_image_1)
+                    <img src="{{ asset('storage/' . $category->featured_image_1) }}" 
+                         alt="{{ $category->name }}"
+                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                    @else
+                    <div class="w-full h-full bg-gradient-to-br from-[#193497] to-[#720e87] flex items-center justify-center">
+                        <i class="fas fa-image text-white/40 text-4xl"></i>
+                    </div>
+                    @endif
+                    
+                    <!-- Small Thumbnail Images (3 kecil di atas gambar utama) -->
+                    <div class="absolute top-3 right-3 flex space-x-1">
+                        @for($i = 2; $i <= 4; $i++)
+                            @php $imageField = 'featured_image_' . $i; @endphp
+                            @if($category->$imageField)
+                            <div class="w-8 h-8 rounded-md overflow-hidden border-2 border-white shadow-sm">
+                                <img src="{{ asset('storage/' . $category->$imageField) }}" 
+                                     alt=""
+                                     class="w-full h-full object-cover">
+                            </div>
+                            @else
+                            <div class="w-8 h-8 rounded-md bg-gradient-to-br 
+                                @if($i == 2) from-[#c0f820] to-[#d4ff40]
+                                @elseif($i == 3) from-[#f72585] to-[#ec4899]
+                                @else from-[#ff0f0f] to-[#f87171]
+                                @endif
+                                border-2 border-white shadow-sm">
+                            </div>
+                            @endif
+                        @endfor
+                    </div>
+                    
+                    <!-- Category Icon Badge -->
+                    <div class="absolute bottom-3 left-3">
+                        @if($category->icon)
+                        <div class="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas {{ $category->icon }} text-[#193497] text-lg"></i>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Overlay Gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+                
+                <!-- Content -->
+                <div class="p-4">
+                    <h3 class="font-bold text-lg text-gray-900 group-hover:text-[#193497] transition-colors mb-2">
+                        {{ $category->name }}
+                    </h3>
+                    
+                    @if($category->description)
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {{ Illuminate\Support\Str::limit($category->description, 60) }}
+                    </p>
+                    @endif
+                    
+                    <!-- CTA Button -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500 font-medium">
+                            Lihat produk
+                        </span>
+                        <a href="{{ route('products.index', ['category' => $category->id]) }}" 
+                           class="w-8 h-8 bg-gradient-to-br from-[#193497] to-[#c0f820] text-white rounded-full flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-md">
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        
+        <!-- View All Button -->
+        <div class="text-center mt-10">
+            <a href="{{ route('products.index') }}" 
+               class="inline-flex items-center bg-white border border-[#193497] text-[#193497] hover:bg-[#193497] hover:text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md">
+                Lihat Semua Kategori
+                <i class="fas fa-arrow-right ml-2 text-xs"></i>
+            </a>
+        </div>
+        @endif
+    </div>
+</section>
+<!-- Best Selling Products -->
 @if($products->isNotEmpty())
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4">
@@ -149,7 +254,7 @@
                         {{ $product->name }}
                     </h3>
                     <p class="text-gray-700 text-sm mb-4 line-clamp-2">
-                        {{ Str::limit($product->description, 60) }}
+                        {{ Illuminate\Support\Str::limit($product->description, 60) }}
                     </p>
 
                     <!-- Rating -->
@@ -418,7 +523,7 @@
     </div>
 </section>
 
-<!-- Why Choose Cipta Imaji Section - DIPINDAH SETELAH TESTIMONIALS -->
+<!-- Why Choose Cipta Imaji Section -->
 <section class="py-20 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
     <!-- Decorative Background -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-[#c0f820] rounded-full opacity-10 blur-3xl"></div>
@@ -570,6 +675,11 @@
 
 .animate-float-slow {
     animation: float-slow 5s ease-in-out infinite;
+}
+
+/* Custom styles untuk categories section */
+.grid-rows-3 {
+    grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 </style>
 @endpush
