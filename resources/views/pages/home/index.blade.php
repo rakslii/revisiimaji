@@ -112,6 +112,74 @@
         </div>
     </div>
 </section>
+
+<!-- Best Selling Products -->
+@if($products->isNotEmpty())
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                Produk <span class="text-[#193497]">Terlaris</span>
+            </h2>
+            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
+                Pilihan favorit pelanggan kami
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            @foreach($products->take(4) as $product)
+            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <!-- Image -->
+                <div class="h-64 bg-gray-100 relative overflow-hidden">
+                    <img src="{{ asset('storage/'.$product->image) }}"
+                         alt="{{ $product->name }}"
+                         class="w-full h-full object-cover"
+                         onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+
+                    @if($loop->first)
+                    <div class="absolute top-4 left-4 bg-[#ff0f0f] text-white px-4 py-2 rounded-full text-xs font-bold">
+                        TERLARIS
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Content -->
+                <div class="p-6">
+                    <h3 class="font-bold text-xl mb-3 group-hover:text-[#193497] transition-colors">
+                        {{ $product->name }}
+                    </h3>
+                    <p class="text-gray-700 text-sm mb-4 line-clamp-2">
+                        {{ Illuminate\Support\Str::limit($product->description, 60) }}
+                    </p>
+
+                    <!-- Rating -->
+                    <div class="flex text-[#c0f820] mr-2 mb-4">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star text-xs drop-shadow-[0_0_1px_#193497]"></i>
+                        @endfor
+                    </div>
+
+                    <!-- Price & Button -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-2xl text-[#193497]">
+                                {{ number_format($product->price / 1000, 0) }}K
+                            </div>
+                            <div class="text-xs text-gray-600">per item</div>
+                        </div>
+                        <a href="{{ route('products.show', $product->id) }}" 
+                           class="w-12 h-12 bg-[#193497] hover:bg-[#f72585] text-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Creative Categories Section - COMPACT VERSION -->
 <section class="py-16 bg-white relative overflow-hidden">
     <!-- Decorative Background -->
@@ -218,117 +286,9 @@
         @endif
     </div>
 </section>
-<!-- Best Selling Products -->
-@if($products->isNotEmpty())
-<section class="py-20 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Produk <span class="text-[#193497]">Terlaris</span>
-            </h2>
-            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
-                Pilihan favorit pelanggan kami
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            @foreach($products->take(4) as $product)
-            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
-                <!-- Image -->
-                <div class="h-64 bg-gray-100 relative overflow-hidden">
-                    <img src="{{ asset('storage/'.$product->image) }}"
-                         alt="{{ $product->name }}"
-                         class="w-full h-full object-cover"
-                         onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
-
-                    @if($loop->first)
-                    <div class="absolute top-4 left-4 bg-[#ff0f0f] text-white px-4 py-2 rounded-full text-xs font-bold">
-                        TERLARIS
-                    </div>
-                    @endif
-                </div>
-
-                <!-- Content -->
-                <div class="p-6">
-                    <h3 class="font-bold text-xl mb-3 group-hover:text-[#193497] transition-colors">
-                        {{ $product->name }}
-                    </h3>
-                    <p class="text-gray-700 text-sm mb-4 line-clamp-2">
-                        {{ Illuminate\Support\Str::limit($product->description, 60) }}
-                    </p>
-
-                    <!-- Rating -->
-                    <div class="flex text-[#c0f820] mr-2 mb-4">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i class="fas fa-star text-xs drop-shadow-[0_0_1px_#193497]"></i>
-                        @endfor
-                    </div>
-
-                    <!-- Price & Button -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-2xl text-[#193497]">
-                                {{ number_format($product->price / 1000, 0) }}K
-                            </div>
-                            <div class="text-xs text-gray-600">per item</div>
-                        </div>
-                        <a href="{{ route('products.show', $product->id) }}" 
-                           class="w-12 h-12 bg-[#193497] hover:bg-[#f72585] text-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
-
-<!-- Banner Manajemen -->
-<section class="py-20 bg-[#193497]">
-    <div class="container mx-auto px-4">
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div class="grid md:grid-cols-2 gap-8 items-center">
-                <!-- Left Content -->
-                <div class="p-12">
-                    <h2 class="text-4xl font-bold mb-6 text-[#193497]">
-                        Banner Management
-                    </h2>
-                    <p class="text-gray-700 text-lg mb-8">
-                        Kelola semua kebutuhan banner untuk bisnis dan event Anda dengan mudah. Dari desain hingga pemasangan.
-                    </p>
-                    
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div class="bg-[#193497]/10 p-6 rounded-2xl">
-                            <div class="text-3xl font-bold text-[#193497] mb-2">100+</div>
-                            <div class="text-sm text-gray-600">Desain Template</div>
-                        </div>
-                        <div class="bg-[#720e87]/10 p-6 rounded-2xl">
-                            <div class="text-3xl font-bold text-[#720e87] mb-2">24h</div>
-                            <div class="text-sm text-gray-600">Pengerjaan</div>
-                        </div>
-                    </div>
-
-                    <a href="{{ route('products.index') }}" 
-                       class="inline-flex items-center bg-[#193497] text-white px-8 py-4 rounded-full font-bold hover:shadow-2xl transition-all duration-300">
-                        Lihat Katalog
-                        <i class="fas fa-arrow-right ml-3"></i>
-                    </a>
-                </div>
-
-                <!-- Right Visual -->
-                <div class="bg-[#720e87] h-full min-h-[400px] flex items-center justify-center relative">
-                    <div class="absolute inset-0 bg-black opacity-10"></div>
-                    <i class="fas fa-image text-white text-9xl opacity-20"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Process Steps -->
-<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white">
     <!-- Decorative Background -->
     <div class="absolute top-0 left-0 w-full h-full opacity-5">
         <div class="absolute top-20 left-20 w-72 h-72 bg-[#193497] rounded-full blur-3xl animate-pulse"></div>
@@ -422,26 +382,88 @@
     </div>
 </section>
 
-<!-- Testimonials -->
-<section class="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden opacity-5">
-        <div class="absolute top-40 -left-20 w-96 h-96 bg-[#193497] rounded-full blur-3xl"></div>
-        <div class="absolute bottom-40 -right-20 w-96 h-96 bg-[#720e87] rounded-full blur-3xl"></div>
-    </div>
+<!-- Why Choose Cipta Imaji Section -->
+<section class="py-20 bg-gradient-to-br from-[#0f1f5c] to-[#193497] relative overflow-hidden">
+    <!-- Decorative Background -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-[#c0f820] rounded-full opacity-10 blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#720e87] rounded-full opacity-10 blur-3xl"></div>
 
+    <div class="container mx-auto px-4 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                Mengapa Memilih <span class="text-[#c0f820]">Cipta Imaji</span>?
+            </h2>
+            <p class="text-white/80 text-lg max-w-2xl mx-auto">
+                Kami memberikan layanan terbaik dengan kualitas premium untuk kepuasan Anda
+            </p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Feature 1 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-shipping-fast text-white text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Gratis Ongkir</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Gratis ongkir untuk order minimal Rp500.000 di area Jabodetabek
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-shield-alt text-white text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Garansi 100%</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Uang kembali 100% jika produk tidak sesuai dengan pesanan
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-headset text-white text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Support 24/7</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Tim customer service siap membantu 24 jam via WhatsApp
+                </p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="text-center group">
+                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
+                    <i class="fas fa-credit-card text-white text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Pembayaran Lengkap</h3>
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Bayar dengan QRIS, Transfer Bank, E-Wallet & COD (Jabodetabek)
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
     <div class="container mx-auto px-4 relative z-10">
         <div class="text-center mb-20">
             <div class="inline-block mb-4">
-                <span class="bg-[#193497]/10 text-[#193497] px-6 py-2 rounded-full text-sm font-semibold border border-[#193497]/20">
+                <span class="bg-white/20 text-white px-6 py-2 rounded-full text-sm font-semibold border border-white/30">
                     ⭐ Testimonials
                 </span>
             </div>
-            <h2 class="text-4xl md:text-5xl font-bold mb-4">
-                Kata <span class="text-[#193497]">Mereka</span>
+            <h2 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+                Kata <span class="text-[#c0f820]">Mereka</span>
             </h2>
-            <p class="text-gray-700 text-lg max-w-2xl mx-auto">
+            <p class="text-white/80 text-lg max-w-2xl mx-auto">
                 Kepercayaan pelanggan adalah prioritas kami
             </p>
+        </div>
         </div>
 
         <div class="max-w-6xl mx-auto">
@@ -523,71 +545,7 @@
     </div>
 </section>
 
-<!-- Why Choose Cipta Imaji Section -->
-<section class="py-20 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
-    <!-- Decorative Background -->
-    <div class="absolute top-0 right-0 w-96 h-96 bg-[#c0f820] rounded-full opacity-10 blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#720e87] rounded-full opacity-10 blur-3xl"></div>
 
-    <div class="container mx-auto px-4 relative z-10">
-        <!-- Header -->
-        <div class="text-center mb-16">
-            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
-                Mengapa Memilih <span class="text-[#c0f820]">Cipta Imaji</span>?
-            </h2>
-            <p class="text-white/80 text-lg max-w-2xl mx-auto">
-                Kami memberikan layanan terbaik dengan kualitas premium untuk kepuasan Anda
-            </p>
-        </div>
-
-        <!-- Features Grid -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Feature 1 -->
-            <div class="text-center group">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
-                    <i class="fas fa-shipping-fast text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Gratis Ongkir</h3>
-                <p class="text-white/70 text-sm leading-relaxed">
-                    Gratis ongkir untuk order minimal Rp500.000 di area Jabodetabek
-                </p>
-            </div>
-
-            <!-- Feature 2 -->
-            <div class="text-center group">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
-                    <i class="fas fa-shield-alt text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Garansi 100%</h3>
-                <p class="text-white/70 text-sm leading-relaxed">
-                    Uang kembali 100% jika produk tidak sesuai dengan pesanan
-                </p>
-            </div>
-
-            <!-- Feature 3 -->
-            <div class="text-center group">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
-                    <i class="fas fa-headset text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Support 24/7</h3>
-                <p class="text-white/70 text-sm leading-relaxed">
-                    Tim customer service siap membantu 24 jam via WhatsApp
-                </p>
-            </div>
-
-            <!-- Feature 4 -->
-            <div class="text-center group">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/20 group-hover:scale-110 transition-all duration-300">
-                    <i class="fas fa-credit-card text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-3">Pembayaran Lengkap</h3>
-                <p class="text-white/70 text-sm leading-relaxed">
-                    Bayar dengan QRIS, Transfer Bank, E-Wallet & COD (Jabodetabek)
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- CTA Section -->
 <section class="py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] text-white relative overflow-hidden">
@@ -639,6 +597,9 @@
         </div>
     </div>
 </section>
+
+
+
 @endsection
 
 @push('styles')
