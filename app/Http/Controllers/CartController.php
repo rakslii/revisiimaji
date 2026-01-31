@@ -179,31 +179,35 @@ public function add(Request $request, Product $product)
     }
 
     public function checkout()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Login dulu.');
-        }
-
-        $cart = Cart::getCurrentCart();
-        $cartItems = $cart->items()->with('product')->get();
-
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
-        }
-
-        $subtotal = 0;
-        foreach ($cartItems as $item) {
-            $subtotal += $item->price * $item->quantity;
-        }
-
-        $discount = 0;
-        $total = $subtotal - $discount;
-
-        $user = Auth::user();
-        $userLocation = null;
-
-        return view('pages.cart.checkout', compact('cartItems', 'subtotal', 'discount', 'total', 'user', 'userLocation'));
+{
+    if (!Auth::check()) {
+        // Simpan intended URL untuk redirect setelah login
+        session(['url.intended' => route('cart.checkout')]);
+        
+        // Redirect ke Google OAuth langsung
+        return redirect()->route('google.login')->with('info', 'Silakan login terlebih dahulu untuk melanjutkan checkout.');
     }
+
+    $cart = Cart::getCurrentCart();
+    $cartItems = $cart->items()->with('product')->get();
+
+    if ($cartItems->isEmpty()) {
+        return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
+    }
+
+    $subtotal = 0;
+    foreach ($cartItems as $item) {
+        $subtotal += $item->price * $item->quantity;
+    }
+
+    $discount = 0;
+    $total = $subtotal - $discount;
+
+    $user = Auth::user();
+    $userLocation = null;
+
+    return view('pages.cart.checkout', compact('cartItems', 'subtotal', 'discount', 'total', 'user', 'userLocation'));
+}
     public function getCartCount()
     {
         $cart = Cart::getCurrentCart();

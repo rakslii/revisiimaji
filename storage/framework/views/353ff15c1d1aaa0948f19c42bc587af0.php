@@ -181,7 +181,6 @@
     </div>
 </section>
 <?php endif; ?>
-
 <!-- Creative Categories Section - COMPACT VERSION -->
 <section class="py-16 bg-white relative overflow-hidden">
     <!-- Decorative Background -->
@@ -205,23 +204,49 @@
                 <!-- Image Container - Persegi Panjang -->
                 <div class="relative h-48 overflow-hidden">
                     <!-- Main Image -->
-                    <?php if($category->featured_image_1): ?>
-                    <img src="<?php echo e(asset('storage/' . $category->featured_image_1)); ?>" 
+                    <?php
+                        // Gunakan main_image_url dari accessor atau cek langsung
+                        $mainImage = $category->main_image_url ?? null;
+                        
+                        // Fallback: cek apakah file ada di storage
+                        if (!$mainImage && isset($category->featured_image_1) && !empty($category->featured_image_1)) {
+                            $imagePath = $category->featured_image_1;
+                            $storagePath = storage_path('app/public/' . $imagePath);
+                            if (file_exists($storagePath)) {
+                                $mainImage = asset('storage/' . $imagePath);
+                            }
+                        }
+                    ?>
+                    
+                    <?php if($mainImage): ?>
+                    <img src="<?php echo e($mainImage); ?>" 
                          alt="<?php echo e($category->name); ?>"
                          class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
                     <?php else: ?>
                     <div class="w-full h-full bg-gradient-to-br from-[#193497] to-[#720e87] flex items-center justify-center">
-                        <i class="fas fa-image text-white/40 text-4xl"></i>
+                        <i class="fas <?php echo e($category->icon ?? 'fa-image'); ?> text-white/40 text-4xl"></i>
                     </div>
                     <?php endif; ?>
                     
                     <!-- Small Thumbnail Images (3 kecil di atas gambar utama) -->
                     <div class="absolute top-3 right-3 flex space-x-1">
                         <?php for($i = 2; $i <= 4; $i++): ?>
-                            <?php $imageField = 'featured_image_' . $i; ?>
-                            <?php if($category->$imageField): ?>
+                            <?php 
+                                $imageField = 'featured_image_' . $i;
+                                $imagePath = $category->$imageField ?? null;
+                                $imageUrl = null;
+                                
+                                if ($imagePath) {
+                                    $storagePath = storage_path('app/public/' . $imagePath);
+                                    if (file_exists($storagePath)) {
+                                        $imageUrl = asset('storage/' . $imagePath);
+                                    }
+                                }
+                            ?>
+                            
+                            <?php if($imageUrl): ?>
                             <div class="w-8 h-8 rounded-md overflow-hidden border-2 border-white shadow-sm">
-                                <img src="<?php echo e(asset('storage/' . $category->$imageField)); ?>" 
+                                <img src="<?php echo e($imageUrl); ?>" 
                                      alt=""
                                      class="w-full h-full object-cover">
                             </div>
@@ -279,7 +304,7 @@
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
         
-        <!-- View All Button -->
+        <!-- View All Button (HANYA JIKA ADA KATEGORI) -->
         <div class="text-center mt-10">
             <a href="<?php echo e(route('products.index')); ?>" 
                class="inline-flex items-center bg-white border border-[#193497] text-[#193497] hover:bg-[#193497] hover:text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md">
@@ -287,10 +312,19 @@
                 <i class="fas fa-arrow-right ml-2 text-xs"></i>
             </a>
         </div>
+        
+        <?php else: ?>
+        <!-- TAMPILAN JIKA TIDAK ADA KATEGORI -->
+        <div class="text-center py-12">
+            <div class="inline-block p-6 bg-gray-50 rounded-2xl">
+                <i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">Belum ada kategori tersedia</p>
+                <p class="text-sm text-gray-400 mt-2">Kategori akan segera ditambahkan</p>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
 </section>
-
 <!-- Process Steps -->
 <section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white">
     <!-- Decorative Background -->

@@ -1,3 +1,13 @@
+@php
+    // LOAD ONLINE STORES DARI DATABASE
+    try {
+        $stores = \App\Models\OnlineStore::active()->ordered()->get();
+    } catch (\Exception $e) {
+        \Log::error('Failed to load online stores: ' . $e->getMessage());
+        $stores = collect();
+    }
+@endphp
+
 <nav class="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-2xl sticky top-0 z-50 border-b border-blue-700">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center py-4">
@@ -63,7 +73,8 @@
                     Produk
                 </a>
                 
-               <!-- ONLINE STORES DROPDOWN - TAMBAHKAN STYLE UNTUK FORCE HIDE -->
+               <!-- ONLINE STORES DROPDOWN - DATA DARI DATABASE -->
+                @if($stores->count() > 0)
                 <div class="relative dropdown-container" 
                      onmouseenter="showDropdown('stores')" 
                      onmouseleave="hideDropdownWithDelay('stores')">
@@ -75,7 +86,7 @@
                     <!-- Transparent gap -->
                     <div class="dropdown-gap"></div>
                     
-                    <!-- Dropdown Menu - TAMBAHKAN STYLE -->
+                    <!-- Dropdown Menu - DATA DARI DATABASE -->
                     <div id="stores-dropdown" class="dropdown-menu left-1/2 transform -translate-x-1/2 mt-2 w-72 py-4 border border-gray-100" 
                          style="display: none; opacity: 0; visibility: hidden;">
                         <!-- Header -->
@@ -84,77 +95,23 @@
                             <p class="text-xs text-gray-500 mt-1">Kunjungi store kami di platform berikut:</p>
                         </div>
                         
-                        <!-- Store Links -->
+                        <!-- Store Links - LOOP DARI DATABASE -->
                         <div class="px-2 py-2" onmouseenter="keepDropdownOpen('stores')" onmouseleave="hideDropdownWithDelay('stores')">
-                            <!-- Shopee -->
-                            <a href="https://shopee.co.id/ciptaimaji" 
+                            @foreach($stores as $store)
+                            <a href="{{ $store->url }}" 
                                target="_blank"
-                               class="flex items-center px-4 py-3 rounded-xl hover:bg-orange-50 transition-all duration-200 group/store">
-                                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-sm">
-                                    <i class="fab fa-shopify text-white text-lg"></i>
+                               class="flex items-center px-4 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 group/store mt-1 first:mt-0">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm" 
+                                     style="background: linear-gradient(135deg, {{ $store->gradient_from }}, {{ $store->gradient_to }});">
+                                    <i class="{{ $store->icon_class }} text-white text-lg"></i>
                                 </div>
                                 <div class="ml-3 flex-1">
-                                    <span class="font-semibold text-gray-900 text-sm">Shopee Store</span>
-                                    <p class="text-xs text-gray-500 mt-0.5">Beli produk di Shopee</p>
+                                    <span class="font-semibold text-gray-900 text-sm">{{ $store->name }}</span>
+                                    <p class="text-xs text-gray-500 mt-0.5">{{ $store->description }}</p>
                                 </div>
-                                <i class="fas fa-external-link-alt text-gray-400 text-sm group-hover/store:text-orange-500 transition-colors"></i>
+                                <i class="fas fa-external-link-alt text-gray-400 text-sm group-hover/store:text-[{{ str_replace('#', '', $store->color) }}] transition-colors"></i>
                             </a>
-                            
-                            <!-- Tokopedia -->
-                            <a href="https://tokopedia.com/ciptaimaji" 
-                               target="_blank"
-                               class="flex items-center px-4 py-3 rounded-xl hover:bg-green-50 transition-all duration-200 group/store mt-1">
-                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm">
-                                    <i class="fas fa-store text-white text-lg"></i>
-                                </div>
-                                <div class="ml-3 flex-1">
-                                    <span class="font-semibold text-gray-900 text-sm">Tokopedia</span>
-                                    <p class="text-xs text-gray-500 mt-0.5">Beli produk di Tokopedia</p>
-                                </div>
-                                <i class="fas fa-external-link-alt text-gray-400 text-sm group-hover/store:text-green-500 transition-colors"></i>
-                            </a>
-                            
-                            <!-- Instagram -->
-                            <a href="https://instagram.com/ciptaimaji" 
-                               target="_blank"
-                               class="flex items-center px-4 py-3 rounded-xl hover:bg-pink-50 transition-all duration-200 group/store mt-1">
-                                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-                                    <i class="fab fa-instagram text-white text-lg"></i>
-                                </div>
-                                <div class="ml-3 flex-1">
-                                    <span class="font-semibold text-gray-900 text-sm">Instagram</span>
-                                    <p class="text-xs text-gray-500 mt-0.5">Follow & DM untuk order</p>
-                                </div>
-                                <i class="fas fa-external-link-alt text-gray-400 text-sm group-hover/store:text-pink-500 transition-colors"></i>
-                            </a>
-                            
-                            <!-- Bukalapak -->
-                            <a href="https://bukalapak.com/ciptaimaji" 
-                               target="_blank"
-                               class="flex items-center px-4 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 group/store mt-1">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-                                    <i class="fas fa-shopping-bag text-white text-lg"></i>
-                                </div>
-                                <div class="ml-3 flex-1">
-                                    <span class="font-semibold text-gray-900 text-sm">Bukalapak</span>
-                                    <p class="text-xs text-gray-500 mt-0.5">Beli produk di Bukalapak</p>
-                                </div>
-                                <i class="fas fa-external-link-alt text-gray-400 text-sm group-hover/store:text-blue-500 transition-colors"></i>
-                            </a>
-                            
-                            <!-- Lazada -->
-                            <a href="https://lazada.co.id/ciptaimaji" 
-                               target="_blank"
-                               class="flex items-center px-4 py-3 rounded-xl hover:bg-red-50 transition-all duration-200 group/store mt-1">
-                                <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-sm">
-                                    <i class="fab fa-laravel text-white text-lg"></i>
-                                </div>
-                                <div class="ml-3 flex-1">
-                                    <span class="font-semibold text-gray-900 text-sm">Lazada</span>
-                                    <p class="text-xs text-gray-500 mt-0.5">Beli produk di Lazada</p>
-                                </div>
-                                <i class="fas fa-external-link-alt text-gray-400 text-sm group-hover/store:text-red-500 transition-colors"></i>
-                            </a>
+                            @endforeach
                         </div>
                         
                         <!-- Footer -->
@@ -163,6 +120,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 
                 <a href="{{ route('whatsapp.chat') }}" target="_blank" class="text-white hover:text-yellow-400 font-medium transition-colors duration-300">
                     <i class="fab fa-whatsapp mr-1"></i> Chat
@@ -194,7 +152,7 @@
                             @endif
                         </a>
 
-                        <!-- USER PROFILE DROPDOWN - TAMBAHKAN STYLE UNTUK FORCE HIDE -->
+                        <!-- USER PROFILE DROPDOWN -->
                         <div class="relative dropdown-container" 
                              onmouseenter="showDropdown('profile')" 
                              onmouseleave="hideDropdownWithDelay('profile')">
@@ -213,7 +171,7 @@
                             <!-- Transparent gap -->
                             <div class="dropdown-gap"></div>
                             
-                            <!-- Dropdown Menu - TAMBAHKAN STYLE -->
+                            <!-- Dropdown Menu -->
                             <div id="profile-dropdown" class="dropdown-menu right-0 mt-2 w-56 py-2" 
                                  style="display: none; opacity: 0; visibility: hidden;">
                                 <div class="px-4 py-3 border-b border-gray-100">
@@ -310,9 +268,10 @@
                     <i class="fas fa-box mr-3"></i> Produk
                 </a>
                 
-                <!-- Online Stores Mobile -->
+                <!-- Online Stores Mobile - DATA DARI DATABASE -->
+                @if($stores->count() > 0)
                 <div class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between" onclick="toggleMobileStores()">
                         <div class="flex items-center">
                             <i class="fas fa-store mr-3"></i>
                             <span>Online Store</span>
@@ -320,54 +279,21 @@
                         <i class="fas fa-chevron-down transition-transform duration-300" id="mobile-store-arrow"></i>
                     </div>
                     
-                    <!-- Mobile Store Links (Hidden by default) -->
+                    <!-- Mobile Store Links (Hidden by default) - DATA DARI DATABASE -->
                     <div id="mobile-store-links" class="mt-3 pl-8 space-y-2 hidden">
-                        <!-- Shopee -->
-                        <a href="https://shopee.co.id/ciptaimaji" target="_blank"
+                        @foreach($stores as $store)
+                        <a href="{{ $store->url }}" target="_blank"
                            class="flex items-center py-2 text-white/80 hover:text-yellow-300 transition-colors">
-                            <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fab fa-shopify text-white text-sm"></i>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3" 
+                                 style="background: linear-gradient(135deg, {{ $store->gradient_from }}, {{ $store->gradient_to }});">
+                                <i class="{{ $store->icon_class }} text-white text-sm"></i>
                             </div>
-                            <span class="text-sm">Shopee</span>
+                            <span class="text-sm">{{ $store->name }}</span>
                         </a>
-                        
-                        <!-- Tokopedia -->
-                        <a href="https://tokopedia.com/ciptaimaji" target="_blank"
-                           class="flex items-center py-2 text-white/80 hover:text-yellow-300 transition-colors">
-                            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-store text-white text-sm"></i>
-                            </div>
-                            <span class="text-sm">Tokopedia</span>
-                        </a>
-                        
-                        <!-- Instagram -->
-                        <a href="https://instagram.com/ciptaimaji" target="_blank"
-                           class="flex items-center py-2 text-white/80 hover:text-yellow-300 transition-colors">
-                            <div class="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fab fa-instagram text-white text-sm"></i>
-                            </div>
-                            <span class="text-sm">Instagram</span>
-                        </a>
-                        
-                        <!-- Bukalapak -->
-                        <a href="https://bukalapak.com/ciptaimaji" target="_blank"
-                           class="flex items-center py-2 text-white/80 hover:text-yellow-300 transition-colors">
-                            <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fas fa-shopping-bag text-white text-sm"></i>
-                            </div>
-                            <span class="text-sm">Bukalapak</span>
-                        </a>
-                        
-                        <!-- Lazada -->
-                        <a href="https://lazada.co.id/ciptaimaji" target="_blank"
-                           class="flex items-center py-2 text-white/80 hover:text-yellow-300 transition-colors">
-                            <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center mr-3">
-                                <i class="fab fa-laravel text-white text-sm"></i>
-                            </div>
-                            <span class="text-sm">Lazada</span>
-                        </a>
+                        @endforeach
                     </div>
                 </div>
+                @endif
                 
                 <a href="{{ route('about') }}" 
                    class="text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-all duration-300 
@@ -497,20 +423,20 @@ document.getElementById('mobile-menu-button')?.addEventListener('click', functio
     icon.classList.toggle('fa-times');
 });
 
-/* ================= MOBILE STORE LINKS TOGGLE ================= */
-const mobileStoreArrow = document.getElementById('mobile-store-arrow');
-if (mobileStoreArrow) {
-    const storeContainer = mobileStoreArrow.closest('div');
-    storeContainer.addEventListener('click', function(e) {
-        if (!e.target.closest('a')) {
-            const links = document.getElementById('mobile-store-links');
-            links.classList.toggle('hidden');
-            mobileStoreArrow.classList.toggle('rotate-180');
-        }
-    });
+function toggleMobileStores() {
+    const links = document.getElementById('mobile-store-links');
+    const arrow = document.getElementById('mobile-store-arrow');
+    
+    if (links.classList.contains('hidden')) {
+        links.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+    } else {
+        links.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+    }
 }
 
-/* ================= ADD TO CART (AJAX) - PERTAHANKAN INI KARENA NOTIF BERFUNGSI ================= */
+/* ================= ADD TO CART (AJAX) ================= */
 function addToCart(event, productId, productName) {
     event.preventDefault();
 
@@ -564,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
     @auth updateCartCount(); @endauth
 });
 
-/* ================= TOAST NOTIFICATION - INI YANG BERFUNGSI ================= */
+/* ================= TOAST NOTIFICATION ================= */
 function showToast(type, message) {
     // Gunakan notification system dari app.blade.php jika ada
     if (window.notificationSystem) {
@@ -662,15 +588,15 @@ function renderResults(data, mode) {
     empty.classList.add('hidden');
     list.innerHTML = products.map(p => `
         <a href="/products/${p.id}"
-           class="flex gap-4 px-4 py-3 hover:bg-[#f9f0f1] transition border-b border-[#191f01]/10">
+           class="flex gap-4 px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100">
             <div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center border overflow-hidden">
                 <img src="${p.image}" class="max-w-full max-h-full object-contain">
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-semibold text-[#191f01] truncate">${p.name}</p>
-                <p class="text-sm font-bold text-[#193497]">${p.price}</p>
+                <p class="font-semibold text-gray-900 truncate">${p.name}</p>
+                <p class="text-sm font-bold text-blue-600">${p.price}</p>
             </div>
-            <i class="fas fa-chevron-right text-[#191f01]/40 self-center"></i>
+            <i class="fas fa-chevron-right text-gray-400 self-center"></i>
         </a>
     `).join('');
 
@@ -777,4 +703,12 @@ document.addEventListener('click', function(e) {
 .dropdown-container:hover .dropdown-gap {
     pointer-events: auto;
 }
+
+/* Dynamic color classes untuk hover icon */
+.text-ff5722 { color: #ff5722 !important; }
+.text-43b549 { color: #43b549 !important; }
+.text-e1306c { color: #e1306c !important; }
+.text-e31f27 { color: #e31f27 !important; }
+.text-0f146d { color: #0f146d !important; }
+.text-000000 { color: #000000 !important; }
 </style>
