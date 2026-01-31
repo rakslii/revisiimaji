@@ -3,85 +3,160 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PromoCode;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PromoCodeController extends Controller
 {
-    public function __construct()
-{
-    // ⚡ HAPUS INI: $this->middleware('auth');
-    // Karena ini yang bikin redirect ke /login
-    
-    // Cek role admin saja
-    $this->middleware(function ($request, $next) {
-        if (!auth()->check()) {
-            // Manual redirect ke admin.login
-            return redirect()->route('admin.login')
-                ->with('error', 'Please login first.');
-        }
-        
-        if (auth()->user()->role !== 'admin') {
-            auth()->logout();
-            return redirect()->route('admin.login')
-                ->with('error', 'Admin access only.');
-        }
-        
-        return $next($request);
-    });
-}
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
-        $promoCodes = PromoCode::latest()->paginate(10);
+        $query = PromoCode::latest();
+        
+        // Search filter
+        if ($request->has('search') && $request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('code', 'like', "%{$request->search}%")
+                  ->orWhere('name', 'like', "%{$request->search}%");
+            });
+        }
+        
+        // Status filter
+        if ($request->has('status') && $request->status) {
+            switch($request->status) {
+                case 'active':
+                    $query->where('is_active', true)
+                          ->where('valid_from', '<=', now())
+                          ->where('valid_until', '>=', now())
+                          ->whereRaw('used_count < quota');
+                    break;
+                case 'expired':
+                    $query->where('valid_until', '<', now());
+                    break;
+                case 'inactive':
+                    $query->where('is_active', false);
+                    break;
+                case 'quota_exceeded':
+                    $query->whereRaw('used_count >= quota');
+                    break;
+            }
+        }
+        
+        $promoCodes = $query->paginate(10);
+        
         return view('pages.admin.promos.index', compact('promoCodes'));
     }
-    
-    public function storePromoCode(Request $request)
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('pages.admin.promos.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|unique:promo_codes,code',
-            'discount_percent' => 'required|numeric|min:0|max:100',
-            'max_discount' => 'nullable|numeric|min:0',
+            'code' => 'nullable|string|unique:promo_codes,code|max:50',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:percentage,nominal',
+            'value' => 'required|numeric|min:0',
+            'quota' => 'required|integer|min:1',
             'min_purchase' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'expires_at' => 'nullable|date|after:now',
+            'valid_from' => 'required|date',
+            'valid_until' => 'required|date|after:valid_from',
             'is_active' => 'boolean',
         ]);
-        
+
+        // Generate code if not provided
+        if (empty($validated['code'])) {
+            do {
+                $code = strtoupper(Str::random(8));
+            } while (PromoCode::where('code', $code)->exists());
+            $validated['code'] = $code;
+        }
+
         $validated['is_active'] = $request->has('is_active');
-        
+        $validated['used_count'] = 0;
+
         PromoCode::create($validated);
-        
-        return back()->with('success', 'Promo code created successfully');
+
+        return redirect()->route('admin.promos.index')
+            ->with('success', 'Promo code created successfully.');
     }
-    
-    public function updatePromoCode(Request $request, $id)
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
     {
         $promoCode = PromoCode::findOrFail($id);
-        
+        return view('pages.admin.promos.show', compact('promoCode'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        return view('pages.admin.promos.edit', compact('promoCode'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+
         $validated = $request->validate([
-            'code' => 'required|string|unique:promo_codes,code,' . $id,
-            'discount_percent' => 'required|numeric|min:0|max:100',
-            'max_discount' => 'nullable|numeric|min:0',
+            'code' => 'required|string|unique:promo_codes,code,' . $id . '|max:50',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:percentage,nominal',
+            'value' => 'required|numeric|min:0',
+            'quota' => 'required|integer|min:' . $promoCode->used_count,
             'min_purchase' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'expires_at' => 'nullable|date',
+            'valid_from' => 'required|date',
+            'valid_until' => 'required|date|after:valid_from',
             'is_active' => 'boolean',
         ]);
-        
+
         $validated['is_active'] = $request->has('is_active');
-        
+
         $promoCode->update($validated);
-        
-        return back()->with('success', 'Promo code updated successfully');
+
+        return redirect()->route('admin.promos.index')
+            ->with('success', 'Promo code updated successfully.');
     }
-    
-    public function deletePromoCode($id)
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
     {
         $promoCode = PromoCode::findOrFail($id);
         $promoCode->delete();
-        
-        return back()->with('success', 'Promo code deleted successfully');
+
+        return redirect()->route('admin.promos.index')
+            ->with('success', 'Promo code deleted successfully.');
     }
 
+    /**
+     * Toggle active status
+     */
+    public function toggleStatus($id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        $promoCode->update(['is_active' => !$promoCode->is_active]);
+
+        return back()->with('success', 'Status updated successfully.');
+    }
 }

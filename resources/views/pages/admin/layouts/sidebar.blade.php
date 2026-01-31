@@ -12,7 +12,7 @@
             ['route' => 'admin.orders.index', 'label' => 'Orders', 'icon' => 'fas fa-shopping-cart'],
             ['route' => 'admin.products.index', 'label' => 'Products', 'icon' => 'fas fa-box'],
             ['route' => 'admin.customers.index', 'label' => 'Customers', 'icon' => 'fas fa-users'],
-            ['route' => 'admin.promo-codes.index', 'label' => 'Promo Codes', 'icon' => 'fas fa-tag'],
+            ['route' => 'admin.promos.index', 'label' => 'Promo Codes', 'icon' => 'fas fa-tag'],
             ['route' => 'admin.settings', 'label' => 'Settings', 'icon' => 'fas fa-cog'],
         ] as $item)
             <a href="{{ route($item['route']) }}" 

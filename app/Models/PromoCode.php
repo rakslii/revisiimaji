@@ -73,4 +73,36 @@ class PromoCode extends Model
     {
         $this->increment('used_count');
     }
+    // Accessor untuk formatted value
+public function getFormattedValueAttribute()
+{
+    if ($this->type === 'percentage') {
+        return number_format($this->value, 0) . '%';
+    }
+    
+    return 'Rp ' . number_format($this->value, 0, ',', '.');
+}
+
+// Accessor untuk status
+public function getStatusAttribute()
+{
+    if (!$this->is_active) {
+        return 'inactive';
+    }
+    
+    $now = now();
+    if ($this->valid_from > $now) {
+        return 'upcoming';
+    }
+    
+    if ($this->valid_until < $now) {
+        return 'expired';
+    }
+    
+    if ($this->used_count >= $this->quota) {
+        return 'quota_exceeded';
+    }
+    
+    return 'active';
+}
 }
