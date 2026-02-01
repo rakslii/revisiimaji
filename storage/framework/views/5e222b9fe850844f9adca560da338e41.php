@@ -23,8 +23,19 @@
         <main class="p-6">
             <!-- Page Header -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-800"><?php echo $__env->yieldContent('page-title'); ?></h1>
-                <p class="text-gray-600 mt-1"><?php echo $__env->yieldContent('page-description'); ?></p>
+                <h1 class="text-2xl font-bold text-gray-800">
+                    <?php if (! empty(trim($__env->yieldContent('page-title')))): ?>
+                        <?php echo $__env->yieldContent('page-title'); ?>
+                    <?php else: ?>
+                        <?php echo $__env->yieldContent('title', 'Dashboard'); ?>
+                    <?php endif; ?>
+                </h1>
+                
+                <?php if (! empty(trim($__env->yieldContent('page-description')))): ?>
+                <p class="text-gray-600 mt-1">
+                    <?php echo $__env->yieldContent('page-description'); ?>
+                </p>
+                <?php endif; ?>
             </div>
             
             <!-- Alerts -->

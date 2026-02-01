@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PromoCode;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,7 +15,7 @@ class PromoCodeController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PromoCode::latest();
+        $query = PromoCode::with('products')->latest();
         
         // Search filter
         if ($request->has('search') && $request->search) {
@@ -55,7 +56,8 @@ class PromoCodeController extends Controller
      */
     public function create()
     {
-        return view('pages.admin.promos.create');
+        $products = Product::active()->get();
+        return view('pages.admin.promos.create', compact('products'));
     }
 
     /**
@@ -73,6 +75,13 @@ class PromoCodeController extends Controller
             'valid_from' => 'required|date',
             'valid_until' => 'required|date|after:valid_from',
             'is_active' => 'boolean',
+            'is_for_all_products' => 'boolean',
+            'product_scope' => 'nullable|array',
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'exists:products,id',
+            'product_discount_type' => 'nullable|in:percentage,nominal',
+            'product_discount_value' => 'nullable|numeric|min:0',
+            'max_usage_per_product' => 'nullable|integer|min:1',
         ]);
 
         // Generate code if not provided
@@ -84,9 +93,25 @@ class PromoCodeController extends Controller
         }
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['is_for_all_products'] = $request->has('is_for_all_products');
         $validated['used_count'] = 0;
 
-        PromoCode::create($validated);
+        // Create promo code
+        $promoCode = PromoCode::create($validated);
+
+        // Sync products jika tidak untuk semua produk
+        if (!$promoCode->is_for_all_products && $request->has('product_ids')) {
+            $productData = [];
+            foreach ($request->product_ids as $productId) {
+                $productData[$productId] = [
+                    'discount_amount' => $request->product_discount_value ?? null,
+                    'discount_type' => $request->product_discount_type ?? null,
+                    'max_usage_per_product' => $request->max_usage_per_product ?? null,
+                ];
+            }
+            
+            $promoCode->products()->sync($productData);
+        }
 
         return redirect()->route('admin.promos.index')
             ->with('success', 'Promo code created successfully.');
@@ -97,7 +122,10 @@ class PromoCodeController extends Controller
      */
     public function show($id)
     {
-        $promoCode = PromoCode::findOrFail($id);
+        $promoCode = PromoCode::with(['products' => function($query) {
+            $query->with('category');
+        }])->findOrFail($id);
+        
         return view('pages.admin.promos.show', compact('promoCode'));
     }
 
@@ -106,8 +134,10 @@ class PromoCodeController extends Controller
      */
     public function edit($id)
     {
-        $promoCode = PromoCode::findOrFail($id);
-        return view('pages.admin.promos.edit', compact('promoCode'));
+        $promoCode = PromoCode::with('products')->findOrFail($id);
+        $products = Product::active()->get();
+        
+        return view('pages.admin.promos.edit', compact('promoCode', 'products'));
     }
 
     /**
@@ -127,11 +157,37 @@ class PromoCodeController extends Controller
             'valid_from' => 'required|date',
             'valid_until' => 'required|date|after:valid_from',
             'is_active' => 'boolean',
+            'is_for_all_products' => 'boolean',
+            'product_scope' => 'nullable|array',
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'exists:products,id',
+            'product_discount_type' => 'nullable|in:percentage,nominal',
+            'product_discount_value' => 'nullable|numeric|min:0',
+            'max_usage_per_product' => 'nullable|integer|min:1',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['is_for_all_products'] = $request->has('is_for_all_products');
 
+        // Update promo code
         $promoCode->update($validated);
+
+        // Sync products jika tidak untuk semua produk
+        if (!$promoCode->is_for_all_products && $request->has('product_ids')) {
+            $productData = [];
+            foreach ($request->product_ids as $productId) {
+                $productData[$productId] = [
+                    'discount_amount' => $request->product_discount_value ?? null,
+                    'discount_type' => $request->product_discount_type ?? null,
+                    'max_usage_per_product' => $request->max_usage_per_product ?? null,
+                ];
+            }
+            
+            $promoCode->products()->sync($productData);
+        } elseif ($promoCode->is_for_all_products) {
+            // Jika untuk semua produk, hapus semua relasi produk
+            $promoCode->products()->detach();
+        }
 
         return redirect()->route('admin.promos.index')
             ->with('success', 'Promo code updated successfully.');
@@ -143,6 +199,11 @@ class PromoCodeController extends Controller
     public function destroy($id)
     {
         $promoCode = PromoCode::findOrFail($id);
+        
+        // Detach all products first
+        $promoCode->products()->detach();
+        
+        // Then delete promo
         $promoCode->delete();
 
         return redirect()->route('admin.promos.index')
@@ -158,5 +219,95 @@ class PromoCodeController extends Controller
         $promoCode->update(['is_active' => !$promoCode->is_active]);
 
         return back()->with('success', 'Status updated successfully.');
+    }
+
+    /**
+     * Show form to add/remove products from promo
+     */
+    public function manageProducts($id)
+    {
+        $promoCode = PromoCode::with('products')->findOrFail($id);
+        $products = Product::active()->get();
+        
+        return view('pages.admin.promos.manage-products', compact('promoCode', 'products'));
+    }
+
+    /**
+     * Update products for promo
+     */
+    public function updateProducts(Request $request, $id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        
+        $request->validate([
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'exists:products,id',
+            'discount_type' => 'nullable|in:percentage,nominal',
+            'discount_value' => 'nullable|numeric|min:0',
+            'max_usage_per_product' => 'nullable|integer|min:1',
+        ]);
+        
+        $productData = [];
+        if ($request->has('product_ids')) {
+            foreach ($request->product_ids as $productId) {
+                $productData[$productId] = [
+                    'discount_amount' => $request->discount_value ?? null,
+                    'discount_type' => $request->discount_type ?? null,
+                    'max_usage_per_product' => $request->max_usage_per_product ?? null,
+                ];
+            }
+        }
+        
+        $promoCode->products()->sync($productData);
+        
+        return redirect()->route('admin.promos.edit', $promoCode->id)
+            ->with('success', 'Products updated successfully.');
+    }
+
+    /**
+     * Remove product from promo
+     */
+    public function removeProduct(Request $request, $id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+        ]);
+        
+        $promoCode->products()->detach($request->product_id);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Product removed from promo'
+        ]);
+    }
+
+    /**
+     * Add product to promo
+     */
+    public function addProduct(Request $request, $id)
+    {
+        $promoCode = PromoCode::findOrFail($id);
+        
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'discount_type' => 'nullable|in:percentage,nominal',
+            'discount_value' => 'nullable|numeric|min:0',
+            'max_usage_per_product' => 'nullable|integer|min:1',
+        ]);
+        
+        $promoCode->products()->syncWithoutDetaching([
+            $request->product_id => [
+                'discount_amount' => $request->discount_value ?? null,
+                'discount_type' => $request->discount_type ?? null,
+                'max_usage_per_product' => $request->max_usage_per_product ?? null,
+            ]
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Product added to promo'
+        ]);
     }
 }

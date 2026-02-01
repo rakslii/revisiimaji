@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\ProductPromotionController as AdminProductPromotionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,30 +57,53 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('mark-completed');
     });
 
-// ============ PRODUCTS ============
-Route::prefix('products')->name('products.')->group(function () {
-    Route::get('/', [AdminProductController::class, 'index'])->name('index');
-    Route::get('/create', [AdminProductController::class, 'create'])->name('create');
-    Route::post('/', [AdminProductController::class, 'store'])->name('store');
-    Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
-    Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
+    // ============ PRODUCTS ============
+    Route::prefix('products')->name('products.')->group(function () {
+        Route::get('/', [AdminProductController::class, 'index'])->name('index');
+        Route::get('/create', [AdminProductController::class, 'create'])->name('create');
+        Route::post('/', [AdminProductController::class, 'store'])->name('store');
+        Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
 
-    // API routes untuk image handling (ditambahkan)
-    Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
-    Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
-});
+        // API routes untuk image handling
+        Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
+        Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
+    });
 
-// ============ PROMO CODES ============
-Route::prefix('promos')->name('promos.')->group(function () {
-    Route::get('/', [AdminPromoCodeController::class, 'index'])->name('index');
-    Route::get('/create', [AdminPromoCodeController::class, 'create'])->name('create');
-    Route::post('/', [AdminPromoCodeController::class, 'store'])->name('store');
-    Route::get('/{id}', [AdminPromoCodeController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [AdminPromoCodeController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [AdminPromoCodeController::class, 'update'])->name('update');
-    Route::delete('/{id}', [AdminPromoCodeController::class, 'destroy'])->name('destroy');
-    Route::patch('/{id}/toggle-status', [AdminPromoCodeController::class, 'toggleStatus'])->name('toggle-status');
-});
+    // ============ PROMO CODES ============
+    Route::prefix('promos')->name('promos.')->group(function () {
+        Route::get('/', [AdminPromoCodeController::class, 'index'])->name('index');
+        Route::get('/create', [AdminPromoCodeController::class, 'create'])->name('create');
+        Route::post('/', [AdminPromoCodeController::class, 'store'])->name('store');
+        Route::get('/{id}', [AdminPromoCodeController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminPromoCodeController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminPromoCodeController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminPromoCodeController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/toggle-status', [AdminPromoCodeController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // ============ PRODUCT PROMOTIONS (BARU) ============
+    Route::prefix('product-promotions')->name('product-promotions.')->group(function () {
+        // Select product page
+        Route::get('/select-product', [AdminProductPromotionController::class, 'selectProduct'])->name('select-product');
+        
+        // Create promotion for specific product
+        Route::get('/create/{productId}', [AdminProductPromotionController::class, 'create'])->name('create');
+        Route::post('/store/{productId}', [AdminProductPromotionController::class, 'store'])->name('store');
+        
+        // CRUD operations
+        Route::get('/', [AdminProductPromotionController::class, 'index'])->name('index');
+        Route::get('/{id}', [AdminProductPromotionController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminProductPromotionController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminProductPromotionController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminProductPromotionController::class, 'destroy'])->name('destroy');
+        
+        // Toggle status
+        Route::patch('/{id}/toggle-status', [AdminProductPromotionController::class, 'toggleStatus'])->name('toggle-status');
+        
+        // View promotions for specific product
+        Route::get('/product/{productId}', [AdminProductPromotionController::class, 'productPromotions'])->name('product-promotions');
+    });
 });
