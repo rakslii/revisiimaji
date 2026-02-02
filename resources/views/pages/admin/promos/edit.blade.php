@@ -196,7 +196,7 @@
                                 {{ ucfirst($status) }}
                             </span>
                             <span class="text-sm text-gray-600">
-                                @if($promoCode->isValid())
+                                @if($promoCode->is_valid)
                                     (Valid and active)
                                 @elseif(!$promoCode->is_active)
                                     (Inactive)

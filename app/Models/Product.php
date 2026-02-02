@@ -4,16 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Product extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'description', 'short_description', 'price', 'discount_percent',
+        'name', 'description', 'short_description', 'price', 'base_discount_percent',
+        'calculated_discount_percent', 'discount_override_percent', 'discount_calculation_type',
         'category', 'category_type', 'is_active', 'image', 'category_id', 'stock', 'sales_count',
-        'rating', 'min_order', 'specifications',
-        // Kolom gambar tambahan
+        'rating', 'min_order', 'specifications', 'active_product_promotion_id',
         'image_2', 'image_3', 'image_4', 'image_5', 'additional_images',
         'thumbnail', 'main_image', 'gallery_images'
     ];
@@ -24,7 +25,15 @@ class Product extends Model
         'additional_images' => 'array',
         'gallery_images' => 'array',
         'price' => 'decimal:2',
-        'rating' => 'decimal:1'
+        'rating' => 'decimal:1',
+        'base_discount_percent' => 'integer',
+        'calculated_discount_percent' => 'decimal:2',
+        'discount_override_percent' => 'integer',
+        'valid_from' => 'datetime',
+        'valid_until' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
     ];
 
     protected $appends = [
@@ -41,44 +50,56 @@ class Product extends Model
         'gallery_urls',
         'additional_images_urls',
         'primary_image_url',
-        // Appends untuk promo dari product_promotions
+        // Appends untuk backward compatibility dan promo
+        'discount_percent',
         'active_product_promotion',
         'product_promotion_discount',
         'has_active_product_promotion',
         'best_product_promotion',
         'final_price_with_product_promotion',
         'total_discount_amount',
-        'best_discount_info'
+        'best_discount_info',
+        'is_discount_auto',
+        'discount_source'
     ];
 
-    // ============ RELATIONSHIPS ============
+   // ============ RELATIONSHIPS ============
 
-    public function category()
-    {
-        return $this->belongsTo(ProductCategory::class, 'category_id');
-    }
+public function category()
+{
+    return $this->belongsTo(ProductCategory::class, 'category_id');
+}
 
-    // Relasi dengan product_promotions (PROMO LANGSUNG) - INI YANG ANDA PUNYA
-    public function productPromotions()
-    {
-        return $this->hasMany(ProductPromotion::class);
-    }
+// Relasi dengan product_promotions
+public function productPromotions()
+{
+    return $this->hasMany(ProductPromotion::class);
+}
 
-    // Alias untuk backward compatibility
-    public function activePromotions()
-    {
-        return $this->productPromotions()
-                    ->where('is_active', true)
-                    ->where('valid_from', '<=', now())
-                    ->where('valid_until', '>=', now())
-                    ->where(function($query) {
-                        $query->whereNull('quota')
-                              ->orWhereRaw('used_count < quota');
-                    });
-    }
+// Relasi dengan promo aktif - PERBAIKI NAMA METHOD!
+public function activeProductPromotion()
+{
+    return $this->belongsTo(ProductPromotion::class, 'active_product_promotion_id');
+}
 
-    
+// BISA JUGA TAMBAHKAN ALIAS UNTUK CONSISTENCY:
+public function activePromotion()
+{
+    return $this->activeProductPromotion();
+}
 
+// Relasi dengan promo yang sedang aktif
+public function activePromotions()
+{
+    return $this->hasMany(ProductPromotion::class)
+        ->where('is_active', true)
+        ->where('valid_from', '<=', now())
+        ->where('valid_until', '>=', now())
+        ->where(function($query) {
+            $query->whereNull('quota')
+                ->orWhereRaw('used_count < quota');
+        });
+}
     // ============ ACCESSORS UTAMA ============
 
     public function getSpecificationsAttribute($value)
@@ -117,10 +138,21 @@ class Product extends Model
         return 'Produk';
     }
 
+    /**
+     * Accessor untuk backward compatibility dengan discount_percent
+     */
+    public function getDiscountPercentAttribute()
+    {
+        return (int) round($this->calculated_discount_percent);
+    }
+
+    /**
+     * Final price dengan calculated_discount_percent
+     */
     public function getFinalPriceAttribute()
     {
-        if ($this->discount_percent > 0) {
-            $discounted = $this->price * (1 - ($this->discount_percent / 100));
+        if ($this->calculated_discount_percent > 0) {
+            $discounted = $this->price * (1 - ($this->calculated_discount_percent / 100));
             return round($discounted, 2);
         }
         return $this->price;
@@ -128,13 +160,13 @@ class Product extends Model
 
     public function getHasDiscountAttribute()
     {
-        return $this->discount_percent > 0;
+        return $this->calculated_discount_percent > 0;
     }
 
     public function getDiscountAmountAttribute()
     {
-        if ($this->discount_percent > 0) {
-            return $this->price * ($this->discount_percent / 100);
+        if ($this->calculated_discount_percent > 0) {
+            return $this->price * ($this->calculated_discount_percent / 100);
         }
         return 0;
     }
@@ -152,6 +184,114 @@ class Product extends Model
     public function getFormattedDiscountAmountAttribute()
     {
         return 'Rp ' . number_format($this->discount_amount, 0, ',', '.');
+    }
+
+    // ============ ACCESSORS UNTUK PRODUCT PROMOTIONS ============
+
+/**
+ * Accessor untuk mendapatkan promo aktif
+ */
+public function getActiveProductPromotionAttribute()
+{
+    // Gunakan eager loaded relation jika ada
+    if ($this->relationLoaded('activeProductPromotion') && $this->activeProductPromotion) {
+        return $this->activeProductPromotion;
+    }
+    
+    // Jika tidak, cari promo terbaik
+    return $this->getBestActiveProductPromotion();
+}
+
+    public function getProductPromotionDiscountAttribute()
+    {
+        $bestPromotion = $this->active_product_promotion;
+        
+        if (!$bestPromotion) {
+            return 0;
+        }
+
+        return $bestPromotion->getDiscountAmount($this->price, 1);
+    }
+
+    public function getHasActiveProductPromotionAttribute()
+    {
+        return $this->activePromotions()->exists();
+    }
+
+    public function getBestProductPromotionAttribute()
+    {
+        return $this->active_product_promotion;
+    }
+
+    public function getFinalPriceWithProductPromotionAttribute()
+    {
+        $productDiscount = $this->discount_amount;
+        $promotionDiscount = $this->product_promotion_discount;
+        $totalDiscount = $productDiscount + $promotionDiscount;
+        
+        return max(0, $this->price - $totalDiscount);
+    }
+
+    public function getTotalDiscountAmountAttribute()
+    {
+        return $this->discount_amount + $this->product_promotion_discount;
+    }
+
+    public function getBestDiscountInfoAttribute()
+    {
+        $bestPromotion = $this->active_product_promotion;
+        
+        $discountInfo = [
+            'type' => $this->discount_calculation_type,
+            'name' => 'Diskon Produk',
+            'discount_amount' => $this->discount_amount,
+            'discount_percent' => $this->discount_percent,
+            'final_price' => $this->final_price,
+            'source' => $this->discount_calculation_type === 'manual' ? 'manual_override' : 'base_discount',
+            'has_promotion' => false,
+            'is_active' => true
+        ];
+
+        if ($bestPromotion && $this->discount_calculation_type === 'auto') {
+            $promotionDiscount = $bestPromotion->getDiscountAmount($this->price, 1);
+            
+            $discountInfo = [
+                'type' => 'product_promotion',
+                'name' => $bestPromotion->name ?? 'Diskon Promo',
+                'discount_amount' => $promotionDiscount,
+                'discount_percent' => $bestPromotion->type === 'percentage' ? $bestPromotion->value : ($promotionDiscount / $this->price) * 100,
+                'final_price' => max(0, $this->price - $promotionDiscount),
+                'promotion' => [
+                    'id' => $bestPromotion->id,
+                    'name' => $bestPromotion->name,
+                    'type' => $bestPromotion->type,
+                    'value' => $bestPromotion->value
+                ],
+                'source' => 'product_promotion',
+                'has_promotion' => true,
+                'is_active' => $bestPromotion->is_active && $bestPromotion->is_valid
+            ];
+        }
+
+        return $discountInfo;
+    }
+
+    public function getIsDiscountAutoAttribute()
+    {
+        return $this->discount_calculation_type === 'auto';
+    }
+
+    public function getDiscountSourceAttribute()
+    {
+        if ($this->discount_calculation_type === 'manual') {
+            return 'manual_override';
+        }
+        
+        if ($this->active_product_promotion_id) {
+            return 'product_promotion';
+        }
+        
+        return 'base_discount';
     }
 
     // ============ ACCESSORS UNTUK GAMBAR ============
@@ -330,104 +470,6 @@ class Product extends Model
         return $imagePath;
     }
 
-    // ============ ACCESSORS UNTUK PRODUCT_PROMOTIONS ============
-
-    /**
-     * Accessor untuk mendapatkan promo aktif terbaik dari product_promotions
-     */
-    public function getActiveProductPromotionAttribute()
-    {
-        return $this->getBestActiveProductPromotion();
-    }
-
-    /**
-     * Accessor untuk mendapatkan diskon dari product_promotions
-     */
-    public function getProductPromotionDiscountAttribute()
-    {
-        $bestPromotion = $this->getBestActiveProductPromotion();
-        
-        if (!$bestPromotion) {
-            return 0;
-        }
-
-        // Hitung diskon untuk 1 produk
-        return $bestPromotion->getDiscountAmount($this->price, 1);
-    }
-
-    /**
-     * Accessor untuk cek apakah ada promo aktif dari product_promotions
-     */
-    public function getHasActiveProductPromotionAttribute()
-    {
-        return $this->activePromotions()->exists();
-    }
-
-    /**
-     * Accessor untuk mendapatkan promo terbaik
-     */
-    public function getBestProductPromotionAttribute()
-    {
-        return $this->active_product_promotion;
-    }
-
-    /**
-     * Accessor untuk harga final dengan promo dari product_promotions
-     */
-    public function getFinalPriceWithProductPromotionAttribute()
-    {
-        $productDiscount = $this->discount_amount;
-        $promotionDiscount = $this->product_promotion_discount;
-        $totalDiscount = $productDiscount + $promotionDiscount;
-        
-        return max(0, $this->price - $totalDiscount);
-    }
-
-    /**
-     * Accessor untuk total diskon (produk + product_promotion)
-     */
-    public function getTotalDiscountAmountAttribute()
-    {
-        return $this->discount_amount + $this->product_promotion_discount;
-    }
-
-    /**
-     * Accessor untuk informasi diskon terbaik
-     */
-    public function getBestDiscountInfoAttribute()
-    {
-        $bestPromotion = $this->getBestActiveProductPromotion();
-        
-        $discountInfo = [
-            'type' => 'product_discount',
-            'name' => 'Diskon Produk',
-            'discount_amount' => $this->discount_amount,
-            'discount_percent' => $this->discount_percent,
-            'final_price' => $this->final_price,
-            'has_promotion' => false
-        ];
-
-        if ($bestPromotion) {
-            $promotionDiscount = $bestPromotion->getDiscountAmount($this->price, 1);
-            $totalDiscount = $this->discount_amount + $promotionDiscount;
-            
-            // Jika diskon dari promo lebih besar
-            if ($promotionDiscount > $this->discount_amount) {
-                $discountInfo = [
-                    'type' => 'product_promotion',
-                    'name' => $bestPromotion->name,
-                    'discount_amount' => $promotionDiscount,
-                    'discount_percent' => $bestPromotion->type === 'percentage' ? $bestPromotion->value : 0,
-                    'final_price' => max(0, $this->price - $totalDiscount),
-                    'promotion' => $bestPromotion,
-                    'has_promotion' => true
-                ];
-            }
-        }
-
-        return $discountInfo;
-    }
-
     // ============ MUTATORS ============
 
     public function setSpecificationsAttribute($value)
@@ -443,6 +485,11 @@ class Product extends Model
     public function setGalleryImagesAttribute($value)
     {
         $this->attributes['gallery_images'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = is_numeric($value) ? round($value, 2) : 0;
     }
 
     // ============ SCOPES ============
@@ -479,7 +526,7 @@ class Product extends Model
 
     public function scopeHasDiscount($query)
     {
-        return $query->where('discount_percent', '>', 0);
+        return $query->where('calculated_discount_percent', '>', 0);
     }
 
     public function scopeWithActiveProductPromotion($query)
@@ -491,48 +538,79 @@ class Product extends Model
         });
     }
 
-    // HAPUS SCOPE INI KARENA TIDAK ADA TABEL promo_product
-    /*
-    public function scopeWithActivePromoProduct($query)
+    public function scopeWithAutoDiscount($query)
     {
-        return $query->whereHas('activePromoProducts');
+        return $query->where('discount_calculation_type', 'auto');
     }
-    */
+
+    public function scopeWithManualDiscount($query)
+    {
+        return $query->where('discount_calculation_type', 'manual');
+    }
+
+    public function scopeWithBestDiscount($query)
+    {
+        return $query->orderBy('calculated_discount_percent', 'desc');
+    }
 
     // ============ BOOT METHOD ============
 
     protected static function boot()
-    {
-        parent::boot();
+{
+    parent::boot();
 
-        static::saving(function ($product) {
-            if ($product->category_id) {
-                $category = ProductCategory::find($product->category_id);
-                if ($category) {
-                    $product->category = $category->type;
-                }
+    static::saving(function ($product) {
+        if ($product->category_id) {
+            $category = ProductCategory::find($product->category_id);
+            if ($category) {
+                $product->category = $category->type;
             }
-        });
+        }
 
-        static::creating(function ($product) {
-            if (is_null($product->stock)) {
-                $product->stock = 0;
-            }
-            if (is_null($product->sales_count)) {
-                $product->sales_count = 0;
-            }
-            if (is_null($product->min_order)) {
-                $product->min_order = 1;
-            }
-            if (is_null($product->discount_percent)) {
-                $product->discount_percent = 0;
-            }
-            if (is_null($product->rating)) {
-                $product->rating = 0;
-            }
-        });
-    }
+        // Inisialisasi nilai default
+        if (is_null($product->discount_calculation_type)) {
+            $product->discount_calculation_type = 'auto';
+        }
+        
+        if (is_null($product->calculated_discount_percent)) {
+            $product->calculated_discount_percent = $product->base_discount_percent;
+        }
+        
+        // Set default untuk required fields
+        if (empty($product->description)) {
+            $product->description = 'Deskripsi produk';
+        }
+        
+        if (empty($product->category)) {
+            $product->category = 'instan';
+        }
+        
+        if (empty($product->category_type)) {
+            $product->category_type = 'instan';
+        }
+    });
 
+    static::creating(function ($product) {
+        if (is_null($product->stock)) {
+            $product->stock = 0;
+        }
+        if (is_null($product->sales_count)) {
+            $product->sales_count = 0;
+        }
+        if (is_null($product->min_order)) {
+            $product->min_order = 1;
+        }
+        if (is_null($product->base_discount_percent)) {
+            $product->base_discount_percent = 0;
+        }
+        if (is_null($product->rating)) {
+            $product->rating = 0;
+        }
+        if (is_null($product->is_active)) {
+            $product->is_active = true;
+        }
+    });
+}
     // ============ METHODS UTAMA ============
 
     public function isInStock()
@@ -559,92 +637,127 @@ class Product extends Model
         $this->save();
     }
 
-    // ============ METHODS UNTUK PRODUCT_PROMOTIONS ============
+    // ============ METHODS UNTUK DISCOUNT & PROMOTION ============
 
     /**
-     * Helper method untuk mendapatkan promo aktif terbaik dari product_promotions
+     * Refresh calculated discount berdasarkan promo terbaik
+     */
+    public function refreshCalculatedDiscount()
+    {
+        if ($this->discount_calculation_type === 'manual') {
+            return;
+        }
+
+        $bestPromotion = $this->getBestActiveProductPromotion();
+        
+        if ($bestPromotion) {
+            $calculatedPercent = $bestPromotion->type === 'percentage' 
+                ? $bestPromotion->value 
+                : ($bestPromotion->value / $this->price) * 100;
+            
+            $this->calculated_discount_percent = round($calculatedPercent, 2);
+            $this->active_product_promotion_id = $bestPromotion->id;
+        } else {
+            $this->calculated_discount_percent = $this->base_discount_percent;
+            $this->active_product_promotion_id = null;
+        }
+        
+        $this->save();
+    }
+
+    /**
+     * Dapatkan promo aktif terbaik
      */
     public function getBestActiveProductPromotion()
     {
         return $this->activePromotions()
-                    ->orderBy('priority', 'desc')
-                    ->orderByRaw("
-                        CASE 
-                            WHEN type = 'percentage' THEN (value * price / 100)
-                            ELSE value 
-                        END DESC
-                    ")
-                    ->first();
+            ->orderBy('priority', 'desc')
+            ->orderByRaw("
+                CASE 
+                    WHEN type = 'percentage' THEN value
+                    ELSE (value / ?) * 100 
+                END DESC
+            ", [$this->price])
+            ->first();
     }
 
     /**
-     * Method untuk mendapatkan semua promo aktif dengan detail
+     * Set diskon manual
+     */
+    public function setManualDiscount($percent)
+    {
+        $this->discount_calculation_type = 'manual';
+        $this->discount_override_percent = min(100, max(0, (int) $percent));
+        $this->calculated_discount_percent = $this->discount_override_percent;
+        $this->active_product_promotion_id = null;
+        $this->save();
+    }
+
+    /**
+     * Kembali ke diskon otomatis
+     */
+    public function setAutoDiscount()
+    {
+        $this->discount_calculation_type = 'auto';
+        $this->discount_override_percent = null;
+        $this->refreshCalculatedDiscount();
+    }
+
+    /**
+     * Dapatkan semua promo aktif dengan detail
      */
     public function getActiveProductPromotionsWithDetails()
     {
         return $this->activePromotions()
-                    ->orderBy('priority', 'desc')
-                    ->get()
-                    ->map(function($promotion) {
-                        return [
-                            'id' => $promotion->id,
-                            'name' => $promotion->name,
-                            'type' => $promotion->type,
-                            'value' => $promotion->value,
-                            'formatted_value' => $promotion->formatted_value,
-                            'discount_amount' => $promotion->getDiscountAmount($this->price, 1),
-                            'final_price' => $promotion->getFinalPrice($this->price, 1),
-                            'valid_from' => $promotion->valid_from->format('d M Y H:i'),
-                            'valid_until' => $promotion->valid_until->format('d M Y H:i'),
-                            'remaining_days' => $promotion->remaining_days,
-                            'quota' => $promotion->quota,
-                            'used_count' => $promotion->used_count,
-                            'remaining_uses' => $promotion->remaining_uses,
-                            'min_purchase' => $promotion->min_purchase,
-                            'min_quantity' => $promotion->min_quantity,
-                            'is_exclusive' => $promotion->is_exclusive,
-                            'priority' => $promotion->priority,
-                            'status' => $promotion->status
-                        ];
-                    });
+            ->orderBy('priority', 'desc')
+            ->get()
+            ->map(function($promotion) {
+                $discountAmount = $promotion->getDiscountAmount($this->price, 1);
+                $discountPercent = $promotion->type === 'percentage' 
+                    ? $promotion->value 
+                    : ($discountAmount / $this->price) * 100;
+                
+                return [
+                    'id' => $promotion->id,
+                    'name' => $promotion->name,
+                    'type' => $promotion->type,
+                    'value' => $promotion->value,
+                    'formatted_value' => $promotion->formatted_value,
+                    'discount_amount' => $discountAmount,
+                    'discount_percent' => $discountPercent,
+                    'final_price' => $promotion->getFinalPrice($this->price, 1),
+                    'valid_from' => $promotion->valid_from->format('d M Y H:i'),
+                    'valid_until' => $promotion->valid_until->format('d M Y H:i'),
+                    'remaining_days' => $promotion->remaining_days,
+                    'quota' => $promotion->quota,
+                    'used_count' => $promotion->used_count,
+                    'remaining_uses' => $promotion->remaining_uses,
+                    'min_purchase' => $promotion->min_purchase,
+                    'min_quantity' => $promotion->min_quantity,
+                    'is_exclusive' => $promotion->is_exclusive,
+                    'priority' => $promotion->priority,
+                    'status' => $promotion->status,
+                    'is_valid' => $promotion->is_valid
+                ];
+            });
     }
 
     /**
-     * Method untuk mendapatkan diskon maksimal untuk quantity tertentu
+     * Dapatkan diskon maksimal dari promo
      */
-    public function getMaxPromotionDiscount($quantity = 1, $price = null)
+    public function getMaxPromotionDiscount($quantity = 1)
     {
-        $price = $price ?? $this->price;
         $bestPromotion = $this->getBestActiveProductPromotion();
         
         if (!$bestPromotion) {
             return 0;
         }
 
-        return $bestPromotion->getDiscountAmount($price, $quantity);
+        return $bestPromotion->getDiscountAmount($this->price, $quantity);
     }
 
     /**
-     * Method untuk mendapatkan harga final dengan semua diskon
-     */
-    public function getFinalPriceAfterAllDiscounts($quantity = 1)
-    {
-        $productDiscount = $this->discount_amount * $quantity;
-        $promotionDiscount = $this->getMaxPromotionDiscount($quantity);
-        
-        return max(0, ($this->price * $quantity) - $productDiscount - $promotionDiscount);
-    }
-
-    /**
-     * Method untuk mengecek apakah produk memiliki promo aktif
-     */
-    public function hasActivePromotion()
-    {
-        return $this->has_active_product_promotion;
-    }
-
-    /**
-     * Method untuk mendapatkan ringkasan semua promosi
+     * Ringkasan semua promosi
      */
     public function getPromotionsSummary()
     {
@@ -661,10 +774,17 @@ class Product extends Model
                 'value' => $bestPromotion->value,
                 'formatted_value' => $bestPromotion->formatted_value,
                 'discount_amount' => $bestPromotion->getDiscountAmount($this->price, 1),
+                'discount_percent' => $bestPromotion->type === 'percentage' ? $bestPromotion->value : ($bestPromotion->value / $this->price) * 100,
                 'valid_until' => $bestPromotion->valid_until->format('d M Y H:i'),
-                'remaining_days' => $bestPromotion->remaining_days
+                'remaining_days' => $bestPromotion->remaining_days,
+                'is_active' => $bestPromotion->is_active,
+                'is_valid' => $bestPromotion->is_valid
             ] : null,
             'product_promotions' => $productPromotions,
+            'discount_calculation_type' => $this->discount_calculation_type,
+            'base_discount_percent' => $this->base_discount_percent,
+            'calculated_discount_percent' => $this->calculated_discount_percent,
+            'discount_override_percent' => $this->discount_override_percent,
             'total_discount_amount' => $this->total_discount_amount,
             'final_price_with_promotions' => $this->final_price_with_product_promotion,
             'best_discount_info' => $this->best_discount_info
@@ -672,14 +792,14 @@ class Product extends Model
     }
 
     /**
-     * Method untuk menggunakan promo (increment used_count)
+     * Gunakan promo (increment used_count)
      */
     public function usePromotion($promotionId, $quantity = 1)
     {
         $promotion = $this->productPromotions()
-                         ->where('id', $promotionId)
-                         ->where('is_active', true)
-                         ->first();
+            ->where('id', $promotionId)
+            ->where('is_active', true)
+            ->first();
         
         if (!$promotion) {
             return false;
@@ -694,66 +814,87 @@ class Product extends Model
         
         return true;
     }
+    // Di model Product (app/Models/Product.php), tambahkan method berikut:
 
-    /**
-     * Method untuk mengecek apakah promo bisa digunakan
-     */
-    public function canUsePromotion($promotionId, $quantity = 1, $totalPrice = null)
-    {
-        $promotion = $this->productPromotions()
-                         ->where('id', $promotionId)
-                         ->first();
-        
-        if (!$promotion) {
-            return false;
+// ============ METHODS UNTUK IMAGES ============
+
+/**
+ * Hitung total gambar produk
+ */
+public function getTotalImagesCount()
+{
+    $count = 0;
+    
+    // Hitung gambar dari field individual
+    $individualFields = ['image', 'main_image', 'thumbnail', 'image_2', 'image_3', 'image_4', 'image_5'];
+    foreach ($individualFields as $field) {
+        if (!empty($this->$field)) {
+            $count++;
         }
-
-        $totalPrice = $totalPrice ?? ($this->price * $quantity);
-        
-        return $promotion->canBeUsed($this->price, $quantity);
     }
+    
+    // Hitung gambar dari array fields
+    if ($this->additional_images && is_array($this->additional_images)) {
+        $count += count(array_filter($this->additional_images));
+    }
+    
+    if ($this->gallery_images && is_array($this->gallery_images)) {
+        $count += count(array_filter($this->gallery_images));
+    }
+    
+    return $count;
+}
 
-    /**
-     * Method untuk mendapatkan semua tipe diskon yang tersedia
-     */
-    public function getAllAvailableDiscounts()
-    {
-        $discounts = [];
-
-        // Diskont produk
-        if ($this->discount_percent > 0) {
-            $discounts[] = [
-                'type' => 'product_discount',
-                'name' => 'Diskon Produk',
-                'discount_amount' => $this->discount_amount,
-                'discount_percent' => $this->discount_percent,
-                'priority' => 0
+/**
+ * Get all image paths
+ */
+public function getAllImagePaths()
+{
+    $paths = [];
+    
+    // Field individual
+    $individualFields = [
+        'image' => 'image',
+        'main_image' => 'main_image',
+        'thumbnail' => 'thumbnail',
+        'image_2' => 'image_2',
+        'image_3' => 'image_3',
+        'image_4' => 'image_4',
+        'image_5' => 'image_5'
+    ];
+    
+    foreach ($individualFields as $field => $type) {
+        if (!empty($this->$field)) {
+            $paths[] = [
+                'path' => $this->$field,
+                'type' => $type,
+                'url' => $this->getImageUrl($this->$field)
             ];
         }
-
-        // Promosi dari product_promotions
-        $productPromotions = $this->activePromotions()->get();
-        foreach ($productPromotions as $promotion) {
-            $discountAmount = $promotion->getDiscountAmount($this->price, 1);
-            $discounts[] = [
-                'type' => 'product_promotion',
-                'id' => $promotion->id,
-                'name' => $promotion->name,
-                'discount_amount' => $discountAmount,
-                'discount_percent' => $promotion->type === 'percentage' ? $promotion->value : 0,
-                'promotion' => $promotion,
-                'priority' => $promotion->priority
+    }
+    
+    // Additional images
+    if ($this->additional_images && is_array($this->additional_images)) {
+        foreach (array_filter($this->additional_images) as $path) {
+            $paths[] = [
+                'path' => $path,
+                'type' => 'additional',
+                'url' => $this->getImageUrl($path)
             ];
         }
-
-        // Urutkan berdasarkan priority dan jumlah diskon
-        usort($discounts, function($a, $b) {
-            if ($a['priority'] != $b['priority']) {
-                return $b['priority'] <=> $a['priority'];
-            }
-            return $b['discount_amount'] <=> $a['discount_amount'];
-        });
-
-        return $discounts;
     }
+    
+    // Gallery images
+    if ($this->gallery_images && is_array($this->gallery_images)) {
+        foreach (array_filter($this->gallery_images) as $path) {
+            $paths[] = [
+                'path' => $path,
+                'type' => 'gallery',
+                'url' => $this->getImageUrl($path)
+            ];
+        }
+    }
+    
+    return $paths;
+}
 }

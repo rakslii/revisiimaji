@@ -5,17 +5,37 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PromoCode;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class PromoCodeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check()) {
+                return redirect()->route('admin.login')
+                    ->with('error', 'Please login first.');
+            }
+            
+            if (auth()->user()->role !== 'admin') {
+                auth()->logout();
+                return redirect()->route('admin.login')
+                    ->with('error', 'Admin access only.');
+            }
+            
+            return $next($request);
+        });
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = PromoCode::with('products')->latest();
+        $query = PromoCode::query()->withCount('specificProducts')->latest();
         
         // Search filter
         if ($request->has('search') && $request->search) {
@@ -32,10 +52,16 @@ class PromoCodeController extends Controller
                     $query->where('is_active', true)
                           ->where('valid_from', '<=', now())
                           ->where('valid_until', '>=', now())
-                          ->whereRaw('used_count < quota');
+                          ->where(function($q) {
+                              $q->whereNull('quota')
+                                ->orWhereRaw('used_count < quota');
+                          });
                     break;
                 case 'expired':
                     $query->where('valid_until', '<', now());
+                    break;
+                case 'upcoming':
+                    $query->where('valid_from', '>', now());
                     break;
                 case 'inactive':
                     $query->where('is_active', false);
@@ -46,9 +72,28 @@ class PromoCodeController extends Controller
             }
         }
         
-        $promoCodes = $query->paginate(10);
+        // Assignment type filter
+        if ($request->has('assignment_type') && $request->assignment_type) {
+            $query->where('product_assignment_type', $request->assignment_type);
+        }
         
-        return view('pages.admin.promos.index', compact('promoCodes'));
+        $promoCodes = $query->paginate(20);
+        
+        // Statistics
+        $stats = [
+            'total' => PromoCode::count(),
+            'active' => PromoCode::where('is_active', true)
+                        ->where('valid_from', '<=', now())
+                        ->where('valid_until', '>=', now())
+                        ->where(function($q) {
+                            $q->whereNull('quota')
+                              ->orWhereRaw('used_count < quota');
+                        })->count(),
+            'expired' => PromoCode::where('valid_until', '<', now())->count(),
+            'upcoming' => PromoCode::where('valid_from', '>', now())->count(),
+        ];
+        
+        return view('pages.admin.promos.index', compact('promoCodes', 'stats'));
     }
 
     /**
@@ -56,8 +101,14 @@ class PromoCodeController extends Controller
      */
     public function create()
     {
-        $products = Product::active()->get();
-        return view('pages.admin.promos.create', compact('products'));
+        // PERBAIKAN 1: Gunakan scope dengan benar
+        $products = Product::where('is_active', true)->with('category')->get();
+        
+        $categories = ProductCategory::withCount(['products' => function($query) {
+            $query->where('is_active', true);
+        }])->get();
+        
+        return view('pages.admin.promos.create', compact('products', 'categories'));
     }
 
     /**
@@ -65,24 +116,7 @@ class PromoCodeController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'code' => 'nullable|string|unique:promo_codes,code|max:50',
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:percentage,nominal',
-            'value' => 'required|numeric|min:0',
-            'quota' => 'required|integer|min:1',
-            'min_purchase' => 'nullable|numeric|min:0',
-            'valid_from' => 'required|date',
-            'valid_until' => 'required|date|after:valid_from',
-            'is_active' => 'boolean',
-            'is_for_all_products' => 'boolean',
-            'product_scope' => 'nullable|array',
-            'product_ids' => 'nullable|array',
-            'product_ids.*' => 'exists:products,id',
-            'product_discount_type' => 'nullable|in:percentage,nominal',
-            'product_discount_value' => 'nullable|numeric|min:0',
-            'max_usage_per_product' => 'nullable|integer|min:1',
-        ]);
+        $validated = $this->validatePromoCode($request);
 
         // Generate code if not provided
         if (empty($validated['code'])) {
@@ -93,28 +127,98 @@ class PromoCodeController extends Controller
         }
 
         $validated['is_active'] = $request->has('is_active');
-        $validated['is_for_all_products'] = $request->has('is_for_all_products');
+        $validated['is_exclusive'] = $request->has('is_exclusive');
         $validated['used_count'] = 0;
 
-        // Create promo code
-        $promoCode = PromoCode::create($validated);
-
-        // Sync products jika tidak untuk semua produk
-        if (!$promoCode->is_for_all_products && $request->has('product_ids')) {
-            $productData = [];
-            foreach ($request->product_ids as $productId) {
-                $productData[$productId] = [
-                    'discount_amount' => $request->product_discount_value ?? null,
-                    'discount_type' => $request->product_discount_type ?? null,
-                    'max_usage_per_product' => $request->max_usage_per_product ?? null,
-                ];
-            }
-            
-            $promoCode->products()->sync($productData);
+        // Handle category_ids
+        if ($request->filled('category_ids')) {
+            $validated['category_ids'] = $request->category_ids;
         }
 
-        return redirect()->route('admin.promos.index')
-            ->with('success', 'Promo code created successfully.');
+        DB::beginTransaction();
+        try {
+            // Create promo code
+            $promoCode = PromoCode::create($validated);
+
+            // Handle specific products if selected
+            if ($validated['product_assignment_type'] === 'specific_products' && $request->has('specific_product_ids')) {
+                $this->syncSpecificProducts($promoCode, $request);
+            }
+
+            DB::commit();
+            
+            return redirect()->route('admin.promos.show', $promoCode->id)
+                ->with('success', 'Promo code created successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()
+                ->with('error', 'Failed to create promo code: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Validate promo code data
+     */
+    private function validatePromoCode(Request $request)
+    {
+        $rules = [
+            'code' => 'nullable|string|unique:promo_codes,code|max:50',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:percentage,nominal',
+            'value' => 'required|numeric|min:0',
+            'max_discount' => 'nullable|numeric|min:0',
+            'quota' => 'required|integer|min:1',
+            'usage_limit_per_user' => 'nullable|integer|min:1',
+            'min_purchase' => 'nullable|numeric|min:0',
+            'valid_from' => 'required|date',
+            'valid_until' => 'required|date|after:valid_from',
+            'is_active' => 'boolean',
+            'is_exclusive' => 'boolean',
+            'priority' => 'integer|min:0|max:10',
+            'product_assignment_type' => 'required|in:all,specific_products,category_based,price_range,stock_based',
+            'product_discount_type' => 'nullable|in:same_as_promo,custom',
+            'stock_filter' => 'nullable|in:any,in_stock,low_stock,out_of_stock',
+        ];
+
+        // Conditional rules based on assignment type
+        switch ($request->product_assignment_type) {
+            case 'specific_products':
+                $rules['specific_product_ids'] = 'required|array|min:1';
+                $rules['specific_product_ids.*'] = 'exists:products,id';
+                break;
+            case 'category_based':
+                $rules['category_ids'] = 'required|array|min:1';
+                $rules['category_ids.*'] = 'exists:product_categories,id';
+                break;
+            case 'price_range':
+                $rules['min_product_price'] = 'nullable|numeric|min:0';
+                $rules['max_product_price'] = 'nullable|numeric|min:0';
+                break;
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Sync specific products with custom discounts
+     */
+    private function syncSpecificProducts(PromoCode $promoCode, Request $request)
+    {
+        $productData = [];
+        $discountType = $request->product_discount_type === 'custom' ? null : $promoCode->type;
+        $discountValue = $request->product_discount_type === 'custom' ? null : $promoCode->value;
+
+        foreach ($request->specific_product_ids as $productId) {
+            $productData[$productId] = [
+                'discount_type' => $discountType,
+                'discount_value' => $discountValue,
+                'max_usage' => null,
+                'used_count' => 0,
+            ];
+        }
+
+        $promoCode->specificProducts()->sync($productData);
     }
 
     /**
@@ -122,11 +226,48 @@ class PromoCodeController extends Controller
      */
     public function show($id)
     {
-        $promoCode = PromoCode::with(['products' => function($query) {
+        $promoCode = PromoCode::with(['specificProducts' => function($query) {
             $query->with('category');
         }])->findOrFail($id);
         
-        return view('pages.admin.promos.show', compact('promoCode'));
+        // Get eligible products based on assignment type
+        $eligibleProducts = $promoCode->getEligibleProducts();
+        
+        $summary = [
+            'promo' => [
+                'id' => $promoCode->id,
+                'code' => $promoCode->code,
+                'name' => $promoCode->name,
+                'type' => $promoCode->type,
+                'value' => $promoCode->value,
+                'formatted_value' => $promoCode->formatted_value,
+                'max_discount' => $promoCode->max_discount,
+                'min_purchase' => $promoCode->min_purchase,
+                'status' => $promoCode->status,
+                'is_valid' => $promoCode->is_valid,
+                'is_exclusive' => $promoCode->is_exclusive,
+                'priority' => $promoCode->priority,
+            ],
+            'validity' => [
+                'valid_from' => $promoCode->valid_from->format('d M Y H:i'),
+                'valid_until' => $promoCode->valid_until->format('d M Y H:i'),
+                'remaining_days' => $promoCode->remaining_days,
+            ],
+            'usage' => [
+                'used' => $promoCode->used_count,
+                'quota' => $promoCode->quota,
+                'remaining' => $promoCode->remaining_uses,
+                'limit_per_user' => $promoCode->usage_limit_per_user,
+            ],
+            'product_assignment' => [
+                'type' => $promoCode->product_assignment_type,
+                'summary' => $promoCode->product_assignment_summary,
+                'eligible_count' => $eligibleProducts->count(),
+                'eligible_products' => $eligibleProducts->take(10),
+            ],
+        ];
+        
+        return view('pages.admin.promos.show', compact('promoCode', 'summary'));
     }
 
     /**
@@ -134,10 +275,12 @@ class PromoCodeController extends Controller
      */
     public function edit($id)
     {
-        $promoCode = PromoCode::with('products')->findOrFail($id);
-        $products = Product::active()->get();
+        $promoCode = PromoCode::with('specificProducts')->findOrFail($id);
+        // PERBAIKAN 2: Gunakan where condition langsung
+        $products = Product::where('is_active', true)->with('category')->get();
+        $categories = ProductCategory::withCount('products')->get();
         
-        return view('pages.admin.promos.edit', compact('promoCode', 'products'));
+        return view('pages.admin.promos.edit', compact('promoCode', 'products', 'categories'));
     }
 
     /**
@@ -147,50 +290,89 @@ class PromoCodeController extends Controller
     {
         $promoCode = PromoCode::findOrFail($id);
 
-        $validated = $request->validate([
-            'code' => 'required|string|unique:promo_codes,code,' . $id . '|max:50',
+        $validated = $this->validatePromoCodeForUpdate($request, $promoCode);
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['is_exclusive'] = $request->has('is_exclusive');
+
+        // Handle category_ids
+        if ($request->filled('category_ids')) {
+            $validated['category_ids'] = $request->category_ids;
+        } else {
+            $validated['category_ids'] = null;
+        }
+
+        DB::beginTransaction();
+        try {
+            // Update promo code
+            $promoCode->update($validated);
+
+            // Handle specific products
+            if ($validated['product_assignment_type'] === 'specific_products' && $request->has('specific_product_ids')) {
+                $this->syncSpecificProducts($promoCode, $request);
+            } else {
+                // Clear specific products if not in this mode
+                $promoCode->specificProducts()->detach();
+            }
+
+            DB::commit();
+            
+            return redirect()->route('admin.promos.show', $promoCode->id)
+                ->with('success', 'Promo code updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()
+                ->with('error', 'Failed to update promo code: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Validate promo code data for update
+     */
+    private function validatePromoCodeForUpdate(Request $request, PromoCode $promoCode)
+    {
+        $rules = [
+            'code' => 'required|string|unique:promo_codes,code,' . $promoCode->id . '|max:50',
             'name' => 'required|string|max:255',
             'type' => 'required|in:percentage,nominal',
             'value' => 'required|numeric|min:0',
+            'max_discount' => 'nullable|numeric|min:0',
             'quota' => 'required|integer|min:' . $promoCode->used_count,
+            'usage_limit_per_user' => 'nullable|integer|min:1',
             'min_purchase' => 'nullable|numeric|min:0',
             'valid_from' => 'required|date',
             'valid_until' => 'required|date|after:valid_from',
             'is_active' => 'boolean',
-            'is_for_all_products' => 'boolean',
-            'product_scope' => 'nullable|array',
-            'product_ids' => 'nullable|array',
-            'product_ids.*' => 'exists:products,id',
-            'product_discount_type' => 'nullable|in:percentage,nominal',
-            'product_discount_value' => 'nullable|numeric|min:0',
-            'max_usage_per_product' => 'nullable|integer|min:1',
-        ]);
+            'is_exclusive' => 'boolean',
+            'priority' => 'integer|min:0|max:10',
+            'product_assignment_type' => 'required|in:all,specific_products,category_based,price_range,stock_based',
+            'product_discount_type' => 'nullable|in:same_as_promo,custom',
+            'stock_filter' => 'nullable|in:any,in_stock,low_stock,out_of_stock',
+        ];
 
-        $validated['is_active'] = $request->has('is_active');
-        $validated['is_for_all_products'] = $request->has('is_for_all_products');
-
-        // Update promo code
-        $promoCode->update($validated);
-
-        // Sync products jika tidak untuk semua produk
-        if (!$promoCode->is_for_all_products && $request->has('product_ids')) {
-            $productData = [];
-            foreach ($request->product_ids as $productId) {
-                $productData[$productId] = [
-                    'discount_amount' => $request->product_discount_value ?? null,
-                    'discount_type' => $request->product_discount_type ?? null,
-                    'max_usage_per_product' => $request->max_usage_per_product ?? null,
-                ];
-            }
-            
-            $promoCode->products()->sync($productData);
-        } elseif ($promoCode->is_for_all_products) {
-            // Jika untuk semua produk, hapus semua relasi produk
-            $promoCode->products()->detach();
+        // Conditional rules
+        switch ($request->product_assignment_type) {
+            case 'specific_products':
+                $rules['specific_product_ids'] = 'required|array|min:1';
+                $rules['specific_product_ids.*'] = 'exists:products,id';
+                break;
+            case 'category_based':
+                $rules['category_ids'] = 'required|array|min:1';
+                $rules['category_ids.*'] = 'exists:product_categories,id';
+                break;
+            case 'price_range':
+                $rules['min_product_price'] = 'nullable|numeric|min:0';
+                $rules['max_product_price'] = 'nullable|numeric|min:0';
+                
+                // Validate price range
+                if ($request->min_product_price && $request->max_product_price) {
+                    $rules['max_product_price'] .= '|gte:min_product_price';
+                }
+                break;
         }
 
-        return redirect()->route('admin.promos.index')
-            ->with('success', 'Promo code updated successfully.');
+        return $request->validate($rules);
     }
 
     /**
@@ -200,14 +382,24 @@ class PromoCodeController extends Controller
     {
         $promoCode = PromoCode::findOrFail($id);
         
-        // Detach all products first
-        $promoCode->products()->detach();
-        
-        // Then delete promo
-        $promoCode->delete();
-
-        return redirect()->route('admin.promos.index')
-            ->with('success', 'Promo code deleted successfully.');
+        DB::beginTransaction();
+        try {
+            // Detach specific products
+            $promoCode->specificProducts()->detach();
+            
+            // Delete promo code
+            $promoCode->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('admin.promos.index')
+                ->with('success', 'Promo code deleted successfully.');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.promos.index')
+                ->with('error', 'Failed to delete promo code: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -222,92 +414,65 @@ class PromoCodeController extends Controller
     }
 
     /**
-     * Show form to add/remove products from promo
+     * Get eligible products preview (AJAX)
      */
-    public function manageProducts($id)
+    public function getEligibleProductsPreview(Request $request)
     {
-        $promoCode = PromoCode::with('products')->findOrFail($id);
-        $products = Product::active()->get();
-        
-        return view('pages.admin.promos.manage-products', compact('promoCode', 'products'));
-    }
-
-    /**
-     * Update products for promo
-     */
-    public function updateProducts(Request $request, $id)
-    {
-        $promoCode = PromoCode::findOrFail($id);
-        
         $request->validate([
-            'product_ids' => 'nullable|array',
-            'product_ids.*' => 'exists:products,id',
-            'discount_type' => 'nullable|in:percentage,nominal',
-            'discount_value' => 'nullable|numeric|min:0',
-            'max_usage_per_product' => 'nullable|integer|min:1',
+            'assignment_type' => 'required|in:all,specific_products,category_based,price_range,stock_based',
+            'category_ids' => 'nullable|array',
+            'min_product_price' => 'nullable|numeric',
+            'max_product_price' => 'nullable|numeric',
+            'stock_filter' => 'nullable|in:any,in_stock,low_stock,out_of_stock',
         ]);
-        
-        $productData = [];
-        if ($request->has('product_ids')) {
-            foreach ($request->product_ids as $productId) {
-                $productData[$productId] = [
-                    'discount_amount' => $request->discount_value ?? null,
-                    'discount_type' => $request->discount_type ?? null,
-                    'max_usage_per_product' => $request->max_usage_per_product ?? null,
-                ];
-            }
+
+        // PERBAIKAN 3: Gunakan where condition
+        $query = Product::query()->where('is_active', true)->with('category');
+
+        switch ($request->assignment_type) {
+            case 'category_based':
+                if ($request->filled('category_ids')) {
+                    $query->whereIn('category_id', $request->category_ids);
+                }
+                break;
+            case 'price_range':
+                if ($request->filled('min_product_price')) {
+                    $query->where('price', '>=', $request->min_product_price);
+                }
+                if ($request->filled('max_product_price')) {
+                    $query->where('price', '<=', $request->max_product_price);
+                }
+                break;
+            case 'stock_based':
+                switch ($request->stock_filter) {
+                    case 'in_stock':
+                        $query->where('stock', '>', 0);
+                        break;
+                    case 'low_stock':
+                        $query->where('stock', '>', 0)->where('stock', '<=', 10);
+                        break;
+                    case 'out_of_stock':
+                        $query->where('stock', '<=', 0);
+                        break;
+                }
+                break;
         }
-        
-        $promoCode->products()->sync($productData);
-        
-        return redirect()->route('admin.promos.edit', $promoCode->id)
-            ->with('success', 'Products updated successfully.');
-    }
 
-    /**
-     * Remove product from promo
-     */
-    public function removeProduct(Request $request, $id)
-    {
-        $promoCode = PromoCode::findOrFail($id);
-        
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-        ]);
-        
-        $promoCode->products()->detach($request->product_id);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Product removed from promo'
-        ]);
-    }
+        $count = $query->count();
+        $products = $query->take(5)->get();
 
-    /**
-     * Add product to promo
-     */
-    public function addProduct(Request $request, $id)
-    {
-        $promoCode = PromoCode::findOrFail($id);
-        
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'discount_type' => 'nullable|in:percentage,nominal',
-            'discount_value' => 'nullable|numeric|min:0',
-            'max_usage_per_product' => 'nullable|integer|min:1',
-        ]);
-        
-        $promoCode->products()->syncWithoutDetaching([
-            $request->product_id => [
-                'discount_amount' => $request->discount_value ?? null,
-                'discount_type' => $request->discount_type ?? null,
-                'max_usage_per_product' => $request->max_usage_per_product ?? null,
-            ]
-        ]);
-        
         return response()->json([
-            'success' => true,
-            'message' => 'Product added to promo'
+            'count' => $count,
+            'products' => $products->map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => 'Rp ' . number_format($product->price, 0, ',', '.'),
+                    'stock' => $product->stock,
+                    'category' => $product->category_name,
+                ];
+            }),
+            'message' => "Found {$count} eligible products"
         ]);
     }
 }

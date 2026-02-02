@@ -49,6 +49,7 @@ class ProductPromotion extends Model
     ];
 
     // ============ RELATIONSHIPS ============
+    
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -60,15 +61,16 @@ class ProductPromotion extends Model
     }
 
     // ============ SCOPES ============
+    
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-                     ->where('valid_from', '<=', now())
-                     ->where('valid_until', '>=', now())
-                     ->where(function($q) {
-                         $q->whereNull('quota')
-                           ->orWhereRaw('used_count < quota');
-                     });
+            ->where('valid_from', '<=', now())
+            ->where('valid_until', '>=', now())
+            ->where(function($q) {
+                $q->whereNull('quota')
+                    ->orWhereRaw('used_count < quota');
+            });
     }
 
     public function scopeExpired($query)
@@ -108,6 +110,7 @@ class ProductPromotion extends Model
     }
 
     // ============ ACCESSORS ============
+    
     public function getFormattedValueAttribute()
     {
         if ($this->type === 'percentage') {
@@ -142,9 +145,9 @@ class ProductPromotion extends Model
     public function getIsValidAttribute()
     {
         return $this->is_active &&
-               $this->valid_from <= now() &&
-               $this->valid_until >= now() &&
-               (!$this->quota || $this->used_count < $this->quota);
+            $this->valid_from <= now() &&
+            $this->valid_until >= now() &&
+            (!$this->quota || $this->used_count < $this->quota);
     }
 
     public function getRemainingDaysAttribute()
@@ -166,6 +169,7 @@ class ProductPromotion extends Model
     }
 
     // ============ METHODS ============
+    
     public function getDiscountAmount($price, $quantity = 1)
     {
         if (!$this->is_valid) {
@@ -209,8 +213,8 @@ class ProductPromotion extends Model
     public function canBeUsed($price, $quantity = 1)
     {
         return $this->is_valid &&
-               (!$this->min_quantity || $quantity >= $this->min_quantity) &&
-               (!$this->min_purchase || ($price * $quantity) >= $this->min_purchase);
+            (!$this->min_quantity || $quantity >= $this->min_quantity) &&
+            (!$this->min_purchase || ($price * $quantity) >= $this->min_purchase);
     }
 
     public function isActive()
@@ -226,5 +230,42 @@ class ProductPromotion extends Model
     public function isUpcoming()
     {
         return $this->valid_from > now();
+    }
+
+    /**
+     * Hitung persentase diskon berdasarkan harga produk
+     */
+    public function calculateDiscountPercent($productPrice)
+    {
+        if ($this->type === 'percentage') {
+            return $this->value;
+        }
+        
+        return ($this->value / $productPrice) * 100;
+    }
+
+    /**
+     * Update product's discount when promotion changes
+     */
+    public function updateProductDiscount()
+    {
+        if ($this->product && $this->product->discount_calculation_type === 'auto') {
+            $this->product->refreshCalculatedDiscount();
+        }
+    }
+
+    // ============ BOOT METHOD ============
+    
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($promotion) {
+            $promotion->updateProductDiscount();
+        });
+
+        static::deleted(function ($promotion) {
+            $promotion->updateProductDiscount();
+        });
     }
 }

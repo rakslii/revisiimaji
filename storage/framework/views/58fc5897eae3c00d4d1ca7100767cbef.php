@@ -1,16 +1,15 @@
-@extends('pages.admin.layouts.app')
 
-@section('title', 'Products Management')
 
-@section('content')
+<?php $__env->startSection('title', 'Products Management'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
-            {{-- <h1 class="text-2xl font-bold text-gray-800">Products Management</h1>
-            <p class="text-gray-600 mt-1">Total {{ $products->total() }} products</p> --}}
+            
         </div>
-        <a href="{{ route('admin.products.create') }}" 
+        <a href="<?php echo e(route('admin.products.create')); ?>" 
            class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             <i class="fas fa-plus"></i> Add New Product
         </a>
@@ -22,7 +21,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Total Products</p>
-                    <p class="text-2xl font-bold text-gray-800">{{ $products->total() }}</p>
+                    <p class="text-2xl font-bold text-gray-800"><?php echo e($products->total()); ?></p>
                 </div>
                 <div class="bg-blue-100 p-3 rounded-full">
                     <i class="fas fa-box text-blue-600"></i>
@@ -35,7 +34,8 @@
                 <div>
                     <p class="text-sm text-gray-500">Active Products</p>
                     <p class="text-2xl font-bold text-green-600">
-                        {{ App\Models\Product::active()->count() }}
+                        <?php echo e(App\Models\Product::active()->count()); ?>
+
                     </p>
                 </div>
                 <div class="bg-green-100 p-3 rounded-full">
@@ -49,7 +49,8 @@
                 <div>
                     <p class="text-sm text-gray-500">Instan Products</p>
                     <p class="text-2xl font-bold text-purple-600">
-                        {{ App\Models\Product::where('category', 'instan')->count() }}
+                        <?php echo e(App\Models\Product::where('category', 'instan')->count()); ?>
+
                     </p>
                 </div>
                 <div class="bg-purple-100 p-3 rounded-full">
@@ -63,7 +64,8 @@
                 <div>
                     <p class="text-sm text-gray-500">Non-Instan Products</p>
                     <p class="text-2xl font-bold text-orange-600">
-                        {{ App\Models\Product::where('category', 'non-instan')->count() }}
+                        <?php echo e(App\Models\Product::where('category', 'non-instan')->count()); ?>
+
                     </p>
                 </div>
                 <div class="bg-orange-100 p-3 rounded-full">
@@ -77,15 +79,15 @@
     <div class="bg-white rounded-lg shadow p-4">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-medium text-gray-900">Filters</h3>
-            @if(request()->anyFilled(['search', 'category_type', 'status', 'stock_filter', 'min_price', 'max_price']))
-            <a href="{{ route('admin.products.index') }}" 
+            <?php if(request()->anyFilled(['search', 'category_type', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
+            <a href="<?php echo e(route('admin.products.index')); ?>" 
                class="text-sm text-red-600 hover:text-red-800">
                 <i class="fas fa-times mr-1"></i> Clear All Filters
             </a>
-            @endif
+            <?php endif; ?>
         </div>
         
-        <form method="GET" action="{{ route('admin.products.index') }}" class="space-y-4">
+        <form method="GET" action="<?php echo e(route('admin.products.index')); ?>" class="space-y-4">
             <!-- Search Bar -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Search Products</label>
@@ -94,7 +96,7 @@
                            name="search" 
                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                            placeholder="Search by name, description..."
-                           value="{{ request('search') }}">
+                           value="<?php echo e(request('search')); ?>">
                     <button type="submit" 
                             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                         <i class="fas fa-search"></i>
@@ -109,10 +111,10 @@
                     <select name="category_type" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Types</option>
-                        <option value="instan" {{ request('category_type') == 'instan' ? 'selected' : '' }}>
+                        <option value="instan" <?php echo e(request('category_type') == 'instan' ? 'selected' : ''); ?>>
                             Instan
                         </option>
-                        <option value="non-instan" {{ request('category_type') == 'non-instan' ? 'selected' : '' }}>
+                        <option value="non-instan" <?php echo e(request('category_type') == 'non-instan' ? 'selected' : ''); ?>>
                             Non-Instan
                         </option>
                     </select>
@@ -124,8 +126,8 @@
                     <select name="status" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Status</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="active" <?php echo e(request('status') == 'active' ? 'selected' : ''); ?>>Active</option>
+                        <option value="inactive" <?php echo e(request('status') == 'inactive' ? 'selected' : ''); ?>>Inactive</option>
                     </select>
                 </div>
 
@@ -135,11 +137,11 @@
                     <select name="stock_filter" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">All Stock</option>
-                        <option value="out_of_stock" {{ request('stock_filter') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                        <option value="low_stock" {{ request('stock_filter') == 'low_stock' ? 'selected' : '' }}>Low Stock (< 10)</option>
-                        <option value="in_stock" {{ request('stock_filter') == 'in_stock' ? 'selected' : '' }}>In Stock</option>
-                        <option value="high_stock" {{ request('stock_filter') == 'high_stock' ? 'selected' : '' }}>High Stock (10+)</option>
-                        <option value="custom" {{ request('stock_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                        <option value="out_of_stock" <?php echo e(request('stock_filter') == 'out_of_stock' ? 'selected' : ''); ?>>Out of Stock</option>
+                        <option value="low_stock" <?php echo e(request('stock_filter') == 'low_stock' ? 'selected' : ''); ?>>Low Stock (< 10)</option>
+                        <option value="in_stock" <?php echo e(request('stock_filter') == 'in_stock' ? 'selected' : ''); ?>>In Stock</option>
+                        <option value="high_stock" <?php echo e(request('stock_filter') == 'high_stock' ? 'selected' : ''); ?>>High Stock (10+)</option>
+                        <option value="custom" <?php echo e(request('stock_filter') == 'custom' ? 'selected' : ''); ?>>Custom Range</option>
                     </select>
                 </div>
 
@@ -148,28 +150,28 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
                     <select name="sort_by" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Newest First</option>
-                        <option value="oldest" {{ request('sort_by') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
-                        <option value="price_high" {{ request('sort_by') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                        <option value="price_low" {{ request('sort_by') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="stock_high" {{ request('sort_by') == 'stock_high' ? 'selected' : '' }}>Stock: High to Low</option>
-                        <option value="stock_low" {{ request('sort_by') == 'stock_low' ? 'selected' : '' }}>Stock: Low to High</option>
-                        <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>Name: A-Z</option>
-                        <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Name: Z-A</option>
+                        <option value="newest" <?php echo e(request('sort_by') == 'newest' ? 'selected' : ''); ?>>Newest First</option>
+                        <option value="oldest" <?php echo e(request('sort_by') == 'oldest' ? 'selected' : ''); ?>>Oldest First</option>
+                        <option value="price_high" <?php echo e(request('sort_by') == 'price_high' ? 'selected' : ''); ?>>Price: High to Low</option>
+                        <option value="price_low" <?php echo e(request('sort_by') == 'price_low' ? 'selected' : ''); ?>>Price: Low to High</option>
+                        <option value="stock_high" <?php echo e(request('sort_by') == 'stock_high' ? 'selected' : ''); ?>>Stock: High to Low</option>
+                        <option value="stock_low" <?php echo e(request('sort_by') == 'stock_low' ? 'selected' : ''); ?>>Stock: Low to High</option>
+                        <option value="name_asc" <?php echo e(request('sort_by') == 'name_asc' ? 'selected' : ''); ?>>Name: A-Z</option>
+                        <option value="name_desc" <?php echo e(request('sort_by') == 'name_desc' ? 'selected' : ''); ?>>Name: Z-A</option>
                     </select>
                 </div>
             </div>
 
             <!-- Custom Stock Range (Visible when custom is selected) -->
             <div id="customStockRange" class="grid grid-cols-1 md:grid-cols-2 gap-4" 
-                 style="{{ request('stock_filter') == 'custom' ? '' : 'display: none;' }}">
+                 style="<?php echo e(request('stock_filter') == 'custom' ? '' : 'display: none;'); ?>">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Min Stock</label>
                     <input type="number" 
                            name="min_stock" 
                            min="0"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           value="{{ request('min_stock') }}">
+                           value="<?php echo e(request('min_stock')); ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Max Stock</label>
@@ -177,7 +179,7 @@
                            name="max_stock" 
                            min="0"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           value="{{ request('max_stock') }}">
+                           value="<?php echo e(request('max_stock')); ?>">
                 </div>
             </div>
 
@@ -192,7 +194,7 @@
                                min="0"
                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="Min price"
-                               value="{{ request('min_price') }}">
+                               value="<?php echo e(request('min_price')); ?>">
                     </div>
                 </div>
                 <div>
@@ -204,67 +206,72 @@
                                min="0"
                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                placeholder="Max price"
-                               value="{{ request('max_price') }}">
+                               value="<?php echo e(request('max_price')); ?>">
                     </div>
                 </div>
             </div>
 
             <!-- Active Filters Badges -->
-            @if(request()->anyFilled(['category_type', 'status', 'stock_filter', 'min_price', 'max_price']))
+            <?php if(request()->anyFilled(['category_type', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
             <div class="border-t pt-4">
                 <p class="text-sm font-medium text-gray-700 mb-2">Active Filters:</p>
                 <div class="flex flex-wrap gap-2">
-                    @if(request('category_type'))
+                    <?php if(request('category_type')): ?>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
-                        {{ request('category_type') == 'instan' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
-                        Type: {{ ucfirst(request('category_type')) }}
-                        <a href="{{ request()->fullUrlWithQuery(['category_type' => null]) }}" 
+                        <?php echo e(request('category_type') == 'instan' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'); ?>">
+                        Type: <?php echo e(ucfirst(request('category_type'))); ?>
+
+                        <a href="<?php echo e(request()->fullUrlWithQuery(['category_type' => null])); ?>" 
                            class="ml-1 hover:text-opacity-75">
                             <i class="fas fa-times"></i>
                         </a>
                     </span>
-                    @endif
+                    <?php endif; ?>
                     
-                    @if(request('status'))
+                    <?php if(request('status')): ?>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
-                        {{ request('status') == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                        Status: {{ ucfirst(request('status')) }}
-                        <a href="{{ request()->fullUrlWithQuery(['status' => null]) }}" 
+                        <?php echo e(request('status') == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                        Status: <?php echo e(ucfirst(request('status'))); ?>
+
+                        <a href="<?php echo e(request()->fullUrlWithQuery(['status' => null])); ?>" 
                            class="ml-1 hover:text-opacity-75">
                             <i class="fas fa-times"></i>
                         </a>
                     </span>
-                    @endif
+                    <?php endif; ?>
                     
-                    @if(request('stock_filter'))
+                    <?php if(request('stock_filter')): ?>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        Stock: {{ ucfirst(str_replace('_', ' ', request('stock_filter'))) }}
-                        <a href="{{ request()->fullUrlWithQuery(['stock_filter' => null]) }}" 
+                        Stock: <?php echo e(ucfirst(str_replace('_', ' ', request('stock_filter')))); ?>
+
+                        <a href="<?php echo e(request()->fullUrlWithQuery(['stock_filter' => null])); ?>" 
                            class="ml-1 hover:text-opacity-75">
                             <i class="fas fa-times"></i>
                         </a>
                     </span>
-                    @endif
+                    <?php endif; ?>
                     
-                    @if(request('min_price') || request('max_price'))
+                    <?php if(request('min_price') || request('max_price')): ?>
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                         Price: 
-                        {{ request('min_price') ? 'Rp ' . number_format(request('min_price'), 0, ',', '.') : 'Min' }}
+                        <?php echo e(request('min_price') ? 'Rp ' . number_format(request('min_price'), 0, ',', '.') : 'Min'); ?>
+
                         -
-                        {{ request('max_price') ? 'Rp ' . number_format(request('max_price'), 0, ',', '.') : 'Max' }}
-                        <a href="{{ request()->fullUrlWithQuery(['min_price' => null, 'max_price' => null]) }}" 
+                        <?php echo e(request('max_price') ? 'Rp ' . number_format(request('max_price'), 0, ',', '.') : 'Max'); ?>
+
+                        <a href="<?php echo e(request()->fullUrlWithQuery(['min_price' => null, 'max_price' => null])); ?>" 
                            class="ml-1 hover:text-opacity-75">
                             <i class="fas fa-times"></i>
                         </a>
                     </span>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
             <!-- Action Buttons -->
             <div class="flex justify-end gap-2 pt-2">
-                <a href="{{ route('admin.products.index') }}" 
+                <a href="<?php echo e(route('admin.products.index')); ?>" 
                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                     Reset
                 </a>
@@ -283,17 +290,17 @@
             <div>
                 <h3 class="text-lg font-medium text-gray-900">Products List</h3>
                 <p class="text-sm text-gray-500 mt-1">
-                    Showing {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} of {{ $products->total() }} products
+                    Showing <?php echo e($products->firstItem() ?? 0); ?>-<?php echo e($products->lastItem() ?? 0); ?> of <?php echo e($products->total()); ?> products
                 </p>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-500">Show:</span>
-                <select onchange="window.location.href = '{{ request()->fullUrlWithQuery(['per_page' => '']) }}' + this.value" 
+                <select onchange="window.location.href = '<?php echo e(request()->fullUrlWithQuery(['per_page' => ''])); ?>' + this.value" 
                         class="px-2 py-1 border border-gray-300 rounded text-sm">
-                    <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10</option>
-                    <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
-                    <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
-                    <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                    <option value="10" <?php echo e(request('per_page', 15) == 10 ? 'selected' : ''); ?>>10</option>
+                    <option value="15" <?php echo e(request('per_page', 15) == 15 ? 'selected' : ''); ?>>15</option>
+                    <option value="25" <?php echo e(request('per_page', 15) == 25 ? 'selected' : ''); ?>>25</option>
+                    <option value="50" <?php echo e(request('per_page', 15) == 50 ? 'selected' : ''); ?>>50</option>
                 </select>
             </div>
         </div>
@@ -313,81 +320,86 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($products as $product)
+                    <?php $__empty_1 = true; $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            #{{ $product->id }}
+                            #<?php echo e($product->id); ?>
+
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 bg-gray-100 rounded-lg mr-3 overflow-hidden flex items-center justify-center">
-                                    @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" 
-                                             alt="{{ $product->name }}" 
+                                    <?php if($product->image): ?>
+                                        <img src="<?php echo e(asset('storage/' . $product->image)); ?>" 
+                                             alt="<?php echo e($product->name); ?>" 
                                              class="w-full h-full object-cover">
-                                    @else
+                                    <?php else: ?>
                                         <i class="fas fa-box text-gray-400"></i>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $product->name }}</p>
+                                    <p class="text-sm font-medium text-gray-900"><?php echo e($product->name); ?></p>
                                     <p class="text-xs text-gray-500 truncate max-w-xs">
-                                        {{ $product->short_description ?: Str::limit($product->description, 50) }}
+                                        <?php echo e($product->short_description ?: Str::limit($product->description, 50)); ?>
+
                                     </p>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($product->category == 'instan')
+                            <?php if($product->category == 'instan'): ?>
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                                     <i class="fas fa-bolt mr-1"></i> Instan
                                 </span>
-                            @else
+                            <?php else: ?>
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                     <i class="fas fa-clock mr-1"></i> Non-Instan
                                 </span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                {{ $product->category_name }}
+                                <?php echo e($product->category_name); ?>
+
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div class="font-medium">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-                            @if($product->discount_percent > 0)
+                            <div class="font-medium">Rp <?php echo e(number_format($product->price, 0, ',', '.')); ?></div>
+                            <?php if($product->discount_percent > 0): ?>
                                 <small class="text-green-600">
-                                    -{{ $product->discount_percent }}%
+                                    -<?php echo e($product->discount_percent); ?>%
                                 </small>
-                            @endif
+                            <?php endif; ?>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                {{ $product->stock > 10 ? 'bg-green-100 text-green-800' : 
+                                <?php echo e($product->stock > 10 ? 'bg-green-100 text-green-800' : 
                                    ($product->stock > 0 ? 'bg-yellow-100 text-yellow-800' : 
-                                   'bg-red-100 text-red-800') }}">
-                                {{ $product->stock }}
+                                   'bg-red-100 text-red-800')); ?>">
+                                <?php echo e($product->stock); ?>
+
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $product->is_active ? 'Active' : 'Inactive' }}
+                                <?php echo e($product->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                                <?php echo e($product->is_active ? 'Active' : 'Inactive'); ?>
+
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex gap-2">
-                                <a href="{{ route('admin.products.show', $product->id) }}" 
+                                <a href="<?php echo e(route('admin.products.show', $product->id)); ?>" 
                                    class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" 
                                    title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.products.edit', $product->id) }}" 
+                                <a href="<?php echo e(route('admin.products.edit', $product->id)); ?>" 
                                    class="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50" 
                                    title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button onclick="showDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                <button onclick="showDeleteModal(<?php echo e($product->id); ?>, '<?php echo e(addslashes($product->name)); ?>')"
                                         class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" 
                                         title="Delete">
                                     <i class="fas fa-trash"></i>
@@ -395,37 +407,38 @@
                             </div>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                             <div class="py-8">
                                 <i class="fas fa-box fa-2x text-gray-300 mb-2"></i>
                                 <p class="text-gray-500">No products found</p>
-                                @if(request()->anyFilled(['search', 'category_type', 'status', 'stock_filter', 'min_price', 'max_price']))
-                                    <a href="{{ route('admin.products.index') }}" 
+                                <?php if(request()->anyFilled(['search', 'category_type', 'status', 'stock_filter', 'min_price', 'max_price'])): ?>
+                                    <a href="<?php echo e(route('admin.products.index')); ?>" 
                                        class="inline-block mt-2 text-blue-600 hover:text-blue-800">
                                         <i class="fas fa-times mr-1"></i> Clear filters to see all products
                                     </a>
-                                @else
-                                    <a href="{{ route('admin.products.create') }}" 
+                                <?php else: ?>
+                                    <a href="<?php echo e(route('admin.products.create')); ?>" 
                                        class="inline-block mt-2 text-blue-600 hover:text-blue-800">
                                         <i class="fas fa-plus mr-1"></i> Add your first product
                                     </a>
-                                @endif
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
         
         <!-- Pagination -->
-        @if($products->hasPages())
+        <?php if($products->hasPages()): ?>
         <div class="px-6 py-4 border-t">
-            {{ $products->withQueryString()->links() }}
+            <?php echo e($products->withQueryString()->links()); ?>
+
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
@@ -445,8 +458,8 @@
                 Cancel
             </button>
             <form id="deleteForm" method="POST" class="inline">
-                @csrf
-                @method('DELETE')
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('DELETE'); ?>
                 <button type="submit" 
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                     Delete
@@ -456,7 +469,7 @@
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 function showDeleteModal(id, productName) {
     const form = document.getElementById('deleteForm');
@@ -493,6 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('pages.admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/admin/products/index.blade.php ENDPATH**/ ?>

@@ -50,11 +50,11 @@
                         </div>
                     </div>
                     
-                 <!-- Active Promotions Count -->
+      <!-- Active Promotions Count -->
 <div class="text-right">
-    <div class="text-sm text-gray-500">Active Promotions</div>
+    <div class="text-sm text-gray-500">All Promotions</div>
     <div class="text-2xl font-bold text-green-600">
-        <?php echo e(($product->activeProductPromotions ?? collect([]))->count()); ?>
+        <?php echo e($product->productPromotions->count()); ?>
 
     </div>
 </div>
