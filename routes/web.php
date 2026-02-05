@@ -8,6 +8,13 @@ use App\Http\Controllers\OrderController as FrontOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\MidtransController;
+
+// Import models untuk About Us
+use App\Models\AboutUsSection;
+use App\Models\TeamMember;
+use App\Models\Achievement;
+use App\Models\CoreValue;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,6 +28,59 @@ Route::get('/about', function () {
     return view('pages.about');
 })->name('about');
 
+// ===== TAMBAHKAN ROUTE INI =====
+Route::get('/about-us', function () {
+    try {
+        // Ambil semua data untuk halaman about us dari database
+        $sections = AboutUsSection::active()->ordered()->get();
+        
+        // Kelompokkan section berdasarkan type
+        $heroSection = $sections->where('section_type', 'hero')->first();
+        $storySection = $sections->where('section_type', 'story')->first();
+        $missionSection = $sections->where('section_type', 'mission')->first();
+        $valuesSection = $sections->where('section_type', 'values')->first();
+        $teamSection = $sections->where('section_type', 'team')->first();
+        $statsSection = $sections->where('section_type', 'stats')->first();
+        $technologySection = $sections->where('section_type', 'technology')->first();
+        $ctaSection = $sections->where('section_type', 'cta')->first();
+        
+        // Ambil data dari tabel lain
+        $teamMembers = TeamMember::active()->ordered()->get();
+        $achievements = Achievement::active()->ordered()->get();
+        $coreValues = CoreValue::active()->ordered()->get();
+        
+        return view('pages.about-us', compact(
+            'heroSection',
+            'storySection',
+            'missionSection',
+            'valuesSection',
+            'teamSection',
+            'statsSection',
+            'technologySection',
+            'ctaSection',
+            'teamMembers',
+            'achievements',
+            'coreValues'
+        ));
+    } catch (\Exception $e) {
+        // Jika terjadi error, tampilkan halaman about us dengan data default
+        \Log::error('Error loading about us page: ' . $e->getMessage());
+        
+        // Data default jika database error
+        $sections = collect();
+        $teamMembers = collect();
+        $achievements = collect();
+        $coreValues = collect();
+        
+        return view('pages.about-us', compact(
+            'sections',
+            'teamMembers',
+            'achievements',
+            'coreValues'
+        ));
+    }
+})->name('about-us');
+// ===============================
 
 // =======================
 // LOGIN (CUSTOM POST)

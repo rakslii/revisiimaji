@@ -1,21 +1,21 @@
-@extends('pages.admin.layouts.app')
 
-@section('title', 'General Settings')
 
-@section('content')
+<?php $__env->startSection('title', 'General Settings'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="container mx-auto px-4 py-6 max-w-6xl">
     <!-- Header dengan Breadcrumb -->
     <div class="mb-6">
         <nav class="flex mb-3" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-blue-600">
+                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="text-gray-700 hover:text-blue-600">
                         <i class="fas fa-home mr-2"></i>Dashboard
                     </a>
                 </li>
                 <li class="inline-flex items-center">
                     <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <a href="{{ route('admin.settings.index') }}" class="text-gray-700 hover:text-blue-600">
+                    <a href="<?php echo e(route('admin.settings.index')); ?>" class="text-gray-700 hover:text-blue-600">
                         Settings
                     </a>
                 </li>
@@ -34,13 +34,13 @@
             
             <div class="flex items-center space-x-2 text-sm text-gray-500">
                 <i class="fas fa-info-circle text-blue-500"></i>
-                <span>Last updated: {{ \App\Models\AdminSetting::where('group', 'general')->max('updated_at') ? \Carbon\Carbon::parse(\App\Models\AdminSetting::where('group', 'general')->max('updated_at'))->format('d/m/Y H:i') : 'Never' }}</span>
+                <span>Last updated: <?php echo e(\App\Models\AdminSetting::where('group', 'general')->max('updated_at') ? \Carbon\Carbon::parse(\App\Models\AdminSetting::where('group', 'general')->max('updated_at'))->format('d/m/Y H:i') : 'Never'); ?></span>
             </div>
         </div>
     </div>
 
     <!-- Flash Messages -->
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-r-lg">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -48,7 +48,7 @@
                 </div>
                 <div class="ml-3">
                     <p class="text-green-800 font-medium">Success!</p>
-                    <p class="text-green-700 mt-1">{{ session('success') }}</p>
+                    <p class="text-green-700 mt-1"><?php echo e(session('success')); ?></p>
                 </div>
                 <div class="ml-auto pl-3">
                     <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-green-700 hover:text-green-900">
@@ -57,9 +57,9 @@
                 </div>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if($errors->any())
+    <?php if($errors->any()): ?>
         <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-lg">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
@@ -68,18 +68,18 @@
                 <div class="ml-3">
                     <p class="text-red-800 font-medium">Please fix the following errors:</p>
                     <ul class="list-disc list-inside text-red-700 mt-1 text-sm">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
+                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <li><?php echo e($error); ?></li>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </ul>
                 </div>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 
     <!-- Main Form -->
-    <form method="POST" action="{{ route('admin.settings.general.update') }}" class="space-y-6">
-        @csrf
+    <form method="POST" action="<?php echo e(route('admin.settings.general.update')); ?>" class="space-y-6">
+        <?php echo csrf_field(); ?>
 
         <!-- Store Information Card -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -101,7 +101,7 @@
                         </label>
                         <input type="text" 
                                name="site_name" 
-                               value="{{ old('site_name', $settingValues['site_name'] ?? '') }}"
+                               value="<?php echo e(old('site_name', $settingValues['site_name'] ?? '')); ?>"
                                placeholder="e.g., Cipta Imaji Printing"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                required>
@@ -116,7 +116,7 @@
                         </label>
                         <input type="email" 
                                name="site_email" 
-                               value="{{ old('site_email', $settingValues['site_email'] ?? '') }}"
+                               value="<?php echo e(old('site_email', $settingValues['site_email'] ?? '')); ?>"
                                placeholder="contact@yourstore.com"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                required>
@@ -150,7 +150,7 @@
                             </div>
                             <input type="text" 
                                    name="site_phone" 
-                                   value="{{ old('site_phone', $settingValues['site_phone'] ?? '') }}"
+                                   value="<?php echo e(old('site_phone', $settingValues['site_phone'] ?? '')); ?>"
                                    placeholder="62 812 3456 7890"
                                    class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                    required>
@@ -170,7 +170,7 @@
                             </div>
                             <input type="text" 
                                    name="whatsapp_number" 
-                                   value="{{ old('whatsapp_number', $settingValues['whatsapp_number'] ?? '') }}"
+                                   value="<?php echo e(old('whatsapp_number', $settingValues['whatsapp_number'] ?? '')); ?>"
                                    placeholder="62 812 3456 7890"
                                    class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                    required>
@@ -188,7 +188,7 @@
                     <textarea name="site_address" 
                               rows="2"
                               placeholder="Enter your store's physical address"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none">{{ old('site_address', $settingValues['site_address'] ?? '') }}</textarea>
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"><?php echo e(old('site_address', $settingValues['site_address'] ?? '')); ?></textarea>
                     <p class="text-xs text-gray-500 mt-1">Physical location of your store (optional)</p>
                 </div>
 
@@ -201,7 +201,7 @@
                     <textarea name="whatsapp_message" 
                               rows="2"
                               placeholder="Enter default message for WhatsApp chat"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none">{{ old('whatsapp_message', $settingValues['whatsapp_message'] ?? '') }}</textarea>
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"><?php echo e(old('whatsapp_message', $settingValues['whatsapp_message'] ?? '')); ?></textarea>
                     <p class="text-xs text-gray-500 mt-1">Pre-filled message when customers click WhatsApp button</p>
                 </div>
             </div>
@@ -230,16 +230,16 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none"
                                     required>
                                 <option value="">Select Currency</option>
-                                <option value="IDR" {{ old('currency', $settingValues['currency'] ?? '') == 'IDR' ? 'selected' : '' }}>
+                                <option value="IDR" <?php echo e(old('currency', $settingValues['currency'] ?? '') == 'IDR' ? 'selected' : ''); ?>>
                                     Indonesian Rupiah (IDR) - Rp
                                 </option>
-                                <option value="USD" {{ old('currency', $settingValues['currency'] ?? '') == 'USD' ? 'selected' : '' }}>
+                                <option value="USD" <?php echo e(old('currency', $settingValues['currency'] ?? '') == 'USD' ? 'selected' : ''); ?>>
                                     US Dollar (USD) - $
                                 </option>
-                                <option value="SGD" {{ old('currency', $settingValues['currency'] ?? '') == 'SGD' ? 'selected' : '' }}>
+                                <option value="SGD" <?php echo e(old('currency', $settingValues['currency'] ?? '') == 'SGD' ? 'selected' : ''); ?>>
                                     Singapore Dollar (SGD) - S$
                                 </option>
-                                <option value="MYR" {{ old('currency', $settingValues['currency'] ?? '') == 'MYR' ? 'selected' : '' }}>
+                                <option value="MYR" <?php echo e(old('currency', $settingValues['currency'] ?? '') == 'MYR' ? 'selected' : ''); ?>>
                                     Malaysian Ringgit (MYR) - RM
                                 </option>
                             </select>
@@ -262,24 +262,24 @@
                                     required>
                                 <option value="">Select Timezone</option>
                                 <optgroup label="Indonesia">
-                                    <option value="Asia/Jakarta" {{ old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Jakarta' ? 'selected' : '' }}>
+                                    <option value="Asia/Jakarta" <?php echo e(old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Jakarta' ? 'selected' : ''); ?>>
                                         Asia/Jakarta (WIB) - Western Indonesia Time
                                     </option>
-                                    <option value="Asia/Makassar" {{ old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Makassar' ? 'selected' : '' }}>
+                                    <option value="Asia/Makassar" <?php echo e(old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Makassar' ? 'selected' : ''); ?>>
                                         Asia/Makassar (WITA) - Central Indonesia Time
                                     </option>
-                                    <option value="Asia/Jayapura" {{ old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Jayapura' ? 'selected' : '' }}>
+                                    <option value="Asia/Jayapura" <?php echo e(old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Jayapura' ? 'selected' : ''); ?>>
                                         Asia/Jayapura (WIT) - Eastern Indonesia Time
                                     </option>
                                 </optgroup>
                                 <optgroup label="International">
-                                    <option value="UTC" {{ old('timezone', $settingValues['timezone'] ?? '') == 'UTC' ? 'selected' : '' }}>
+                                    <option value="UTC" <?php echo e(old('timezone', $settingValues['timezone'] ?? '') == 'UTC' ? 'selected' : ''); ?>>
                                         UTC - Coordinated Universal Time
                                     </option>
-                                    <option value="Asia/Singapore" {{ old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Singapore' ? 'selected' : '' }}>
+                                    <option value="Asia/Singapore" <?php echo e(old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Singapore' ? 'selected' : ''); ?>>
                                         Asia/Singapore (SGT)
                                     </option>
-                                    <option value="Asia/Kuala_Lumpur" {{ old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Kuala_Lumpur' ? 'selected' : '' }}>
+                                    <option value="Asia/Kuala_Lumpur" <?php echo e(old('timezone', $settingValues['timezone'] ?? '') == 'Asia/Kuala_Lumpur' ? 'selected' : ''); ?>>
                                         Asia/Kuala Lumpur (MYT)
                                     </option>
                                 </optgroup>
@@ -326,7 +326,8 @@
                             <input type="checkbox" 
                                    name="maintenance_mode" 
                                    value="1"
-                                   {{ old('maintenance_mode', $settingValues['maintenance_mode'] ?? false) ? 'checked' : '' }}
+                                   <?php echo e(old('maintenance_mode', $settingValues['maintenance_mode'] ?? false) ? 'checked' : ''); ?>
+
                                    class="sr-only peer">
                             <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-red-600"></div>
                         </label>
@@ -377,9 +378,9 @@
         </div>
     </form>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     /* Custom select arrow */
     select {
@@ -418,9 +419,9 @@
         transition: all 0.2s ease-in-out;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Maintenance mode toggle handler
@@ -589,4 +590,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('pages.admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/admin/settings/general/index.blade.php ENDPATH**/ ?>

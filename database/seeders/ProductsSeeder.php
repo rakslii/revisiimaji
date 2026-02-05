@@ -24,8 +24,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Brosur ukuran A4 dengan cetak full color kedua sisi. Kertas art paper 150gsm. Minimum order 50 pcs.',
                 'short_description' => 'Brosur A4 full color dua sisi',
                 'price' => 50000,
-                'discount_percent' => 10,
+                'base_discount_percent' => 10, // GANTI discount_percent menjadi base_discount_percent
+                'calculated_discount_percent' => 10.00, // Tambahkan ini
+                'discount_calculation_type' => 'auto',
                 'category' => 'instan',
+                'category_type' => 'instan', // Tambahkan ini
                 'category_id' => $brosurId,
                 'is_active' => true,
                 'stock' => 1000,
@@ -45,8 +48,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Kartu nama dengan bahan premium ivory 310gsm, cetak kedua sisi dengan finishing spot UV. Cocok untuk profesional.',
                 'short_description' => 'Kartu nama bahan premium ivory',
                 'price' => 75000,
-                'discount_percent' => 0,
+                'base_discount_percent' => 0,
+                'calculated_discount_percent' => 0.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'instan',
+                'category_type' => 'instan',
                 'category_id' => $kartuNamaId,
                 'is_active' => true,
                 'stock' => 500,
@@ -66,8 +72,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Stiker vinyl waterproof untuk penggunaan outdoor. Tahan cuaca dan UV. Cocok untuk kendaraan, signage, dll.',
                 'short_description' => 'Stiker vinyl tahan cuaca',
                 'price' => 35000,
-                'discount_percent' => 15,
+                'base_discount_percent' => 15,
+                'calculated_discount_percent' => 15.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'instan',
+                'category_type' => 'instan',
                 'category_id' => $stikerId,
                 'is_active' => true,
                 'stock' => 800,
@@ -87,8 +96,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Paket undangan pernikahan premium dengan berbagai pilihan desain. Include amplop dan RSVP card.',
                 'short_description' => 'Undangan pernikahan premium',
                 'price' => 120000,
-                'discount_percent' => 20,
+                'base_discount_percent' => 20,
+                'calculated_discount_percent' => 20.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'instan',
+                'category_type' => 'instan',
                 'category_id' => $undanganId,
                 'is_active' => true,
                 'stock' => 300,
@@ -110,8 +122,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Banner roll up dengan sistem portable. Stand included. Cocok untuk exhibition, seminar, atau store promotion.',
                 'short_description' => 'Banner roll up portable',
                 'price' => 450000,
-                'discount_percent' => 0,
+                'base_discount_percent' => 0,
+                'calculated_discount_percent' => 0.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'non-instan',
+                'category_type' => 'non-instan',
                 'category_id' => $bannerId,
                 'is_active' => true,
                 'stock' => 50,
@@ -131,8 +146,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Desain dan cetak kemasan makanan custom dengan logo dan brand Anda. Food grade material.',
                 'short_description' => 'Kemasan makanan branded',
                 'price' => 280000,
-                'discount_percent' => 10,
+                'base_discount_percent' => 10,
+                'calculated_discount_percent' => 10.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'non-instan',
+                'category_type' => 'non-instan',
                 'category_id' => $kemasanId,
                 'is_active' => true,
                 'stock' => 200,
@@ -152,8 +170,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'X-banner dengan sistem cross base yang stabil. Mudah dibawa dan dipasang. Cocok untuk indoor promotion.',
                 'short_description' => 'X-banner indoor promotion',
                 'price' => 320000,
-                'discount_percent' => 5,
+                'base_discount_percent' => 5,
+                'calculated_discount_percent' => 5.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'non-instan',
+                'category_type' => 'non-instan',
                 'category_id' => $bannerId,
                 'is_active' => true,
                 'stock' => 40,
@@ -173,8 +194,11 @@ class ProductsSeeder extends Seeder
                 'description' => 'Buku company profile dengan hard cover dan berbagai pilihan finishing. Desain custom sesuai brand identity.',
                 'short_description' => 'Buku company profile hard cover',
                 'price' => 850000,
-                'discount_percent' => 0,
+                'base_discount_percent' => 0,
+                'calculated_discount_percent' => 0.00,
+                'discount_calculation_type' => 'auto',
                 'category' => 'non-instan',
+                'category_type' => 'non-instan',
                 'category_id' => null,
                 'is_active' => true,
                 'stock' => 25,
@@ -191,11 +215,20 @@ class ProductsSeeder extends Seeder
             ],
         ];
 
+        // Insert products
         foreach ($products as $product) {
-            DB::table('products')->updateOrInsert(
-                ['name' => $product['name']],
-                $product
-            );
+            // Cek apakah produk sudah ada
+            $existingProduct = DB::table('products')->where('name', $product['name'])->first();
+            
+            if ($existingProduct) {
+                // Update existing product
+                DB::table('products')
+                    ->where('id', $existingProduct->id)
+                    ->update($product);
+            } else {
+                // Insert new product
+                DB::table('products')->insert($product);
+            }
         }
 
         $this->command->info('✅ Products seeded successfully!');

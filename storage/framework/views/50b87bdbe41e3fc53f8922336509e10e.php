@@ -1,27 +1,27 @@
-@extends('pages.admin.layouts.app')
 
-@section('title', 'Add Online Store')
 
-@section('content')
+<?php $__env->startSection('title', 'Add Online Store'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="container mx-auto px-4 py-6 max-w-4xl">
     <!-- Header dengan Breadcrumb -->
     <div class="mb-6">
         <nav class="flex mb-3" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
-                    <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-blue-600">
+                    <a href="<?php echo e(route('admin.dashboard')); ?>" class="text-gray-700 hover:text-blue-600">
                         <i class="fas fa-home mr-2"></i>Dashboard
                     </a>
                 </li>
                 <li class="inline-flex items-center">
                     <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <a href="{{ route('admin.settings.index') }}" class="text-gray-700 hover:text-blue-600">
+                    <a href="<?php echo e(route('admin.settings.index')); ?>" class="text-gray-700 hover:text-blue-600">
                         Settings
                     </a>
                 </li>
                 <li class="inline-flex items-center">
                     <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <a href="{{ route('admin.settings.online-stores.index') }}" class="text-gray-700 hover:text-blue-600">
+                    <a href="<?php echo e(route('admin.settings.online-stores.index')); ?>" class="text-gray-700 hover:text-blue-600">
                         Online Stores
                     </a>
                 </li>
@@ -38,7 +38,7 @@
                 <p class="text-gray-600 mt-1">Add a new online store link to display on your website</p>
             </div>
             
-            <a href="{{ route('admin.settings.online-stores.index') }}" 
+            <a href="<?php echo e(route('admin.settings.online-stores.index')); ?>" 
                class="text-gray-600 hover:text-gray-900 flex items-center">
                 <i class="fas fa-arrow-left mr-2"></i>Back to List
             </a>
@@ -49,8 +49,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Form Column -->
         <div class="lg:col-span-2">
-            <form action="{{ route('admin.settings.online-stores.store') }}" method="POST">
-                @csrf
+            <form action="<?php echo e(route('admin.settings.online-stores.store')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
 
                 <div class="bg-white rounded-lg shadow mb-6">
                     <div class="p-6">
@@ -64,13 +64,20 @@
                                 </label>
                                 <input type="text" 
                                        name="name" 
-                                       value="{{ old('name') }}"
+                                       value="<?php echo e(old('name')); ?>"
                                        required
                                        placeholder="e.g., Shopee Store, Instagram Shop"
                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @error('name')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 <p class="text-xs text-gray-500 mt-1">This will be displayed as the store name</p>
                             </div>
 
@@ -81,13 +88,20 @@
                                 </label>
                                 <input type="url" 
                                        name="url" 
-                                       value="{{ old('url') }}"
+                                       value="<?php echo e(old('url')); ?>"
                                        required
                                        placeholder="https://shopee.co.id/your-store"
                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                @error('url')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <?php $__errorArgs = ['url'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 <p class="text-xs text-gray-500 mt-1">Full URL to your online store</p>
                             </div>
 
@@ -97,32 +111,41 @@
                                     Platform Type <span class="text-red-500">*</span>
                                 </label>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    @foreach($platforms as $key => $label)
-                                        <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 {{ old('platform') == $key ? 'border-blue-300 bg-blue-50' : 'border-gray-300' }}">
+                                    <?php $__currentLoopData = $platforms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 <?php echo e(old('platform') == $key ? 'border-blue-300 bg-blue-50' : 'border-gray-300'); ?>">
                                             <input type="radio" 
                                                    name="platform" 
-                                                   value="{{ $key }}" 
-                                                   {{ old('platform') == $key ? 'checked' : (($key == 'ecommerce') ? 'checked' : '') }}
+                                                   value="<?php echo e($key); ?>" 
+                                                   <?php echo e(old('platform') == $key ? 'checked' : (($key == 'ecommerce') ? 'checked' : '')); ?>
+
                                                    class="mr-3 text-blue-600">
                                             <div>
                                                 <div class="font-medium">
-                                                    @if($key == 'ecommerce')
+                                                    <?php if($key == 'ecommerce'): ?>
                                                         <i class="fas fa-shopping-cart mr-2 text-purple-600"></i>
-                                                    @elseif($key == 'social_media')
+                                                    <?php elseif($key == 'social_media'): ?>
                                                         <i class="fas fa-hashtag mr-2 text-pink-600"></i>
-                                                    @else
+                                                    <?php else: ?>
                                                         <i class="fas fa-store mr-2 text-green-600"></i>
-                                                    @endif
-                                                    {{ ucfirst($key) }}
+                                                    <?php endif; ?>
+                                                    <?php echo e(ucfirst($key)); ?>
+
                                                 </div>
-                                                <div class="text-xs text-gray-500 mt-1">{{ Str::limit($label, 30) }}</div>
+                                                <div class="text-xs text-gray-500 mt-1"><?php echo e(Str::limit($label, 30)); ?></div>
                                             </div>
                                         </label>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </div>
-                                @error('platform')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <?php $__errorArgs = ['platform'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             </div>
 
                             <!-- Description -->
@@ -131,10 +154,17 @@
                                 <textarea name="description" 
                                           rows="3"
                                           placeholder="Brief description of what you sell or special offers..."
-                                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
-                                @error('description')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"><?php echo e(old('description')); ?></textarea>
+                                <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 <p class="text-xs text-gray-500 mt-1">Optional description shown in tooltip</p>
                             </div>
 
@@ -147,15 +177,23 @@
                                         required
                                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <option value="">Select an icon</option>
-                                    @foreach($iconOptions as $value => $label)
-                                        <option value="{{ $value }}" {{ old('icon_class') == $value ? 'selected' : '' }}>
-                                            {{ $label }}
+                                    <?php $__currentLoopData = $iconOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($value); ?>" <?php echo e(old('icon_class') == $value ? 'selected' : ''); ?>>
+                                            <?php echo e($label); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
-                                @error('icon_class')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <?php $__errorArgs = ['icon_class'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                    <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 <p class="text-xs text-gray-500 mt-1">Choose an icon that represents this store</p>
                             </div>
 
@@ -166,130 +204,170 @@
                                 </label>
                                 <p class="text-sm text-gray-600 mb-4">Choose a color scheme or create custom:</p>
                                 
-                                <!-- Preset Colors - Perbaikan grid -->
-<div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-6">
-    @foreach($colorPresets as $index => $preset)
-        <label class="cursor-pointer">
-            <input type="radio" 
-                   name="color_preset" 
-                   value="{{ $index }}"
-                   class="hidden color-preset-radio"
-                   data-from="{{ $preset[0] }}"
-                   data-to="{{ $preset[1] }}"
-                   data-icon="{{ $preset[2] }}"
-                   data-color="{{ $preset[3] }}">
-            <div class="w-full aspect-square rounded-lg overflow-hidden relative border-2 border-transparent hover:border-blue-500 color-preset transition-all duration-200">
-                <div class="absolute inset-0" style="background: linear-gradient(135deg, {{ $preset[0] }}, {{ $preset[1] }});"></div>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <i class="{{ $preset[2] }} text-white text-sm"></i>
-                </div>
-            </div>
-        </label>
-    @endforeach
-</div>
+                                <!-- Preset Colors -->
+                                <div class="grid grid-cols-4 md:grid-cols-8 gap-3 mb-6">
+                                    <?php $__currentLoopData = $colorPresets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $preset): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" 
+                                                   name="color_preset" 
+                                                   value="<?php echo e($index); ?>"
+                                                   class="hidden color-preset-radio"
+                                                   data-from="<?php echo e($preset[0]); ?>"
+                                                   data-to="<?php echo e($preset[1]); ?>"
+                                                   data-icon="<?php echo e($preset[2]); ?>"
+                                                   data-color="<?php echo e($preset[3]); ?>">
+                                            <div class="w-full h-12 rounded-lg overflow-hidden relative border-2 border-transparent hover:border-blue-500 color-preset">
+                                                <div class="absolute inset-0" style="background: linear-gradient(135deg, <?php echo e($preset[0]); ?>, <?php echo e($preset[1]); ?>);"></div>
+                                                <div class="absolute inset-0 flex items-center justify-center">
+                                                    <i class="<?php echo e($preset[2]); ?> text-white text-lg"></i>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
 
-<!-- Custom Colors Grid - Perbaikan layout -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="custom-colors">
-    <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700">
-            Main Color <span class="text-red-500">*</span>
-        </label>
-        <div class="flex items-center space-x-2">
-            <input type="color" 
-                   name="color_picker" 
-                   value="{{ old('color', '#4ECDC4') }}"
-                   class="w-10 h-10 cursor-pointer rounded border border-gray-300">
-            <input type="text" 
-                   name="color" 
-                   value="{{ old('color', '#4ECDC4') }}"
-                   required
-                   placeholder="#4ECDC4"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-    </div>
-    
-    <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700">
-            Gradient From <span class="text-red-500">*</span>
-        </label>
-        <div class="flex items-center space-x-2">
-            <input type="color" 
-                   name="gradient_from_picker" 
-                   value="{{ old('gradient_from', '#4ECDC4') }}"
-                   class="w-10 h-10 cursor-pointer rounded border border-gray-300">
-            <input type="text" 
-                   name="gradient_from" 
-                   value="{{ old('gradient_from', '#4ECDC4') }}"
-                   required
-                   placeholder="#4ECDC4"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-    </div>
-    
-    <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700">
-            Gradient To <span class="text-red-500">*</span>
-        </label>
-        <div class="flex items-center space-x-2">
-            <input type="color" 
-                   name="gradient_to_picker" 
-                   value="{{ old('gradient_to', '#45B7D1') }}"
-                   class="w-10 h-10 cursor-pointer rounded border border-gray-300">
-            <input type="text" 
-                   name="gradient_to" 
-                   value="{{ old('gradient_to', '#45B7D1') }}"
-                   required
-                   placeholder="#45B7D1"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-    </div>
-</div>
+                                <!-- Custom Colors -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="custom-colors">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Main Color <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="flex items-center">
+                                            <input type="color" 
+                                                   name="color_picker" 
+                                                   value="<?php echo e(old('color', '#4ECDC4')); ?>"
+                                                   class="w-10 h-10 cursor-pointer mr-3">
+                                            <input type="text" 
+                                                   name="color" 
+                                                   value="<?php echo e(old('color', '#4ECDC4')); ?>"
+                                                   required
+                                                   placeholder="#4ECDC4"
+                                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <?php $__errorArgs = ['color'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Gradient From <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="flex items-center">
+                                            <input type="color" 
+                                                   name="gradient_from_picker" 
+                                                   value="<?php echo e(old('gradient_from', '#4ECDC4')); ?>"
+                                                   class="w-10 h-10 cursor-pointer mr-3">
+                                            <input type="text" 
+                                                   name="gradient_from" 
+                                                   value="<?php echo e(old('gradient_from', '#4ECDC4')); ?>"
+                                                   required
+                                                   placeholder="#4ECDC4"
+                                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <?php $__errorArgs = ['gradient_from'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Gradient To <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="flex items-center">
+                                            <input type="color" 
+                                                   name="gradient_to_picker" 
+                                                   value="<?php echo e(old('gradient_to', '#45B7D1')); ?>"
+                                                   class="w-10 h-10 cursor-pointer mr-3">
+                                            <input type="text" 
+                                                   name="gradient_to" 
+                                                   value="<?php echo e(old('gradient_to', '#45B7D1')); ?>"
+                                                   required
+                                                   placeholder="#45B7D1"
+                                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                        <?php $__errorArgs = ['gradient_to'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+                                </div>
 
                                 <!-- Preview -->
-<div class="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-    <label class="block text-sm font-medium text-gray-700 mb-3">
-        <i class="fas fa-eye mr-2 text-blue-500"></i>
-        Live Preview
-    </label>
-    <div class="flex flex-col sm:flex-row items-center gap-4 p-4 bg-white rounded-lg">
-        <div class="w-16 h-16 rounded-xl flex items-center justify-center shadow-md flex-shrink-0" 
-             id="colorPreview" 
-             style="background: linear-gradient(135deg, {{ old('gradient_from', '#4ECDC4') }}, {{ old('gradient_to', '#45B7D1') }});">
-            <i class="{{ old('icon_class', 'fas fa-store') }} text-white text-2xl" id="iconPreview"></i>
-        </div>
-        <div class="flex-1 text-center sm:text-left">
-            <div class="font-medium text-gray-900 text-lg" id="namePreview">Store Preview</div>
-            <div class="text-sm text-gray-500 flex items-center justify-center sm:justify-start mt-1">
-                <i class="fas fa-link mr-1.5 text-gray-400"></i>
-                <span id="urlPreview">example.com</span>
-            </div>
-        </div>
-    </div>
-</div>
+                                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Preview</label>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-16 h-16 rounded-xl flex items-center justify-center" 
+                                             id="colorPreview" 
+                                             style="background: linear-gradient(135deg, <?php echo e(old('gradient_from', '#4ECDC4')); ?>, <?php echo e(old('gradient_to', '#45B7D1')); ?>);">
+                                            <i class="<?php echo e(old('icon_class', 'fas fa-store')); ?> text-white text-2xl" id="iconPreview"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900" id="namePreview">Store Preview</div>
+                                            <div class="text-sm text-gray-500" id="urlPreview">example.com</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Additional Info -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Store Username</label>
                                     <input type="text" 
                                            name="store_username" 
-                                           value="{{ old('store_username') }}"
+                                           value="<?php echo e(old('store_username')); ?>"
                                            placeholder="@yourstore or your-store-name"
                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('store_username')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <?php $__errorArgs = ['store_username'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Store ID</label>
                                     <input type="text" 
                                            name="store_id" 
-                                           value="{{ old('store_id') }}"
+                                           value="<?php echo e(old('store_id')); ?>"
                                            placeholder="Store ID or shop ID"
                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('store_id')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <?php $__errorArgs = ['store_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
 
@@ -299,13 +377,20 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
                                     <input type="number" 
                                            name="order" 
-                                           value="{{ old('order', 0) }}"
+                                           value="<?php echo e(old('order', 0)); ?>"
                                            min="0"
                                            step="1"
                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                    @error('order')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <?php $__errorArgs = ['order'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                     <p class="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
                                 </div>
                                 
@@ -316,7 +401,8 @@
                                             <input type="radio" 
                                                    name="is_active" 
                                                    value="1" 
-                                                   {{ old('is_active', 1) == 1 ? 'checked' : '' }}
+                                                   <?php echo e(old('is_active', 1) == 1 ? 'checked' : ''); ?>
+
                                                    class="mr-2">
                                             <span class="text-green-600">Active</span>
                                         </label>
@@ -324,14 +410,22 @@
                                             <input type="radio" 
                                                    name="is_active" 
                                                    value="0" 
-                                                   {{ old('is_active') == 0 ? 'checked' : '' }}
+                                                   <?php echo e(old('is_active') == 0 ? 'checked' : ''); ?>
+
                                                    class="mr-2">
                                             <span class="text-red-600">Inactive</span>
                                         </label>
                                     </div>
-                                    @error('is_active')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
+                                    <?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                        <p class="text-red-500 text-sm mt-1"><?php echo e($message); ?></p>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
                         </div>
@@ -343,7 +437,7 @@
                             <span class="text-sm text-gray-500">Fields marked with <span class="text-red-500">*</span> are required</span>
                         </div>
                         <div class="flex space-x-3">
-                            <a href="{{ route('admin.settings.online-stores.index') }}" 
+                            <a href="<?php echo e(route('admin.settings.online-stores.index')); ?>" 
                                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                                 Cancel
                             </a>
@@ -429,9 +523,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Color picker synchronization
@@ -539,4 +633,5 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('pages.admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/admin/settings/online-stores/create.blade.php ENDPATH**/ ?>

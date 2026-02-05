@@ -62,36 +62,41 @@ class AdminUserController extends Controller
     }
 
     // UPDATE - Update data
-    public function update(Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,staff',
-            'status' => 'required|in:active,inactive',
-            'password' => 'nullable|min:8|confirmed',
-        ]);
+   public function update(Request $request, $id)
+{
+    \Log::info('=== ADMIN USER UPDATE CALLED ===');
+    \Log::info('User ID: ' . $id);
+    \Log::info('Request Data: ', $request->all());
+    \Log::info('Method: ' . $request->method());
+    \Log::info('Full URL: ' . $request->fullUrl());
+    
+    $user = User::findOrFail($id);
+    
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'role' => 'required|in:admin,staff',
+        'status' => 'required|in:active,inactive',
+        'password' => 'nullable|min:8|confirmed',
+    ]);
 
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'status' => $request->status,
-        ];
+    $data = [
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'role' => $request->role,
+        'status' => $request->status,
+    ];
 
-        if ($request->password) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        $user->update($data);
-
-        return redirect()->route('admin.settings.admin-users.index')
-            ->with('success', 'Admin user updated successfully.');
+    if ($request->password) {
+        $data['password'] = Hash::make($request->password);
     }
 
+    $user->update($data);
+
+    return redirect()->route('admin.settings.admin-users.index')
+        ->with('success', 'Admin user updated successfully.');
+}
     // DESTROY - Hapus data
     public function destroy($id)
     {

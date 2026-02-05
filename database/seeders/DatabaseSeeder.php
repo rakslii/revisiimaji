@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             ProductCategoriesSeeder::class,
             ProductsSeeder::class,
             PromoCodesSeeder::class,
+            AboutUsSeeder::class,
         ]);
 
         $this->command->info('✅ Database seeding completed successfully!');

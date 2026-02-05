@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\ProductPromotionController as AdminProductPromotionController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\OnlineStoreController;
+use App\Http\Controllers\Admin\AboutUsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingController::class, 'index'])->name('index');
         
-        // ADMIN USERS
+        // ADMIN USERS - HANYA SATU DI SINI
         Route::prefix('admin-users')->name('admin-users.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
             Route::get('/create', [AdminUserController::class, 'create'])->name('create');
@@ -40,20 +42,48 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('destroy');
         });
 
-        // ONLINE STORES
-        Route::prefix('online-stores')->name('online-stores.')->group(function () {
-            Route::get('/', [SettingController::class, 'onlineStores'])->name('index');
-            Route::get('/create', [SettingController::class, 'createOnlineStore'])->name('create');
-            Route::post('/', [SettingController::class, 'storeOnlineStore'])->name('store');
-            Route::get('/{id}/edit', [SettingController::class, 'editOnlineStore'])->name('edit');
-            Route::put('/{id}', [SettingController::class, 'updateOnlineStore'])->name('update');
-            Route::delete('/{id}', [SettingController::class, 'destroyOnlineStore'])->name('destroy');
-        });
+// ONLINE STORES (Pindahkan dari SettingController ke OnlineStoreController)
+Route::prefix('online-stores')->name('online-stores.')->group(function () {
+    Route::get('/', [OnlineStoreController::class, 'index'])->name('index');
+    Route::get('/create', [OnlineStoreController::class, 'create'])->name('create');
+    Route::post('/', [OnlineStoreController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [OnlineStoreController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [OnlineStoreController::class, 'update'])->name('update');
+    Route::delete('/{id}', [OnlineStoreController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/toggle-status', [OnlineStoreController::class, 'toggleStatus'])->name('toggle-status');
+    Route::post('/{id}/reorder', [OnlineStoreController::class, 'reorder'])->name('reorder');
+    Route::post('/update-order', [OnlineStoreController::class, 'updateOrder'])->name('update-order');
+});
         
-        // ABOUT US
-        Route::prefix('about-us')->name('about-us.')->group(function () {
-            Route::get('/', [SettingController::class, 'aboutUs'])->name('index');
-        });
+// ABOUT US (CRUD yang lengkap)
+Route::prefix('about-us')->name('about-us.')->group(function () {
+    Route::get('/', [AboutUsController::class, 'index'])->name('index');
+    
+    // Sections CRUD
+    Route::post('/sections', [AboutUsController::class, 'storeSection'])->name('sections.store');
+    Route::put('/sections/{id}', [AboutUsController::class, 'updateSection'])->name('sections.update');
+    Route::delete('/sections/{id}', [AboutUsController::class, 'destroySection'])->name('sections.destroy');
+    Route::post('/sections/{id}/toggle-status', [AboutUsController::class, 'toggleSectionStatus'])->name('sections.toggle-status');
+    Route::post('/sections/reorder', [AboutUsController::class, 'reorderSections'])->name('sections.reorder');
+    
+    // Team Members CRUD
+    Route::post('/team-members', [AboutUsController::class, 'storeTeamMember'])->name('team-members.store');
+    Route::put('/team-members/{id}', [AboutUsController::class, 'updateTeamMember'])->name('team-members.update');
+    Route::delete('/team-members/{id}', [AboutUsController::class, 'destroyTeamMember'])->name('team-members.destroy');
+    Route::post('/team-members/reorder', [AboutUsController::class, 'reorderTeam'])->name('team-members.reorder');
+    
+    // Achievements CRUD
+    Route::post('/achievements', [AboutUsController::class, 'storeAchievement'])->name('achievements.store');
+    Route::put('/achievements/{id}', [AboutUsController::class, 'updateAchievement'])->name('achievements.update');
+    Route::delete('/achievements/{id}', [AboutUsController::class, 'destroyAchievement'])->name('achievements.destroy');
+    Route::post('/achievements/reorder', [AboutUsController::class, 'reorderAchievements'])->name('achievements.reorder');
+    
+    // Core Values CRUD
+    Route::post('/core-values', [AboutUsController::class, 'storeCoreValue'])->name('core-values.store');
+    Route::put('/core-values/{id}', [AboutUsController::class, 'updateCoreValue'])->name('core-values.update');
+    Route::delete('/core-values/{id}', [AboutUsController::class, 'destroyCoreValue'])->name('core-values.destroy');
+    Route::post('/core-values/reorder', [AboutUsController::class, 'reorderValues'])->name('core-values.reorder');
+});
         
         // BANNERS
         Route::prefix('banners')->name('banners.')->group(function () {
