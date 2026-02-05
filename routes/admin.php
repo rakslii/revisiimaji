@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\ProductPromotionController as AdminProductPromotionController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +26,62 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
+    // ============ SETTINGS ============
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingController::class, 'index'])->name('index');
+        
+        // ADMIN USERS
+        Route::prefix('admin-users')->name('admin-users.')->group(function () {
+            Route::get('/', [AdminUserController::class, 'index'])->name('index');
+            Route::get('/create', [AdminUserController::class, 'create'])->name('create');
+            Route::post('/', [AdminUserController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [AdminUserController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [AdminUserController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('destroy');
+        });
+
+        // ONLINE STORES
+        Route::prefix('online-stores')->name('online-stores.')->group(function () {
+            Route::get('/', [SettingController::class, 'onlineStores'])->name('index');
+            Route::get('/create', [SettingController::class, 'createOnlineStore'])->name('create');
+            Route::post('/', [SettingController::class, 'storeOnlineStore'])->name('store');
+            Route::get('/{id}/edit', [SettingController::class, 'editOnlineStore'])->name('edit');
+            Route::put('/{id}', [SettingController::class, 'updateOnlineStore'])->name('update');
+            Route::delete('/{id}', [SettingController::class, 'destroyOnlineStore'])->name('destroy');
+        });
+        
+        // ABOUT US
+        Route::prefix('about-us')->name('about-us.')->group(function () {
+            Route::get('/', [SettingController::class, 'aboutUs'])->name('index');
+        });
+        
+        // BANNERS
+        Route::prefix('banners')->name('banners.')->group(function () {
+            Route::get('/', [SettingController::class, 'banners'])->name('index');
+        });
+        
+        // CONSULTATIONS
+        Route::prefix('consultations')->name('consultations.')->group(function () {
+            Route::get('/', [SettingController::class, 'consultations'])->name('index');
+        });
+        
+        // GENERAL SETTINGS
+        Route::prefix('general')->name('general.')->group(function () {
+            Route::get('/', [SettingController::class, 'generalSettings'])->name('index');
+            Route::post('/update', [SettingController::class, 'updateGeneralSettings'])->name('update');
+        });
+        
+        // PAYMENT SETTINGS
+        Route::prefix('payments')->name('payments.')->group(function () {
+            Route::get('/', [SettingController::class, 'paymentSettings'])->name('index');
+        });
+        
+        // SHIPPING SETTINGS
+        Route::prefix('shippings')->name('shippings.')->group(function () {
+            Route::get('/', [SettingController::class, 'shippingSettings'])->name('index');
+        });
+    });
+
     // ============ CUSTOMERS ============
     Route::prefix('customers')->name('customers.')->group(function () {
         Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
@@ -35,10 +93,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/{id}', [AdminCustomerController::class, 'destroy'])->name('destroy');
         Route::put('/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('status.update');
     });
-
-    // Settings
-    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
 
     // ============ ORDERS ============
     Route::prefix('orders')->name('orders.')->group(function () {
@@ -84,26 +138,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/{id}/toggle-status', [AdminPromoCodeController::class, 'toggleStatus'])->name('toggle-status');
     });
 
-    // ============ PRODUCT PROMOTIONS (BARU) ============
+    // ============ PRODUCT PROMOTIONS ============
     Route::prefix('product-promotions')->name('product-promotions.')->group(function () {
-        // Select product page
         Route::get('/select-product', [AdminProductPromotionController::class, 'selectProduct'])->name('select-product');
-        
-        // Create promotion for specific product
         Route::get('/create/{productId}', [AdminProductPromotionController::class, 'create'])->name('create');
         Route::post('/store/{productId}', [AdminProductPromotionController::class, 'store'])->name('store');
-        
-        // CRUD operations
         Route::get('/', [AdminProductPromotionController::class, 'index'])->name('index');
         Route::get('/{id}', [AdminProductPromotionController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [AdminProductPromotionController::class, 'edit'])->name('edit');
         Route::put('/{id}', [AdminProductPromotionController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminProductPromotionController::class, 'destroy'])->name('destroy');
-        
-        // Toggle status
         Route::patch('/{id}/toggle-status', [AdminProductPromotionController::class, 'toggleStatus'])->name('toggle-status');
-        
-        // View promotions for specific product
         Route::get('/product/{productId}', [AdminProductPromotionController::class, 'productPromotions'])->name('product-promotions');
     });
 });

@@ -7,7 +7,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Edit Order</h1>
+            {{-- <h1 class="text-2xl font-bold text-gray-800">Edit Order</h1> --}}
             <p class="text-gray-600 mt-1">Order #{{ $order->order_code }}</p>
         </div>
         <div class="flex space-x-3">

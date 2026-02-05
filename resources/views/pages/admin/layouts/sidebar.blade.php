@@ -13,7 +13,7 @@
             ['route' => 'admin.products.index', 'label' => 'Products', 'icon' => 'fas fa-box'],
             ['route' => 'admin.customers.index', 'label' => 'Customers', 'icon' => 'fas fa-users'],
             ['route' => 'admin.promos.index', 'label' => 'Promo Codes', 'icon' => 'fas fa-tag'],
-            ['route' => 'admin.settings', 'label' => 'Settings', 'icon' => 'fas fa-cog'],
+            ['route' => 'admin.settings.index', 'label' => 'Settings', 'icon' => 'fas fa-cog'],
         ] as $item)
             <a href="{{ route($item['route']) }}" 
                class="flex items-center gap-3 p-3 rounded-lg transition-colors 

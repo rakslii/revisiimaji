@@ -13,7 +13,7 @@
             ['route' => 'admin.products.index', 'label' => 'Products', 'icon' => 'fas fa-box'],
             ['route' => 'admin.customers.index', 'label' => 'Customers', 'icon' => 'fas fa-users'],
             ['route' => 'admin.promos.index', 'label' => 'Promo Codes', 'icon' => 'fas fa-tag'],
-            ['route' => 'admin.settings', 'label' => 'Settings', 'icon' => 'fas fa-cog'],
+            ['route' => 'admin.settings.index', 'label' => 'Settings', 'icon' => 'fas fa-cog'],
         ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <a href="<?php echo e(route($item['route'])); ?>" 
                class="flex items-center gap-3 p-3 rounded-lg transition-colors 

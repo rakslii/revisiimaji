@@ -7,7 +7,7 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Customer Details</h1>
+            {{-- <h1 class="text-2xl font-bold text-gray-800">Customer Details</h1> --}}
             <p class="text-gray-600 mt-1">{{ $customer->email }}</p>
         </div>
         <div class="flex space-x-3">
