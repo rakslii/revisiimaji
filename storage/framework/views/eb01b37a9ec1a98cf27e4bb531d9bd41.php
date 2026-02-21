@@ -1,26 +1,26 @@
-@extends('pages.admin.layouts.app')
 
-@section('title', 'Create New Product')
 
-@section('content')
+<?php $__env->startSection('title', 'Create New Product'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
-        <a href="{{ route('admin.products.index') }}"
+        <a href="<?php echo e(route('admin.products.index')); ?>"
            class="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
             <i class="fas fa-arrow-left"></i> Back to Products
         </a>
     </div>
 
-    @if ($errors->any())
+    <?php if($errors->any()): ?>
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
         <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <li><?php echo e($error); ?></li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </ul>
     </div>
-    @endif
+    <?php endif; ?>
 
     <!-- Active Category Type Menu -->
     <div class="bg-white rounded-lg shadow">
@@ -29,33 +29,33 @@
         </div>
         <div class="p-6">
             <div class="flex space-x-4">
-                <a href="{{ route('admin.products.create', ['type' => 'instan']) }}" 
+                <a href="<?php echo e(route('admin.products.create', ['type' => 'instan'])); ?>" 
                    class="flex-1 p-4 border-2 rounded-lg text-center transition-all duration-200
-                          {{ $selectedType == 'instan' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-25' }}">
+                          <?php echo e($selectedType == 'instan' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-25'); ?>">
                     <div class="flex flex-col items-center">
-                        <div class="w-12 h-12 rounded-full {{ $selectedType == 'instan' ? 'bg-blue-200' : 'bg-blue-100' }} flex items-center justify-center mb-2">
-                            <i class="fas fa-bolt text-xl {{ $selectedType == 'instan' ? 'text-blue-700' : 'text-blue-600' }}"></i>
+                        <div class="w-12 h-12 rounded-full <?php echo e($selectedType == 'instan' ? 'bg-blue-200' : 'bg-blue-100'); ?> flex items-center justify-center mb-2">
+                            <i class="fas fa-bolt text-xl <?php echo e($selectedType == 'instan' ? 'text-blue-700' : 'text-blue-600'); ?>"></i>
                         </div>
-                        <span class="font-semibold {{ $selectedType == 'instan' ? 'text-blue-700' : 'text-gray-700' }}">Instan</span>
+                        <span class="font-semibold <?php echo e($selectedType == 'instan' ? 'text-blue-700' : 'text-gray-700'); ?>">Instan</span>
                         <span class="text-xs text-gray-500 mt-1">Produk cepat saji</span>
-                        @if($selectedType == 'instan')
+                        <?php if($selectedType == 'instan'): ?>
                             <span class="mt-2 text-xs bg-blue-600 text-white px-2 py-1 rounded-full">Active</span>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </a>
                 
-                <a href="{{ route('admin.products.create', ['type' => 'non-instan']) }}" 
+                <a href="<?php echo e(route('admin.products.create', ['type' => 'non-instan'])); ?>" 
                    class="flex-1 p-4 border-2 rounded-lg text-center transition-all duration-200
-                          {{ $selectedType == 'non-instan' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300 hover:bg-green-25' }}">
+                          <?php echo e($selectedType == 'non-instan' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300 hover:bg-green-25'); ?>">
                     <div class="flex flex-col items-center">
-                        <div class="w-12 h-12 rounded-full {{ $selectedType == 'non-instan' ? 'bg-green-200' : 'bg-green-100' }} flex items-center justify-center mb-2">
-                            <i class="fas fa-clock text-xl {{ $selectedType == 'non-instan' ? 'text-green-700' : 'text-green-600' }}"></i>
+                        <div class="w-12 h-12 rounded-full <?php echo e($selectedType == 'non-instan' ? 'bg-green-200' : 'bg-green-100'); ?> flex items-center justify-center mb-2">
+                            <i class="fas fa-clock text-xl <?php echo e($selectedType == 'non-instan' ? 'text-green-700' : 'text-green-600'); ?>"></i>
                         </div>
-                        <span class="font-semibold {{ $selectedType == 'non-instan' ? 'text-green-700' : 'text-gray-700' }}">Non-Instan</span>
+                        <span class="font-semibold <?php echo e($selectedType == 'non-instan' ? 'text-green-700' : 'text-gray-700'); ?>">Non-Instan</span>
                         <span class="text-xs text-gray-500 mt-1">Produk custom</span>
-                        @if($selectedType == 'non-instan')
+                        <?php if($selectedType == 'non-instan'): ?>
                             <span class="mt-2 text-xs bg-green-600 text-white px-2 py-1 rounded-full">Active</span>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </a>
             </div>
@@ -63,8 +63,8 @@
     </div>
 
     <div class="bg-white rounded-lg shadow p-6">
-        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" id="productForm">
-            @csrf
+        <form action="<?php echo e(route('admin.products.store')); ?>" method="POST" enctype="multipart/form-data" id="productForm">
+            <?php echo csrf_field(); ?>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Left Column -->
@@ -77,12 +77,26 @@
                         <input type="text"
                                id="name"
                                name="name"
-                               value="{{ old('name') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-500 @enderror"
+                               value="<?php echo e(old('name')); ?>"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                required>
-                        @error('name')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Price -->
@@ -95,31 +109,45 @@
                             <input type="number"
                                    id="price"
                                    name="price"
-                                   value="{{ old('price') }}"
+                                   value="<?php echo e(old('price')); ?>"
                                    min="0"
                                    step="1"
-                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('price') border-red-500 @enderror"
+                                   class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                    required
                                    placeholder="0">
                         </div>
-                        @error('price')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['price'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                
 
                     <!-- STEP 1: Category Type (Hidden Radio) -->
                     <div class="hidden">
-                        <input type="radio" name="category_type" value="instan" id="type_instan" {{ $selectedType == 'instan' ? 'checked' : '' }}>
-                        <input type="radio" name="category_type" value="non-instan" id="type_non_instan" {{ $selectedType == 'non-instan' ? 'checked' : '' }}>
+                        <input type="radio" name="category_type" value="instan" id="type_instan" <?php echo e($selectedType == 'instan' ? 'checked' : ''); ?>>
+                        <input type="radio" name="category_type" value="non-instan" id="type_non_instan" <?php echo e($selectedType == 'non-instan' ? 'checked' : ''); ?>>
                     </div>
                 </div>
 
                 <!-- Right Column -->
                 <div class="space-y-4">
                     <!-- STEP 2: Category Selection -->
-                    <div id="categorySelection" class="{{ $selectedType ? '' : 'hidden' }}">
+                    <div id="categorySelection" class="<?php echo e($selectedType ? '' : 'hidden'); ?>">
                         <div class="flex justify-between items-center mb-3">
                             <label class="block text-sm font-medium text-gray-700">
                                 Select Category *
@@ -158,11 +186,18 @@
                             </div>
                         </div>
 
-                        <input type="hidden" name="category_id" id="selected_category_id" value="{{ old('category_id') }}">
+                        <input type="hidden" name="category_id" id="selected_category_id" value="<?php echo e(old('category_id')); ?>">
 
-                        @error('category_id')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['category_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
                         <div id="selectedCategoryInfo" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
                             <div class="flex items-center">
@@ -180,13 +215,27 @@
                         <input type="number"
                                id="stock"
                                name="stock"
-                               value="{{ old('stock', 0) }}"
+                               value="<?php echo e(old('stock', 0)); ?>"
                                min="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('stock') border-red-500 @enderror"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['stock'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                required>
-                        @error('stock')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['stock'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Min Order -->
@@ -197,12 +246,26 @@
                         <input type="number"
                                id="min_order"
                                name="min_order"
-                               value="{{ old('min_order', 1) }}"
+                               value="<?php echo e(old('min_order', 1)); ?>"
                                min="1"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('min_order') border-red-500 @enderror">
-                        @error('min_order')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['min_order'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                        <?php $__errorArgs = ['min_order'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
             </div>
@@ -221,12 +284,26 @@
                                id="image"
                                name="image"
                                accept="image/*"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('image') border-red-500 @enderror"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
                                required>
                         <p class="mt-1 text-xs text-gray-500">Main image for product thumbnail</p>
-                        @error('image')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <?php $__errorArgs = ['image'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                     </div>
 
                     <!-- Image Preview -->
@@ -248,26 +325,27 @@
                         Additional Product Images
                     </label>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        @for($i = 1; $i <= 4; $i++)
+                        <?php for($i = 1; $i <= 4; $i++): ?>
                             <div>
-                                <label for="image_{{ $i }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Image {{ $i }}
+                                <label for="image_<?php echo e($i); ?>" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Image <?php echo e($i); ?>
+
                                 </label>
                                 <input type="file"
-                                       id="image_{{ $i }}"
-                                       name="image_{{ $i }}"
+                                       id="image_<?php echo e($i); ?>"
+                                       name="image_<?php echo e($i); ?>"
                                        accept="image/*"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <div class="mt-2 h-24 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center bg-gray-50 image-preview-container"
-                                     data-preview="preview_{{ $i }}">
+                                     data-preview="preview_<?php echo e($i); ?>">
                                     <div class="text-center text-gray-400">
                                         <i class="fas fa-plus text-sm mb-1"></i>
                                         <p class="text-xs">Optional</p>
                                     </div>
-                                    <img id="preview_{{ $i }}" class="hidden max-h-full max-w-full rounded-lg">
+                                    <img id="preview_<?php echo e($i); ?>" class="hidden max-h-full max-w-full rounded-lg">
                                 </div>
                             </div>
-                        @endfor
+                        <?php endfor; ?>
                     </div>
                 </div>
             </div>
@@ -282,14 +360,28 @@
                     <input type="text"
                            id="short_description"
                            name="short_description"
-                           value="{{ old('short_description') }}"
+                           value="<?php echo e(old('short_description')); ?>"
                            maxlength="255"
                            placeholder="Brief description of the product"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('short_description') border-red-500 @enderror">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['short_description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
                     <p class="mt-1 text-xs text-gray-500">Brief description, max 255 characters.</p>
-                    @error('short_description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                    <?php $__errorArgs = ['short_description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
 
                 <!-- Full Description -->
@@ -301,11 +393,25 @@
                               name="description"
                               rows="4"
                               placeholder="Detailed description of the product..."
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('description') border-red-500 @enderror"
-                              required>{{ old('description') }}</textarea>
-                    @error('description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> border-red-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                              required><?php echo e(old('description')); ?></textarea>
+                    <?php $__errorArgs = ['description'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                        <p class="mt-1 text-sm text-red-600"><?php echo e($message); ?></p>
+                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -391,7 +497,8 @@
                        id="is_active"
                        name="is_active"
                        value="1"
-                       {{ old('is_active', true) ? 'checked' : '' }}
+                       <?php echo e(old('is_active', true) ? 'checked' : ''); ?>
+
                        class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                 <label for="is_active" class="ml-3 text-sm text-gray-700 font-medium">
                     Active Product
@@ -400,7 +507,7 @@
 
             <!-- Submit Button -->
             <div class="mt-8 flex justify-end gap-3">
-                <a href="{{ route('admin.products.index') }}"
+                <a href="<?php echo e(route('admin.products.index')); ?>"
                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition">
                     Cancel
                 </a>
@@ -490,7 +597,7 @@
                 </div>
 
                 <!-- Hidden field for CSRF -->
-                <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="csrf_token" value="<?php echo e(csrf_token()); ?>">
             </div>
 
             <div class="px-6 py-4 border-t flex justify-end gap-3">
@@ -515,13 +622,13 @@
         <span class="text-gray-700">Processing...</span>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 // Variable global untuk menyimpan categories
-let allCategories = @json($categories);
-let selectedType = "{{ $selectedType }}";
+let allCategories = <?php echo json_encode($categories, 15, 512) ?>;
+let selectedType = "<?php echo e($selectedType); ?>";
 
 // Variable untuk menyimpan semua kategori
 let allFilteredCategories = [];
@@ -877,7 +984,7 @@ function renderCategoriesWithFilter(type, searchTerm = '') {
         categoryOptions.appendChild(categoryCard);
     });
 
-    const oldCategoryId = "{{ old('category_id', '') }}";
+    const oldCategoryId = "<?php echo e(old('category_id', '')); ?>";
     if (oldCategoryId && oldCategoryId !== '') {
         setTimeout(() => {
             const cardToSelect = categoryOptions.querySelector(`[data-category-id="${oldCategoryId}"]`);
@@ -1187,7 +1294,7 @@ function saveNewCategory(event) {
         console.log(pair[0] + ': ' + pair[1]);
     }
 
-    fetch('{{ route("admin.products.quick-add-category") }}', {
+    fetch('<?php echo e(route("admin.products.quick-add-category")); ?>', {
         method: 'POST',
         body: formData,
         headers: {
@@ -1269,4 +1376,5 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('pages.admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/admin/products/create.blade.php ENDPATH**/ ?>

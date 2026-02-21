@@ -1,19 +1,19 @@
-@extends('layouts.app')
 
-@section('title', $product->name . ' - Cipta Imaji')
-@push('styles')
 
-@section('content')
+<?php $__env->startSection('title', $product->name . ' - Cipta Imaji'); ?>
+<?php $__env->startPush('styles'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="bg-[#f9f0f1] min-h-screen py-8">
     <div class="container mx-auto px-4">
         <!-- Breadcrumb -->
         <nav class="mb-8">
             <ol class="flex items-center space-x-2 text-sm">
-                <li><a href="{{ route('home') }}" class="text-gray-500 hover:text-[#193497] transition-colors"><i class="fas fa-home mr-1"></i> Beranda</a></li>
+                <li><a href="<?php echo e(route('home')); ?>" class="text-gray-500 hover:text-[#193497] transition-colors"><i class="fas fa-home mr-1"></i> Beranda</a></li>
                 <li><i class="fas fa-chevron-right text-gray-300 text-xs"></i></li>
-                <li><a href="{{ route('products.index') }}" class="text-gray-500 hover:text-[#193497] transition-colors">Produk</a></li>
+                <li><a href="<?php echo e(route('products.index')); ?>" class="text-gray-500 hover:text-[#193497] transition-colors">Produk</a></li>
                 <li><i class="fas fa-chevron-right text-gray-300 text-xs"></i></li>
-                <li class="font-semibold text-[#193497] truncate max-w-xs">{{ $product->name }}</li>
+                <li class="font-semibold text-[#193497] truncate max-w-xs"><?php echo e($product->name); ?></li>
             </ol>
         </nav>
 
@@ -23,30 +23,30 @@
                 <div class="p-8 lg:p-12 bg-[#f9f0f1]">
                     <!-- Main Image -->
                     <div class="bg-white rounded-3xl h-[500px] flex items-center justify-center mb-6 relative overflow-hidden group shadow-lg cursor-pointer" id="mainImageContainer">
-                        @php
+                        <?php
                             $mainImage = $product->image ?? 'images/default-product.jpg';
                             $mainImageUrl = asset('storage/' . $mainImage);
-                        @endphp
+                        ?>
                         <img 
-                            src="{{ $mainImageUrl }}" 
-                            alt="{{ $product->name }}"
+                            src="<?php echo e($mainImageUrl); ?>" 
+                            alt="<?php echo e($product->name); ?>"
                             class="w-full h-full object-cover"
                             id="mainProductImage"
-                            onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+                            onerror="this.onerror=null; this.src='<?php echo e(asset('images/default-product.jpg')); ?>'">
 
                         <div class="absolute top-4 left-4 flex flex-col gap-2">
-                            @if($product->discount_percent > 0)
-                                <span class="bg-[#f91f01] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">-{{ $product->discount_percent }}% OFF</span>
-                            @endif
-                            @if($product->category === 'instan')
+                            <?php if($product->discount_percent > 0): ?>
+                                <span class="bg-[#f91f01] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">-<?php echo e($product->discount_percent); ?>% OFF</span>
+                            <?php endif; ?>
+                            <?php if($product->category === 'instan'): ?>
                                 <span class="bg-[#193497] text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg"><i class="fas fa-bolt mr-1"></i> Instan</span>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                     
                     <!-- Thumbnails -->
                     <div class="grid grid-cols-4 gap-3 mb-6">
-                        @php
+                        <?php
                             // Kumpulkan semua gambar produk
                             $productImages = [];
                             
@@ -67,23 +67,23 @@
                             if (empty($productImages)) {
                                 $productImages = array_fill(0, 4, 'images/default-product.jpg');
                             }
-                        @endphp
+                        ?>
                         
-                        @foreach($productImages as $index => $image)
-                            <div class="rounded-2xl h-28 overflow-hidden cursor-pointer hover:ring-4 ring-[#193497] transition-all duration-300 shadow-md thumbnail-item" data-index="{{ $index }}">
-                                <img src="{{ asset('storage/' . $image) }}" 
-                                     alt="Thumbnail {{ $index + 1 }}" 
+                        <?php $__currentLoopData = $productImages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="rounded-2xl h-28 overflow-hidden cursor-pointer hover:ring-4 ring-[#193497] transition-all duration-300 shadow-md thumbnail-item" data-index="<?php echo e($index); ?>">
+                                <img src="<?php echo e(asset('storage/' . $image)); ?>" 
+                                     alt="Thumbnail <?php echo e($index + 1); ?>" 
                                      class="w-full h-full object-cover"
-                                     onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'">
+                                     onerror="this.onerror=null; this.src='<?php echo e(asset('images/default-product.jpg')); ?>'">
                             </div>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         
-                        {{-- Jika gambar kurang dari 4, tampilkan placeholder --}}
-                        @for($i = count($productImages); $i < 4; $i++)
+                        
+                        <?php for($i = count($productImages); $i < 4; $i++): ?>
                             <div class="rounded-2xl h-28 overflow-hidden bg-gray-200 flex items-center justify-center shadow-md">
                                 <i class="fas fa-image text-gray-400 text-3xl"></i>
                             </div>
-                        @endfor
+                        <?php endfor; ?>
                     </div>
 
                     <!-- Quick Info Cards -->
@@ -125,11 +125,11 @@
                                     <div>
                                         <div class="text-xs text-gray-500">Waktu Produksi</div>
                                         <div class="font-bold text-gray-800">
-                                            @if($product->category === 'instan')
+                                            <?php if($product->category === 'instan'): ?>
                                                 1 Hari Kerja
-                                            @else
+                                            <?php else: ?>
                                                 3-7 Hari Kerja
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -165,38 +165,40 @@
                 <!-- Product Info -->
                 <div class="p-8 lg:p-12">
                     <div class="flex flex-wrap items-center gap-2 mb-4">
-                        @if($product->category)
-                            <span class="px-4 py-2 text-xs font-bold rounded-full {{ $product->category === 'instan' ? 'bg-blue-100 text-[#193497]' : 'bg-purple-100 text-purple-600' }}">
-                                {{ $product->category === 'instan' ? 'PRODUK INSTAN' : 'PRODUK CUSTOM' }}
+                        <?php if($product->category): ?>
+                            <span class="px-4 py-2 text-xs font-bold rounded-full <?php echo e($product->category === 'instan' ? 'bg-blue-100 text-[#193497]' : 'bg-purple-100 text-purple-600'); ?>">
+                                <?php echo e($product->category === 'instan' ? 'PRODUK INSTAN' : 'PRODUK CUSTOM'); ?>
+
                             </span>
-                        @endif
-                        @if($product->productCategory)
+                        <?php endif; ?>
+                        <?php if($product->productCategory): ?>
                             <span class="px-4 py-2 text-xs font-bold rounded-full bg-gray-100 text-gray-600">
-                                {{ $product->productCategory->name }}
+                                <?php echo e($product->productCategory->name); ?>
+
                             </span>
-                        @endif
+                        <?php endif; ?>
                     </div>
 
-                    <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">{{ $product->name }}</h1>
+                    <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight"><?php echo e($product->name); ?></h1>
                     
-                    @if($product->short_description)
-                        <p class="text-gray-600 text-lg mb-6 leading-relaxed">{{ $product->short_description }}</p>
-                    @endif
+                    <?php if($product->short_description): ?>
+                        <p class="text-gray-600 text-lg mb-6 leading-relaxed"><?php echo e($product->short_description); ?></p>
+                    <?php endif; ?>
 
                     <div class="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200">
                         <div class="flex items-center">
                             <div class="flex text-yellow-400 mr-2">
-                                @php $rating = $product->rating ?? 4.5; @endphp
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i class="fas fa-star {{ $i <= floor($rating) ? '' : 'text-gray-300' }}"></i>
-                                @endfor
+                                <?php $rating = $product->rating ?? 4.5; ?>
+                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                    <i class="fas fa-star <?php echo e($i <= floor($rating) ? '' : 'text-gray-300'); ?>"></i>
+                                <?php endfor; ?>
                             </div>
-                            <span class="text-gray-700 font-semibold">{{ number_format($rating, 1) }}</span>
+                            <span class="text-gray-700 font-semibold"><?php echo e(number_format($rating, 1)); ?></span>
                         </div>
                         <div class="h-6 w-px bg-gray-300"></div>
                         <div class="flex items-center text-gray-600">
                             <i class="fas fa-shopping-bag mr-2"></i>
-                            <span><strong>{{ $product->sales_count ?? 127 }}</strong> Terjual</span>
+                            <span><strong><?php echo e($product->sales_count ?? 127); ?></strong> Terjual</span>
                         </div>
                     </div>
 
@@ -209,11 +211,11 @@
                         <div class="space-y-3">
                             <div class="flex justify-between items-center bg-white rounded-xl p-4">
                                 <span class="text-gray-700 font-semibold">1 - 100 pcs</span>
-                                <span class="text-[#193497] font-bold">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                <span class="text-[#193497] font-bold">Rp <?php echo e(number_format($product->price, 0, ',', '.')); ?></span>
                             </div>
                             <div class="flex justify-between items-center bg-white rounded-xl p-4">
                                 <span class="text-gray-700 font-semibold">≥ 101 pcs</span>
-                                <span class="text-green-600 font-bold">Rp {{ number_format($product->price * 0.85, 0, ',', '.') }}</span>
+                                <span class="text-green-600 font-bold">Rp <?php echo e(number_format($product->price * 0.85, 0, ',', '.')); ?></span>
                             </div>
                         </div>
                     </div>
@@ -229,19 +231,19 @@
                         <div class="mb-6">
                             <label class="block text-gray-700 font-semibold mb-3">Pilih Produk</label>
                             <select class="w-full bg-white border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#193497]">
-                                <option>{{ $product->name }}</option>
+                                <option><?php echo e($product->name); ?></option>
                             </select>
                         </div>
 
                         <!-- Quantity -->
                         <div class="mb-6">
-                            <label class="block text-gray-700 font-semibold mb-3">Jumlah (Min Order: {{ $product->min_order }} pcs)</label>
+                            <label class="block text-gray-700 font-semibold mb-3">Jumlah (Min Order: <?php echo e($product->min_order); ?> pcs)</label>
                             <div class="flex items-center gap-4">
                                 <div class="flex items-center bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
                                     <button type="button" class="qty-minus w-12 h-12 bg-gray-100 hover:bg-[#193497] hover:text-white flex items-center justify-center transition-colors">
                                         <i class="fas fa-minus"></i>
                                     </button>
-                                    <input type="number" id="quantity" value="{{ $product->min_order }}" min="{{ $product->min_order }}" class="w-20 h-12 text-center border-none font-bold text-xl focus:outline-none">
+                                    <input type="number" id="quantity" value="<?php echo e($product->min_order); ?>" min="<?php echo e($product->min_order); ?>" class="w-20 h-12 text-center border-none font-bold text-xl focus:outline-none">
                                     <button type="button" class="qty-plus w-12 h-12 bg-gray-100 hover:bg-[#193497] hover:text-white flex items-center justify-center transition-colors">
                                         <i class="fas fa-plus"></i>
                                     </button>
@@ -300,11 +302,11 @@
                                 </div>
                                 <div class="flex justify-between text-gray-700">
                                     <span>Harga Barang</span>
-                                    <span class="font-semibold" id="item-price">Rp {{ number_format($product->price * $product->min_order, 0, ',', '.') }}</span>
+                                    <span class="font-semibold" id="item-price">Rp <?php echo e(number_format($product->price * $product->min_order, 0, ',', '.')); ?></span>
                                 </div>
                                 <div class="flex justify-between text-gray-700">
                                     <span>Jumlah</span>
-                                    <span class="font-semibold" id="display-quantity">{{ $product->min_order }}</span>
+                                    <span class="font-semibold" id="display-quantity"><?php echo e($product->min_order); ?></span>
                                 </div>
                                 <div class="flex justify-between text-green-600" id="discount-row" style="display: none;">
                                     <span>Diskon</span>
@@ -314,7 +316,7 @@
                             <div class="border-t pt-4">
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-700 font-semibold">Total Harga</span>
-                                    <span class="text-3xl font-bold text-[#193497]" id="total-price">Rp {{ number_format($product->price * $product->min_order, 0, ',', '.') }}</span>
+                                    <span class="text-3xl font-bold text-[#193497]" id="total-price">Rp <?php echo e(number_format($product->price * $product->min_order, 0, ',', '.')); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -322,9 +324,9 @@
                         <!-- Buttons -->
                         <div class="grid grid-cols-1 gap-3">
                             <!-- Add to Cart -->
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="add-to-cart-form">
-                                @csrf
-                                <input type="hidden" name="quantity" id="form-quantity" value="{{ $product->min_order }}">
+                            <form action="<?php echo e(route('cart.add', $product->id)); ?>" method="POST" class="add-to-cart-form">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="quantity" id="form-quantity" value="<?php echo e($product->min_order); ?>">
                                 <input type="hidden" name="notes" id="form-notes">
                                 <input type="hidden" name="file" id="form-file">
                                 <button type="submit" class="w-full bg-white border-2 border-[#193497] text-[#193497] hover:bg-[#193497] hover:text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
@@ -340,7 +342,7 @@
                             </button>
 
                             <!-- WhatsApp -->
-                            <a href="{{ route('product.whatsapp', $product->id) }}" 
+                            <a href="<?php echo e(route('product.whatsapp', $product->id)); ?>" 
                                target="_blank"
                                class="w-full bg-[#193497] hover:bg-[#0f2354] text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center transition-all shadow-lg hover:shadow-2xl transform hover:scale-[1.02]">
                                 <i class="fab fa-whatsapp mr-3 text-2xl"></i>
@@ -362,18 +364,18 @@
                     <!-- Description Tab -->
                     <div id="description-tab" class="tab-content">
                         <div class="prose max-w-none text-gray-700">
-                            <p class="mb-4">{{ $product->description }}</p>
+                            <p class="mb-4"><?php echo e($product->description); ?></p>
                             
-                            @if($product->specifications && count($product->specifications) > 0)
+                            <?php if($product->specifications && count($product->specifications) > 0): ?>
                                 <h3 class="text-xl font-bold mt-6 mb-3">Spesifikasi:</h3>
                                 <ul class="list-disc pl-6 space-y-2">
-                                    @foreach($product->specifications as $spec)
-                                        @if(!empty($spec['key']) && !empty($spec['value']))
-                                            <li><strong>{{ $spec['key'] }}:</strong> {{ $spec['value'] }}</li>
-                                        @endif
-                                    @endforeach
+                                    <?php $__currentLoopData = $product->specifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $spec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if(!empty($spec['key']) && !empty($spec['value'])): ?>
+                                            <li><strong><?php echo e($spec['key']); ?>:</strong> <?php echo e($spec['value']); ?></li>
+                                        <?php endif; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -415,9 +417,9 @@
     </div>
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 // Image Modal
 const imageModal = document.getElementById('imageModal');
@@ -434,17 +436,17 @@ let imageArray = [];
 let currentImageIndex = 0;
 
 // Populate image array
-@foreach($productImages as $image)
-    imageArray.push('{{ asset('storage/' . $image) }}');
-@endforeach
+<?php $__currentLoopData = $productImages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $image): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    imageArray.push('<?php echo e(asset('storage/' . $image)); ?>');
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 // Tambahkan main image jika belum ada di array
 if (imageArray.length === 0) {
-    @if($product->image)
-        imageArray.push('{{ asset('storage/' . $product->image) }}');
-    @else
-        imageArray.push('{{ asset('images/default-product.jpg') }}');
-    @endif
+    <?php if($product->image): ?>
+        imageArray.push('<?php echo e(asset('storage/' . $product->image)); ?>');
+    <?php else: ?>
+        imageArray.push('<?php echo e(asset('images/default-product.jpg')); ?>');
+    <?php endif; ?>
 }
 
 // Function to show image at index
@@ -561,8 +563,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const discountRow = document.getElementById('discount-row');
     const discountAmount = document.getElementById('discount-amount');
 
-    const basePrice = {{ $product->price }};
-    const minOrder = {{ $product->min_order }};
+    const basePrice = <?php echo e($product->price); ?>;
+    const minOrder = <?php echo e($product->min_order); ?>;
     let promoDiscount = 0;
 
     function formatRupiah(val) {
@@ -725,9 +727,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const qty = qtyInput.value;
             const notes = notesInput.value;
             const file = formFile.value;
-            const productId = {{ $product->id }};
+            const productId = <?php echo e($product->id); ?>;
             
-            let checkoutUrl = "{{ route('cart.checkout') }}";
+            let checkoutUrl = "<?php echo e(route('cart.checkout')); ?>";
             const params = new URLSearchParams({
                 product_id: productId,
                 quantity: qty,
@@ -744,4 +746,5 @@ document.addEventListener('DOMContentLoaded', function () {
     updateTotal();
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\revisiimaji\resources\views/pages/products/show.blade.php ENDPATH**/ ?>

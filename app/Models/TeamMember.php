@@ -9,6 +9,8 @@ class TeamMember extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'team_members';
+    
     protected $fillable = [
         'name',
         'position',
@@ -23,8 +25,14 @@ class TeamMember extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'social_links' => 'array',
+        'social_links' => 'array', // INI PENTING: otomatis decode JSON ke array
         'order' => 'integer'
+    ];
+
+    protected $attributes = [
+        'color_scheme' => '#193497,#1e40af',
+        'order' => 0,
+        'is_active' => true
     ];
 
     public function scopeActive($query)
@@ -39,14 +47,6 @@ class TeamMember extends Model
 
     public function getGradientColorsAttribute()
     {
-        if ($this->color_scheme) {
-            $colors = explode(',', $this->color_scheme);
-            return [
-                'from' => $colors[0] ?? '#193497',
-                'to' => $colors[1] ?? '#1e40af'
-            ];
-        }
-
         return [
             'from' => '#193497',
             'to' => '#1e40af'
@@ -80,7 +80,20 @@ class TeamMember extends Model
             }
             return asset('storage/' . $this->image);
         }
-
         return null;
+    }
+    
+    // Helper method untuk mendapatkan social links sebagai array
+    public function getSocialLinksArrayAttribute()
+    {
+        if (is_array($this->social_links)) {
+            return $this->social_links;
+        }
+        
+        if (is_string($this->social_links)) {
+            return json_decode($this->social_links, true) ?? [];
+        }
+        
+        return [];
     }
 }

@@ -119,7 +119,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
-                            <?php echo e($user->created_at->format('d/m/Y')); ?>
+                            <?php echo e($user->created_at ? $user->created_at->format('d/m/Y') : '-'); ?>
 
                         </td>
                         <td class="px-6 py-4 text-sm">

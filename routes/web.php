@@ -9,26 +9,19 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\MidtransController;
 
-// Import models untuk About Us
+// Import models untuk About Us dan Consultation
 use App\Models\AboutUsSection;
 use App\Models\TeamMember;
 use App\Models\Achievement;
 use App\Models\CoreValue;
+use App\Models\ConsultationGeneral;
+use App\Models\ConsultationProduct;
+use App\Models\ConsultationCustomProduct;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/*
-|--------------------------------------------------------------------------
-| WEB ROUTES
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/about', function () {
-    return view('pages.about');
-})->name('about');
-
-// ===== TAMBAHKAN ROUTE INI =====
+// ===== ABOUT US ROUTE =====
 Route::get('/about-us', function () {
     try {
         // Ambil semua data untuk halaman about us dari database
@@ -49,7 +42,8 @@ Route::get('/about-us', function () {
         $achievements = Achievement::active()->ordered()->get();
         $coreValues = CoreValue::active()->ordered()->get();
         
-        return view('pages.about-us', compact(
+        // PERBAIKAN: Gunakan view 'pages.about' yang sudah ada
+        return view('pages.about', compact(
             'heroSection',
             'storySection',
             'missionSection',
@@ -72,7 +66,8 @@ Route::get('/about-us', function () {
         $achievements = collect();
         $coreValues = collect();
         
-        return view('pages.about-us', compact(
+        // PERBAIKAN: Gunakan view 'pages.about' yang sudah ada
+        return view('pages.about', compact(
             'sections',
             'teamMembers',
             'achievements',
@@ -80,7 +75,105 @@ Route::get('/about-us', function () {
         ));
     }
 })->name('about-us');
-// ===============================
+// =======================
+// WHATSAPP CONSULTATION ROUTES
+// =======================
+
+// General WhatsApp (Navbar, Home, CTA)
+Route::get('/whatsapp-chat', function () {
+    try {
+        $consultation = ConsultationGeneral::where('is_active', true)->first();
+        
+        if ($consultation) {
+            return redirect()->away($consultation->getWhatsAppUrl());
+        }
+    } catch (\Exception $e) {
+        \Log::error('WhatsApp General Error: ' . $e->getMessage());
+    }
+    
+    // Fallback jika tidak ada data atau error
+    $number = env('WHATSAPP_NUMBER', '6281234567890');
+    $message = env('WHATSAPP_MESSAGE', 'Halo Cipta Imaji, saya ingin konsultasi');
+    return redirect()->away("https://wa.me/{$number}?text=" . urlencode($message));
+})->name('whatsapp.chat');
+
+// Product WhatsApp (per produk)
+Route::get('/product/{id}/whatsapp', function ($id) {
+    try {
+        $product = App\Models\Product::findOrFail($id);
+        $consultation = ConsultationProduct::where('is_active', true)->first();
+        
+        if ($consultation) {
+            return redirect()->away($consultation->getWhatsAppUrl($product));
+        }
+    } catch (\Exception $e) {
+        \Log::error('WhatsApp Product Error: ' . $e->getMessage());
+    }
+    
+    // Fallback
+    $number = env('WHATSAPP_NUMBER', '6281234567890');
+    $message = "Halo, saya tertarik dengan produk ini. Bisa info lebih lanjut?";
+    return redirect()->away("https://wa.me/{$number}?text=" . urlencode($message));
+})->name('product.whatsapp');
+
+// Custom Product WhatsApp
+Route::get('/custom-product/{slug}/whatsapp', function ($slug) {
+    try {
+        $consultation = ConsultationCustomProduct::where('is_active', true)->first();
+        
+        if ($consultation) {
+            // Ubah slug menjadi nama produk yang bagus (contoh: "kaos-custom" -> "Kaos Custom")
+            $productName = str_replace('-', ' ', $slug);
+            $productName = ucwords($productName);
+            
+            return redirect()->away($consultation->getWhatsAppUrl($productName));
+        }
+    } catch (\Exception $e) {
+        \Log::error('WhatsApp Custom Error: ' . $e->getMessage());
+    }
+    
+    // Fallback
+    $number = env('WHATSAPP_NUMBER', '6281234567890');
+    $message = "Halo, saya ingin konsultasi tentang produk custom.";
+    return redirect()->away("https://wa.me/{$number}?text=" . urlencode($message));
+})->name('custom.whatsapp');
+
+// OPTIONAL: Route WhatsApp dengan parameter tipe (versi ringkas)
+Route::get('/wa/{type?}/{param?}', function ($type = 'general', $param = null) {
+    try {
+        if ($type == 'product' && $param) {
+            $product = App\Models\Product::find($param);
+            $consultation = ConsultationProduct::where('is_active', true)->first();
+            
+            if ($consultation && $product) {
+                return redirect()->away($consultation->getWhatsAppUrl($product));
+            }
+        }
+        elseif ($type == 'custom' && $param) {
+            $consultation = ConsultationCustomProduct::where('is_active', true)->first();
+            $productName = str_replace('-', ' ', $param);
+            $productName = ucwords($productName);
+            
+            if ($consultation) {
+                return redirect()->away($consultation->getWhatsAppUrl($productName));
+            }
+        }
+        else {
+            $consultation = ConsultationGeneral::where('is_active', true)->first();
+            
+            if ($consultation) {
+                return redirect()->away($consultation->getWhatsAppUrl());
+            }
+        }
+    } catch (\Exception $e) {
+        \Log::error('WhatsApp Route Error: ' . $e->getMessage());
+    }
+    
+    // Fallback
+    $number = env('WHATSAPP_NUMBER', '6281234567890');
+    $message = env('WHATSAPP_MESSAGE', 'Halo Cipta Imaji, saya ingin konsultasi');
+    return redirect()->away("https://wa.me/{$number}?text=" . urlencode($message));
+})->name('wa');
 
 // =======================
 // LOGIN (CUSTOM POST)
@@ -114,12 +207,6 @@ Route::get('/categories', [FrontProductController::class, 'categories'])->name('
 
 // Route untuk Live Search
 Route::post('/products/live-search', [FrontProductController::class, 'liveSearch'])->name('products.live-search');
-
-Route::get('/whatsapp', function () {
-    $number = env('WHATSAPP_NUMBER', '6281234567890');
-    $message = env('WHATSAPP_MESSAGE', 'Halo Cipta Imaji, saya ingin konsultasi');
-    return redirect()->away("https://wa.me/{$number}?text={$message}");
-})->name('whatsapp.chat');
 
 Route::get('/track-order', function () {
     return view('pages.orders.track');

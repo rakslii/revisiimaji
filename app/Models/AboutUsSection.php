@@ -29,6 +29,15 @@ class AboutUsSection extends Model
         'order' => 'integer'
     ];
 
+    protected $attributes = [
+        'background_color' => null,  // Tidak digunakan, styling fixed di frontend
+        'text_color' => null,        // Tidak digunakan, styling fixed di frontend
+        'icon' => null,              // Tidak digunakan, styling fixed di frontend
+        'position' => 'main',
+        'order' => 0,
+        'is_active' => true
+    ];
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

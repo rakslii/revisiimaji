@@ -10,45 +10,24 @@ use App\Models\CoreValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class AboutUsController extends Controller
 {
     /**
      * Display about us settings index
      */
-      public function index(Request $request)
+    public function index(Request $request)
     {
+        // Ambil tab dari request, default 'sections'
         $tab = $request->get('tab', 'sections');
         
-        // Inisialisasi data dengan array kosong
-        $data = [
-            'sections' => collect(),
-            'teamMembers' => collect(),
-            'achievements' => collect(),
-            'values' => collect()
-        ];
+        // Ambil data dari database
+        $sections = AboutUsSection::orderBy('order')->get();
+        $teamMembers = TeamMember::orderBy('order')->get();
+        $achievements = Achievement::orderBy('order')->get();
+        $values = CoreValue::orderBy('order')->get();
         
-        // Get data based on selected tab
-        switch ($tab) {
-            case 'sections':
-                $data['sections'] = AboutUsSection::orderBy('order')->get();
-                break;
-                
-            case 'team':
-                $data['teamMembers'] = TeamMember::orderBy('order')->get();
-                break;
-                
-            case 'achievements':
-                $data['achievements'] = Achievement::orderBy('order')->get();
-                break;
-                
-            case 'values':
-                $data['values'] = CoreValue::orderBy('order')->get();
-                break;
-        }
-        
-        // Section types for forms
+        // Section types untuk dropdown
         $sectionTypes = [
             'hero' => 'Hero Section',
             'story' => 'Our Story',
@@ -60,7 +39,7 @@ class AboutUsController extends Controller
             'cta' => 'Call to Action'
         ];
         
-        // Icon options
+        // Icon options untuk dropdown
         $iconOptions = [
             'fas fa-star' => 'Star',
             'fas fa-rocket' => 'Rocket',
@@ -87,9 +66,18 @@ class AboutUsController extends Controller
             'fas fa-bolt' => 'Bolt',
         ];
         
-        return view('pages.admin.settings.about-us.index', compact('tab', 'data', 'sectionTypes', 'iconOptions'));
+        // Kirim semua data ke view
+        return view('pages.admin.settings.about-us.index', compact(
+            'tab', 
+            'sections', 
+            'teamMembers', 
+            'achievements', 
+            'values', 
+            'sectionTypes', 
+            'iconOptions'
+        ));
     }
-
+    
     // ==================== SECTIONS CRUD ====================
 
     public function storeSection(Request $request)
@@ -101,10 +89,7 @@ class AboutUsController extends Controller
             'section_type' => 'required|in:hero,story,mission,values,team,stats,technology,cta',
             'position' => 'nullable|string|max:50',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
-            'background_color' => 'nullable|string|max:50',
-            'text_color' => 'nullable|string|max:50',
-            'icon' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -115,11 +100,19 @@ class AboutUsController extends Controller
         }
 
         try {
-            $sectionData = $validator->validated();
-            $sectionData['is_active'] = $request->boolean('is_active');
-            $sectionData['order'] = $request->order ?? 0;
-
-            AboutUsSection::create($sectionData);
+            AboutUsSection::create([
+                'title' => $request->title,
+                'subtitle' => $request->subtitle,
+                'content' => $request->content,
+                'section_type' => $request->section_type,
+                'position' => $request->position ?? 'main',
+                'order' => $request->order ?? 0,
+                'is_active' => $request->has('is_active') ? true : false,
+                'background_color' => null,
+                'text_color' => null,
+                'icon' => null,
+                'data' => null
+            ]);
 
             return redirect()->route('admin.settings.about-us.index', ['tab' => 'sections'])
                 ->with('success', 'Section created successfully.');
@@ -143,10 +136,7 @@ class AboutUsController extends Controller
             'section_type' => 'required|in:hero,story,mission,values,team,stats,technology,cta',
             'position' => 'nullable|string|max:50',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
-            'background_color' => 'nullable|string|max:50',
-            'text_color' => 'nullable|string|max:50',
-            'icon' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -157,11 +147,15 @@ class AboutUsController extends Controller
         }
 
         try {
-            $sectionData = $validator->validated();
-            $sectionData['is_active'] = $request->boolean('is_active');
-            $sectionData['order'] = $request->order ?? 0;
-
-            $section->update($sectionData);
+            $section->update([
+                'title' => $request->title,
+                'subtitle' => $request->subtitle,
+                'content' => $request->content,
+                'section_type' => $request->section_type,
+                'position' => $request->position ?? 'main',
+                'order' => $request->order ?? 0,
+                'is_active' => $request->has('is_active') ? true : false,
+            ]);
 
             return redirect()->route('admin.settings.about-us.index', ['tab' => 'sections'])
                 ->with('success', 'Section updated successfully.');
@@ -223,12 +217,11 @@ class AboutUsController extends Controller
             'bio' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
             'initial' => 'nullable|string|max:5',
-            'color_scheme' => 'nullable|string|max:100',
             'social_linkedin' => 'nullable|url|max:255',
             'social_instagram' => 'nullable|url|max:255',
             'social_twitter' => 'nullable|url|max:255',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -244,9 +237,9 @@ class AboutUsController extends Controller
                 'position' => $request->position,
                 'bio' => $request->bio,
                 'initial' => $request->initial,
-                'color_scheme' => $request->color_scheme,
+                'color_scheme' => '#193497,#1e40af',
                 'order' => $request->order ?? 0,
-                'is_active' => $request->boolean('is_active'),
+                'is_active' => $request->has('is_active') ? true : false,
                 'social_links' => [
                     'linkedin' => $request->social_linkedin,
                     'instagram' => $request->social_instagram,
@@ -282,12 +275,11 @@ class AboutUsController extends Controller
             'bio' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
             'initial' => 'nullable|string|max:5',
-            'color_scheme' => 'nullable|string|max:100',
             'social_linkedin' => 'nullable|url|max:255',
             'social_instagram' => 'nullable|url|max:255',
             'social_twitter' => 'nullable|url|max:255',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -303,9 +295,9 @@ class AboutUsController extends Controller
                 'position' => $request->position,
                 'bio' => $request->bio,
                 'initial' => $request->initial,
-                'color_scheme' => $request->color_scheme,
+                'color_scheme' => $member->color_scheme ?? '#193497,#1e40af',
                 'order' => $request->order ?? 0,
-                'is_active' => $request->boolean('is_active'),
+                'is_active' => $request->has('is_active') ? true : false,
                 'social_links' => [
                     'linkedin' => $request->social_linkedin,
                     'instagram' => $request->social_instagram,
@@ -369,7 +361,7 @@ class AboutUsController extends Controller
             'suffix' => 'nullable|string|max:10',
             'description' => 'nullable|string|max:500',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -380,11 +372,15 @@ class AboutUsController extends Controller
         }
 
         try {
-            $achievementData = $validator->validated();
-            $achievementData['is_active'] = $request->boolean('is_active');
-            $achievementData['order'] = $request->order ?? 0;
-
-            Achievement::create($achievementData);
+            Achievement::create([
+                'title' => $request->title,
+                'icon' => $request->icon,
+                'value' => $request->value,
+                'suffix' => $request->suffix,
+                'description' => $request->description,
+                'order' => $request->order ?? 0,
+                'is_active' => $request->has('is_active') ? true : false,
+            ]);
 
             return redirect()->route('admin.settings.about-us.index', ['tab' => 'achievements'])
                 ->with('success', 'Achievement created successfully.');
@@ -408,7 +404,7 @@ class AboutUsController extends Controller
             'suffix' => 'nullable|string|max:10',
             'description' => 'nullable|string|max:500',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -419,11 +415,15 @@ class AboutUsController extends Controller
         }
 
         try {
-            $achievementData = $validator->validated();
-            $achievementData['is_active'] = $request->boolean('is_active');
-            $achievementData['order'] = $request->order ?? 0;
-
-            $achievement->update($achievementData);
+            $achievement->update([
+                'title' => $request->title,
+                'icon' => $request->icon,
+                'value' => $request->value,
+                'suffix' => $request->suffix,
+                'description' => $request->description,
+                'order' => $request->order ?? 0,
+                'is_active' => $request->has('is_active') ? true : false,
+            ]);
 
             return redirect()->route('admin.settings.about-us.index', ['tab' => 'achievements'])
                 ->with('success', 'Achievement updated successfully.');
@@ -461,9 +461,8 @@ class AboutUsController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'icon' => 'required|string|max:50',
-            'color_scheme' => 'nullable|string|max:100',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -474,11 +473,14 @@ class AboutUsController extends Controller
         }
 
         try {
-            $valueData = $validator->validated();
-            $valueData['is_active'] = $request->boolean('is_active');
-            $valueData['order'] = $request->order ?? 0;
-
-            CoreValue::create($valueData);
+            CoreValue::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'icon' => $request->icon,
+                'color_scheme' => '#193497,#1e40af',
+                'order' => $request->order ?? 0,
+                'is_active' => $request->has('is_active') ? true : false,
+            ]);
 
             return redirect()->route('admin.settings.about-us.index', ['tab' => 'values'])
                 ->with('success', 'Core value created successfully.');
@@ -499,9 +501,8 @@ class AboutUsController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
             'icon' => 'required|string|max:50',
-            'color_scheme' => 'nullable|string|max:100',
             'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -512,11 +513,14 @@ class AboutUsController extends Controller
         }
 
         try {
-            $valueData = $validator->validated();
-            $valueData['is_active'] = $request->boolean('is_active');
-            $valueData['order'] = $request->order ?? 0;
-
-            $value->update($valueData);
+            $value->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'icon' => $request->icon,
+                'color_scheme' => $value->color_scheme ?? '#193497,#1e40af',
+                'order' => $request->order ?? 0,
+                'is_active' => $request->has('is_active') ? true : false,
+            ]);
 
             return redirect()->route('admin.settings.about-us.index', ['tab' => 'values'])
                 ->with('success', 'Core value updated successfully.');

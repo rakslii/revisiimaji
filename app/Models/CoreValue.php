@@ -23,6 +23,12 @@ class CoreValue extends Model
         'order' => 'integer'
     ];
 
+    protected $attributes = [
+        'color_scheme' => '#193497,#1e40af', // Default fixed value
+        'order' => 0,
+        'is_active' => true
+    ];
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -35,6 +41,13 @@ class CoreValue extends Model
 
     public function getGradientColorsAttribute()
     {
+        // Selalu gunakan default fixed colors, ignore database
+        return [
+            'from' => '#193497',
+            'to' => '#1e40af'
+        ];
+        
+        /* Jika ingin tetap menggunakan dari database, gunakan ini:
         if ($this->color_scheme) {
             $colors = explode(',', $this->color_scheme);
             return [
@@ -47,5 +60,6 @@ class CoreValue extends Model
             'from' => '#193497',
             'to' => '#1e40af'
         ];
+        */
     }
 }

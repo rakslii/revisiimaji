@@ -29,10 +29,10 @@
                         Mulai Sekarang
                         <i class="fas fa-arrow-right ml-3"></i>
                     </a>
-                    <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" 
-                       class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition duration-300 flex items-center text-lg">
-                        <i class="fab fa-whatsapp mr-3"></i> Konsultasi
-                    </a>
+             <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank" 
+   class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition duration-300 flex items-center text-lg">
+    <i class="fab fa-whatsapp mr-3"></i> Konsultasi
+</a>
                 </div>
 
                 <!-- Stats Row -->

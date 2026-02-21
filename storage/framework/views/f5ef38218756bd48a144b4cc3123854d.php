@@ -25,9 +25,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 ?>
 
 <?php if($heroSection): ?>
-<!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-[#193497] via-[#1e40af] to-[#193497] text-white overflow-hidden min-h-[70vh] flex items-center"
-         style="background-color: <?php echo e($heroSection->background_color); ?>; color: <?php echo e($heroSection->text_color); ?>;">
+<!-- Hero Section - FIXED STYLING -->
+<section class="relative bg-gradient-to-br from-[#193497] via-[#1e40af] to-[#193497] text-white overflow-hidden min-h-[70vh] flex items-center">
     <div class="absolute inset-0 opacity-10">
         <div class="absolute top-20 right-20 w-96 h-96 bg-[#c0f820] rounded-full blur-3xl"></div>
         <div class="absolute bottom-20 left-20 w-96 h-96 bg-[#720e87] rounded-full blur-3xl"></div>
@@ -68,9 +67,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($storySection): ?>
-<!-- Story Section -->
-<section class="py-16 md:py-20 lg:py-24 bg-white relative overflow-hidden"
-         style="background-color: <?php echo e($storySection->background_color); ?>; color: <?php echo e($storySection->text_color); ?>;">
+<!-- Story Section - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-white relative overflow-hidden">
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -125,7 +123,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
                 <!-- Right Visual -->
                 <div class="story-image mt-8 lg:mt-0">
                     <div class="relative">
-                        <!-- Main Image Container -->
+                        <!-- Main Image Container - FIXED -->
                         <div class="relative rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#193497] to-[#720e87] p-8">
                             <?php if($storySection->data && isset($storySection->data['image'])): ?>
                             <img src="<?php echo e(asset('storage/' . $storySection->data['image'])); ?>" 
@@ -158,9 +156,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($missionSection): ?>
-<!-- Mission & Vision -->
-<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white"
-         style="background-color: <?php echo e($missionSection->background_color); ?>; color: <?php echo e($missionSection->text_color); ?>;">
+<!-- Mission & Vision - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white">
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12 lg:mb-16 section-header">
@@ -183,7 +180,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
             ?>
 
             <div class="grid lg:grid-cols-2 gap-8">
-                <!-- Vision Card -->
+                <!-- Vision Card - FIXED -->
                 <?php if($visionData): ?>
                 <div class="vision-card group h-full">
                     <div class="bg-white rounded-3xl p-6 md:p-8 lg:p-10 border-2 border-gray-100 hover:border-[#193497] transition-colors duration-300 h-full flex flex-col">
@@ -201,7 +198,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
                 </div>
                 <?php endif; ?>
 
-                <!-- Mission Card -->
+                <!-- Mission Card - FIXED -->
                 <?php if(!empty($missionList)): ?>
                 <div class="mission-card group h-full">
                     <div class="bg-white rounded-3xl p-6 md:p-8 lg:p-10 border-2 border-gray-100 hover:border-[#720e87] transition-colors duration-300 h-full flex flex-col">
@@ -229,9 +226,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($valuesSection && $coreValues->count() > 0): ?>
-<!-- Core Values -->
-<section class="py-16 md:py-20 lg:py-24 bg-white"
-         style="background-color: <?php echo e($valuesSection->background_color); ?>; color: <?php echo e($valuesSection->text_color); ?>;">
+<!-- Core Values - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-white">
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12 lg:mb-16 section-header">
@@ -251,10 +247,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
                 <?php $__currentLoopData = $coreValues; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="value-card h-full">
                     <div class="bg-white border-2 border-gray-100 rounded-3xl p-6 hover:border-transparent hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
-                        <?php
-                        $gradient = $value->gradient_colors;
-                        ?>
-                        <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-[<?php echo e($gradient['from']); ?>] to-[<?php echo e($gradient['to']); ?>] rounded-2xl flex items-center justify-center mb-6">
+                        <!-- Icon dengan gradient FIXED -->
+                        <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-[#193497] to-[#1e40af] rounded-2xl flex items-center justify-center mb-6">
                             <i class="<?php echo e($value->icon); ?> text-white text-xl md:text-2xl"></i>
                         </div>
                         
@@ -277,9 +271,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($teamSection && $teamMembers->count() > 0): ?>
-<!-- Team Section -->
-<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white"
-         style="background-color: <?php echo e($teamSection->background_color); ?>; color: <?php echo e($teamSection->text_color); ?>;">
+<!-- Team Section - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-white">
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12 lg:mb-16 section-header">
@@ -299,8 +292,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
                 <?php $__currentLoopData = $teamMembers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $member): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="team-card">
                     <div class="bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300 border border-gray-100 h-full flex flex-col">
-                        <!-- Avatar -->
-                        <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[<?php echo e($member->gradient_colors['from']); ?>] to-[<?php echo e($member->gradient_colors['to']); ?>] rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-6 overflow-hidden">
+                        <!-- Avatar dengan gradient FIXED -->
+                        <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-[#193497] to-[#1e40af] rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-6 overflow-hidden">
                             <?php if($member->image): ?>
                             <img src="<?php echo e($member->image_url); ?>" alt="<?php echo e($member->name); ?>" class="w-full h-full object-cover">
                             <?php else: ?>
@@ -350,9 +343,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($statsSection && $achievements->count() > 0): ?>
-<!-- Stats Section -->
-<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden"
-         style="background-color: <?php echo e($statsSection->background_color); ?>; color: <?php echo e($statsSection->text_color); ?>;">
+<!-- Stats Section - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
     <div class="absolute inset-0 opacity-10">
         <div class="absolute top-20 right-20 w-96 h-96 bg-[#c0f820] rounded-full blur-3xl"></div>
         <div class="absolute bottom-20 left-20 w-96 h-96 bg-[#720e87] rounded-full blur-3xl"></div>
@@ -402,9 +394,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($technologySection): ?>
-<!-- Technology & Equipment -->
-<section class="py-16 md:py-20 lg:py-24 bg-white"
-         style="background-color: <?php echo e($technologySection->background_color); ?>; color: <?php echo e($technologySection->text_color); ?>">
+<!-- Technology & Equipment - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-white">
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12 lg:mb-16 section-header">
@@ -428,7 +419,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 tech-grid">
                 <?php $__currentLoopData = $techData['technologies']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tech): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="tech-card h-full">
-                    <div class="bg-gradient-to-br from-[<?php echo e($tech['gradient_from'] ?? '#193497'); ?>] to-[<?php echo e($tech['gradient_to'] ?? '#1e40af'); ?>] rounded-3xl p-6 md:p-8 hover:shadow-2xl transition-shadow duration-300 h-full flex flex-col">
+                    <!-- Tech card dengan gradient FIXED -->
+                    <div class="bg-gradient-to-br from-[#193497] to-[#1e40af] rounded-3xl p-6 md:p-8 hover:shadow-2xl transition-shadow duration-300 h-full flex flex-col">
                         <?php if($tech['icon'] ?? false): ?>
                         <div class="w-14 h-14 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
                             <i class="<?php echo e($tech['icon']); ?> text-white text-xl md:text-2xl"></i>
@@ -448,9 +440,8 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 <?php endif; ?>
 
 <?php if($ctaSection): ?>
-<!-- CTA Section -->
-<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden"
-         style="background-color: <?php echo e($ctaSection->background_color); ?>; color: <?php echo e($ctaSection->text_color); ?>;">
+<!-- CTA Section - FIXED STYLING -->
+<section class="py-16 md:py-20 lg:py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] relative overflow-hidden">
     <div class="absolute inset-0 opacity-10">
         <div class="absolute top-0 right-0 w-96 h-96 bg-[#c0f820] rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#720e87] rounded-full blur-3xl"></div>
@@ -496,7 +487,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
             <?php else: ?>
-            <!-- Default CTA buttons -->
+            <!-- Default CTA buttons - FIXED -->
             <div class="flex flex-col sm:flex-row justify-center gap-4 cta-buttons">
                 <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank"
                    class="bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 flex items-center justify-center gap-3 text-center dynamic-button">
@@ -520,6 +511,147 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 
 <?php $__env->startPush('styles'); ?>
 <style>
+/* ==================== CONTAINER STYLES - MEMBUAT SECTION TERLIHAT JELAS ==================== */
+
+/* Container utama setiap section */
+section {
+    position: relative;
+    scroll-margin-top: 80px; /* Memberi jarak saat anchor scroll */
+}
+
+/* Efek pemisah antar section - garis gradient halus */
+section:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 1200px;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(25, 52, 151, 0.1) 20%,
+        rgba(25, 52, 151, 0.3) 50%,
+        rgba(25, 52, 151, 0.1) 80%,
+        transparent 100%
+    );
+    z-index: 5;
+}
+
+/* Container dalam dengan background yang jelas */
+.container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Background pattern halus untuk membedakan section */
+section:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+section:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Card container dengan border dan shadow */
+.value-card > div,
+.team-card > div,
+.tech-card > div,
+.stat-card > div,
+.vision-card > div,
+.mission-card > div {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.value-card > div:hover,
+.team-card > div:hover,
+.tech-card > div:hover,
+.stat-card > div:hover,
+.vision-card > div:hover,
+.mission-card > div:hover {
+    border-color: rgba(25, 52, 151, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(25, 52, 151, 0.1), 0 10px 10px -5px rgba(25, 52, 151, 0.04);
+    transform: translateY(-2px);
+}
+
+/* Section header dengan underline */
+.section-header {
+    position: relative;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #193497, #720e87);
+    border-radius: 2px;
+}
+
+/* Untuk header di kiri (story section) */
+.story-content .section-header::after {
+    left: 0;
+    transform: none;
+}
+
+/* Divider visual antar elemen */
+.achievements > div {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: white;
+}
+
+/* Stats card dengan efek kaca */
+.stat-card > div {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-card > div:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Shadow yang lebih tegas untuk floating elements */
+.floating-stat {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive spacing */
+@media (min-width: 768px) {
+    section {
+        padding-top: 6rem;
+        padding-bottom: 6rem;
+    }
+    
+    .section-header {
+        margin-bottom: 3rem;
+    }
+}
+
+@media (max-width: 767px) {
+    section {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+    
+    /* Hilangkan garis pemisah di mobile */
+    section:not(:last-child)::after {
+        width: 90%;
+        height: 1px;
+    }
+}
+
 /* Dynamic Text Sizing - PRIMARY (always applied) */
 .dynamic-text {
     font-size: clamp(2rem, 5vw, 4.5rem);
@@ -577,7 +709,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 .value-card > div {
     display: flex;
     flex-direction: column;
-    min-height: 280px; /* Base height */
+    min-height: 280px;
 }
 
 .value-description {
@@ -588,7 +720,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 .team-card > div {
     display: flex;
     flex-direction: column;
-    min-height: 380px; /* Base height */
+    min-height: 380px;
 }
 
 .team-bio {
@@ -609,7 +741,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 .tech-card > div {
     display: flex;
     flex-direction: column;
-    min-height: 260px; /* Base height */
+    min-height: 260px;
 }
 
 .tech-description {
@@ -662,7 +794,6 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
         grid-template-columns: 1fr !important;
     }
     
-    /* Adjust card heights for mobile */
     .value-card > div {
         min-height: 320px;
     }
@@ -686,7 +817,6 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
         grid-template-columns: repeat(2, 1fr);
     }
     
-    /* Adjust card heights for tablet */
     .value-card > div {
         min-height: 300px;
     }
@@ -702,7 +832,6 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
 
 /* Desktop Adjustments */
 @media (min-width: 1025px) {
-    /* Longer text gets more space */
     .text-length-long .value-card > div {
         min-height: 320px;
     }
@@ -715,7 +844,6 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
         min-height: 300px;
     }
     
-    /* Shorter text gets less space */
     .text-length-short .value-card > div {
         min-height: 260px;
     }
@@ -729,7 +857,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
     }
 }
 
-/* Text Length Detection - SECONDARY (only adds, doesn't override clamp) */
+/* Text Length Detection */
 .text-length-long .dynamic-content,
 .text-length-long .dynamic-subtitle {
     font-size: 0.9em;
@@ -748,7 +876,6 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
     line-height: 1.5;
 }
 
-/* Card with long content - only affects spacing, not font size */
 .text-length-long .value-card,
 .text-length-long .team-card,
 .text-length-long .tech-card {
@@ -763,7 +890,7 @@ $coreValues = \App\Models\CoreValue::active()->ordered()->get();
     margin-bottom: 0.5rem;
 }
 
-/* Flex layout ensures content fills space properly */
+/* Flex layout */
 .flex-grow {
     flex-grow: 1;
 }
@@ -812,7 +939,6 @@ a, button, .transition-all {
 }
 </style>
 <?php $__env->stopPush(); ?>
-
 <?php $__env->startPush('scripts'); ?>
 <!-- GSAP Core -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -824,38 +950,29 @@ a, button, .transition-all {
 function adjustTextBasedOnLength() {
     console.log('🔧 Adjusting text based on length...');
     
-    // Adjust content areas (paragraphs, descriptions)
     document.querySelectorAll('.dynamic-content, .dynamic-subtitle, .value-description, .team-bio, .tech-description').forEach(element => {
         const text = element.textContent.trim();
         const length = text.length;
         
-        // Remove any existing classes
         element.classList.remove('text-length-long', 'text-length-medium', 'text-length-short');
         
-        // Add appropriate class based on length
         if (length > 500) {
             element.classList.add('text-length-long');
-            console.log(`📏 Long text (${length} chars):`, text.substring(0, 50) + '...');
         } else if (length > 200) {
             element.classList.add('text-length-medium');
-            console.log(`📏 Medium text (${length} chars):`, text.substring(0, 50) + '...');
         } else {
             element.classList.add('text-length-short');
-            console.log(`📏 Short text (${length} chars):`, text.substring(0, 50) + '...');
         }
     });
 
-    // Adjust parent containers for cards
     document.querySelectorAll('.value-card, .team-card, .tech-card').forEach(card => {
         const description = card.querySelector('.value-description, .team-bio, .tech-description');
         if (description) {
             const text = description.textContent.trim();
             const length = text.length;
             
-            // Remove any existing classes
             card.classList.remove('text-length-long', 'text-length-medium', 'text-length-short');
             
-            // Add class to parent card
             if (length > 500) {
                 card.classList.add('text-length-long');
             } else if (length > 200) {
@@ -866,7 +983,6 @@ function adjustTextBasedOnLength() {
         }
     });
 
-    // Adjust mission list items
     document.querySelectorAll('.dynamic-list').forEach(list => {
         const items = list.querySelectorAll('li');
         let totalLength = 0;
@@ -895,12 +1011,10 @@ function adjustTextBasedOnLength() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Page loaded, initializing...');
     
-    // First, adjust text based on length
     setTimeout(() => {
         adjustTextBasedOnLength();
-    }, 100); // Small delay to ensure DOM is fully loaded
+    }, 100);
     
-    // Re-adjust on window resize with debounce
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
@@ -911,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 250);
     });
 
-    // Register ScrollTrigger plugin
     gsap.registerPlugin(ScrollTrigger);
 
     // ==================== HERO SECTION ====================
@@ -965,7 +1078,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ease: 'power3.out'
     });
 
-    // Floating stats animation
     gsap.to('.floating-stat', {
         y: -15,
         duration: 2,
@@ -1083,7 +1195,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const target = parseInt(counter.dataset.target);
         const suffix = counter.dataset.suffix || '';
         
-        // Animate counter
         gsap.to(counter, {
             scrollTrigger: {
                 trigger: counter,
@@ -1101,7 +1212,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Animate stats cards
     gsap.from('.stat-card', {
         scrollTrigger: {
             trigger: '.stats-grid',
@@ -1175,7 +1285,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ==================== HOVER ANIMATIONS ====================
     
-    // Card hover effects
     document.querySelectorAll('.value-card, .team-card, .tech-card, .stat-card').forEach(card => {
         card.addEventListener('mouseenter', function() {
             gsap.to(this, {
@@ -1194,7 +1303,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Icon rotation on hover
     document.querySelectorAll('.value-card .w-16, .team-card .w-24, .tech-card .w-16').forEach(icon => {
         const parent = icon.closest('.value-card, .team-card, .tech-card');
         
@@ -1218,7 +1326,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ==================== SCROLL PROGRESS BAR ====================
-    // Create progress bar element
     const progressBar = document.createElement('div');
     progressBar.className = 'progress-bar';
     document.body.appendChild(progressBar);
@@ -1237,14 +1344,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✨ GSAP animations initialized with dynamic text adjustment');
 });
 
-// Function to re-adjust layout when content changes (for admin edits)
 window.reAdjustLayout = function() {
     console.log('🔄 Manual layout adjustment triggered');
     adjustTextBasedOnLength();
-    ScrollTrigger.refresh(); // Refresh GSAP scroll triggers
+    ScrollTrigger.refresh();
 };
 
-// Also adjust when images are loaded
 window.addEventListener('load', function() {
     console.log('🖼️ All assets loaded, final adjustment');
     setTimeout(adjustTextBasedOnLength, 500);

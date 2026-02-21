@@ -49,21 +49,12 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Color Scheme (Gradient)</label>
-                    <input type="text" 
-                           id="value_color_scheme"
-                           name="color_scheme"
-                           placeholder="#193497,#1e40af"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <p class="text-xs text-gray-500 mt-1">Format: from_color,to_color</p>
-                </div>
-                
-                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Order</label>
                     <input type="number" 
                            id="value_order"
                            name="order"
                            min="0"
+                           value="0"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             </div>
@@ -74,6 +65,7 @@
                            id="value_is_active"
                            name="is_active"
                            value="1"
+                           checked
                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <span class="ml-2 text-sm text-gray-600">Active (visible on website)</span>
                 </label>

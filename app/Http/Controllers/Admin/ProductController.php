@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -30,8 +31,7 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $query = Product::with('category');
-
+       $query = Product::with('productCategory');
         // Search
         if ($request->has('search') && $request->search) {
             $query->where(function($q) use ($request) {
@@ -40,15 +40,7 @@ class ProductController extends Controller
                   ->orWhere('short_description', 'like', '%' . $request->search . '%');
             });
         }
-// Hapus filter untuk category (category ID)
-// if ($request->has('category') && $request->category) {
-//     $query->where('category_id', $request->category);
-// }
 
-// Tetap pertahankan filter untuk category_type
-if ($request->has('category_type') && $request->category_type) {
-    $query->where('category', $request->category_type);
-}
         // Filter by category
         if ($request->has('category') && $request->category) {
             $query->where('category_id', $request->category);
@@ -122,7 +114,7 @@ if ($request->has('category_type') && $request->category_type) {
                     break;
             }
         } else {
-            $query->latest(); // Default sort
+            $query->latest();
         }
 
         $perPage = $request->get('per_page', 15);
@@ -132,10 +124,12 @@ if ($request->has('category_type') && $request->category_type) {
         return view('pages.admin.products.index', compact('products', 'categories'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $categories = ProductCategory::active()->get();
-        return view('pages.admin.products.create', compact('categories'));
+        $selectedType = $request->get('type', 'instan');
+        
+        return view('pages.admin.products.create', compact('categories', 'selectedType'));
     }
 
     public function store(Request $request)
@@ -154,17 +148,11 @@ if ($request->has('category_type') && $request->category_type) {
             // Main image
             'image' => 'required|image|max:5120',
 
-            // Additional images (image_2 to image_5)
+            // Additional images (image_1 to image_4)
+            'image_1' => 'nullable|image|max:5120',
             'image_2' => 'nullable|image|max:5120',
             'image_3' => 'nullable|image|max:5120',
             'image_4' => 'nullable|image|max:5120',
-            'image_5' => 'nullable|image|max:5120',
-
-            // Thumbnail
-            'thumbnail' => 'nullable|image|max:5120',
-
-            // Main image override
-            'main_image' => 'nullable|image|max:5120',
 
             // Specifications
             'specifications' => 'nullable|array',
@@ -173,26 +161,14 @@ if ($request->has('category_type') && $request->category_type) {
         ]);
 
         try {
-            // Handle main image (backward compatibility)
+            // Handle main image
             if ($request->hasFile('image')) {
                 $path = $request->file('image')->store('products', 'public');
                 $validated['image'] = $path;
             }
 
-            // Handle main_image (new field)
-            if ($request->hasFile('main_image')) {
-                $path = $request->file('main_image')->store('products/main', 'public');
-                $validated['main_image'] = $path;
-            }
-
-            // Handle thumbnail
-            if ($request->hasFile('thumbnail')) {
-                $path = $request->file('thumbnail')->store('products/thumbnails', 'public');
-                $validated['thumbnail'] = $path;
-            }
-
-            // Handle additional images (image_2 to image_5)
-            for ($i = 2; $i <= 5; $i++) {
+            // Handle additional images (image_1 to image_4)
+            for ($i = 1; $i <= 4; $i++) {
                 $field = "image_{$i}";
                 if ($request->hasFile($field)) {
                     $path = $request->file($field)->store("products/additional", 'public');
@@ -200,9 +176,47 @@ if ($request->has('category_type') && $request->category_type) {
                 }
             }
 
-            // Get category type from selected category
+            // Get category from selected category
             $category = ProductCategory::find($validated['category_id']);
-            $validated['category'] = $category->type;
+            
+            if (!$category) {
+                throw new \Exception('Category not found');
+            }
+            
+            // Log category yang dipilih
+            \Log::info('Selected category:', [
+                'id' => $category->id,
+                'name' => $category->name,
+                'type' => $category->type
+            ]);
+            
+            // Set required fields dari category yang dipilih
+            $categoryType = $category->type;
+            
+            // Validasi nilai ENUM
+            if (!in_array($categoryType, ['instan', 'non-instan'])) {
+                \Log::warning('Invalid category type, defaulting to instan', ['type' => $categoryType]);
+                $categoryType = 'instan';
+            }
+            
+            $validated['category'] = $categoryType;
+            $validated['category_type'] = $categoryType;
+            
+            // Set required fields yang tidak ada di form
+            $validated['discount_calculation_type'] = 'auto';
+            $validated['calculated_discount_percent'] = $request->discount_percent ?? 0;
+            $validated['base_discount_percent'] = $request->discount_percent ?? 0;
+            $validated['sales_count'] = 0;
+            $validated['rating'] = 0;
+
+            // Set null untuk field yang tidak digunakan
+            $validated['main_image'] = null;
+            $validated['thumbnail'] = null;
+            $validated['additional_images'] = null;
+            $validated['gallery_images'] = null;
+            $validated['active_product_promotion_id'] = null;
+            $validated['discount_override_percent'] = null;
+            $validated['image_5'] = null;
 
             // Process specifications
             if ($request->has('specifications')) {
@@ -222,22 +236,28 @@ if ($request->has('category_type') && $request->category_type) {
 
             $validated['is_active'] = $request->has('is_active') ? 1 : 0;
 
+            // Log final data sebelum create
+            \Log::info('Creating product with final data:', [
+                'name' => $validated['name'],
+                'category_id' => $validated['category_id'],
+                'category' => $validated['category'],
+                'category_type' => $validated['category_type'],
+                'price' => $validated['price'],
+                'stock' => $validated['stock']
+            ]);
+
             // Create product
             $product = Product::create($validated);
-
-            // Handle gallery images from additional_images field (JSON)
-            if ($request->has('additional_images_paths')) {
-                $additionalPaths = json_decode($request->additional_images_paths, true);
-                if (is_array($additionalPaths) && !empty($additionalPaths)) {
-                    $product->additional_images = $additionalPaths;
-                    $product->save();
-                }
-            }
+            
+            \Log::info('Product created successfully with ID: ' . $product->id);
 
             return redirect()->route('admin.products.index')
                 ->with('success', 'Product created successfully');
 
         } catch (\Exception $e) {
+            \Log::error('Failed to create product: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            
             return redirect()->back()
                 ->with('error', 'Failed to create product: ' . $e->getMessage())
                 ->withInput();
@@ -246,13 +266,15 @@ if ($request->has('category_type') && $request->category_type) {
 
     public function show($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        // Ubah semua pemanggilan:
+$product = Product::with('productCategory')->findOrFail($id);
         return view('pages.admin.products.show', compact('product'));
     }
 
     public function edit($id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        // Ubah semua pemanggilan:
+$product = Product::with('productCategory')->findOrFail($id);
         $categories = ProductCategory::active()->get();
         return view('pages.admin.products.edit', compact('product', 'categories'));
     }
@@ -311,7 +333,6 @@ if ($request->has('category_type') && $request->category_type) {
 
             // Handle new main image upload
             if ($request->hasFile('image')) {
-                // Delete old image
                 if ($product->image) {
                     Storage::disk('public')->delete($product->image);
                 }
@@ -354,7 +375,6 @@ if ($request->has('category_type') && $request->category_type) {
                 $field = "image_{$i}";
                 $removeField = "remove_image_{$i}";
 
-                // Handle removal
                 if ($request->has($removeField) && $request->$removeField) {
                     $oldImage = $product->$field;
                     if ($oldImage) {
@@ -363,9 +383,7 @@ if ($request->has('category_type') && $request->category_type) {
                     $validated[$field] = null;
                 }
 
-                // Handle new upload
                 if ($request->hasFile($field)) {
-                    // Delete old image
                     $oldImage = $product->$field;
                     if ($oldImage) {
                         Storage::disk('public')->delete($oldImage);
@@ -378,7 +396,14 @@ if ($request->has('category_type') && $request->category_type) {
 
             // Get category type from selected category
             $category = ProductCategory::find($validated['category_id']);
-            $validated['category'] = $category->type;
+            $categoryType = $category->type;
+            
+            if (!in_array($categoryType, ['instan', 'non-instan'])) {
+                $categoryType = 'instan';
+            }
+            
+            $validated['category'] = $categoryType;
+            $validated['category_type'] = $categoryType;
 
             // Process specifications
             if ($request->has('specifications')) {
@@ -471,50 +496,39 @@ if ($request->has('category_type') && $request->category_type) {
         }
     }
 
-    /**
-     * API endpoint untuk menghapus single image
-     */
     public function deleteImage(Request $request, $id)
     {
         $product = Product::findOrFail($id);
 
         $request->validate([
             'field' => 'required|string|in:image,thumbnail,main_image,image_2,image_3,image_4,image_5',
-            'path' => 'nullable|string' // Untuk JSON fields
+            'path' => 'nullable|string'
         ]);
 
         try {
             $field = $request->field;
 
             if (in_array($field, ['image', 'thumbnail', 'main_image', 'image_2', 'image_3', 'image_4', 'image_5'])) {
-                // Handle direct image fields
                 if ($product->$field) {
                     Storage::disk('public')->delete($product->$field);
                     $product->$field = null;
                 }
             } elseif ($request->has('path')) {
-                // Handle removal from JSON fields
                 $path = $request->path;
 
-                // Remove from additional_images
                 if ($product->additional_images && is_array($product->additional_images)) {
                     $additional = array_filter($product->additional_images, function($imgPath) use ($path) {
                         return $imgPath !== $path;
                     });
                     $product->additional_images = array_values($additional);
-
-                    // Delete file
                     Storage::disk('public')->delete($path);
                 }
 
-                // Remove from gallery_images
                 if ($product->gallery_images && is_array($product->gallery_images)) {
                     $gallery = array_filter($product->gallery_images, function($imgPath) use ($path) {
                         return $imgPath !== $path;
                     });
                     $product->gallery_images = array_values($gallery);
-
-                    // Delete file
                     Storage::disk('public')->delete($path);
                 }
             }
@@ -534,9 +548,6 @@ if ($request->has('category_type') && $request->category_type) {
         }
     }
 
-    /**
-     * API endpoint untuk upload image (untuk JSON fields)
-     */
     public function uploadImage(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -569,5 +580,91 @@ if ($request->has('category_type') && $request->category_type) {
             ], 500);
         }
     }
-    
+
+    public function quickAddCategory(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:100',
+                'type' => 'required|in:instan,non-instan',
+                'description' => 'nullable|string',
+                'icon' => 'nullable|string|max:50',
+                'order' => 'nullable|integer|min:0'
+            ]);
+
+            \Log::info('Quick Add Category - Type received: ' . $request->type);
+
+            // Create slug from name
+            $slug = Str::slug($request->name);
+            
+            // Check if slug exists
+            $originalSlug = $slug;
+            $count = 1;
+            while (ProductCategory::where('slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $count;
+                $count++;
+            }
+
+            // Pastikan type tersimpan dengan benar
+            $type = $request->type;
+            
+            // Siapkan data untuk create
+            $data = [
+                'name' => $request->name,
+                'slug' => $slug,
+                'type' => $type,
+                'description' => $request->description,
+                'icon' => $request->icon ?? 'fas fa-folder',
+                'order' => $request->order ?? 0,
+                'is_active' => true
+            ];
+            
+            // Cek apakah kolom color ada
+            $hasColorFields = true;
+            try {
+                $test = ProductCategory::first();
+                if ($test) {
+                    $columns = \Schema::getColumnListing('product_categories');
+                    if (!in_array('category_color', $columns)) {
+                        $hasColorFields = false;
+                    }
+                }
+            } catch (\Exception $e) {
+                $hasColorFields = false;
+            }
+            
+            if ($hasColorFields) {
+                $data['category_color'] = '#193497';
+                $data['accent_color'] = '#c0f820';
+            }
+            
+            \Log::info('Data to create:', $data);
+
+            // Create category
+            $category = ProductCategory::create($data);
+
+            \Log::info('Category created successfully. ID: ' . $category->id . ', Type: ' . $category->type);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Category added successfully',
+                'category' => [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'type' => $category->type,
+                    'description' => $category->description,
+                    'icon' => $category->icon,
+                    'slug' => $category->slug
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error adding category: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

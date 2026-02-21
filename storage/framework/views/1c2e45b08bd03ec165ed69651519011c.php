@@ -291,12 +291,13 @@
                             Tim desainer profesional kami siap membantu mewujudkan ide kreatif Anda. Konsultasi gratis!
                         </p>
                         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="<?php echo e(route('whatsapp.chat')); ?>" target="_blank"
-                               class="group inline-flex items-center justify-center bg-[#d2f801] hover:bg-yellow-300 text-[#193497] font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg">
-                                <i class="fab fa-whatsapp mr-3 text-xl"></i>
-                                <span>Chat WhatsApp</span>
-                                <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
-                            </a>
+                       <a href="<?php echo e(route('custom.whatsapp', 'custom-product')); ?>" 
+   target="_blank"
+   class="group inline-flex items-center justify-center bg-[#d2f801] hover:bg-yellow-300 text-[#193497] font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg">
+    <i class="fab fa-whatsapp mr-3 text-xl"></i>
+    <span>Chat WhatsApp</span>
+    <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+</a>
                             <a href="tel:<?php echo e(env('SITE_PHONE', '+6281234567890')); ?>"
                                class="inline-flex items-center justify-center bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white hover:bg-white hover:text-[#193497] font-bold px-8 py-4 rounded-xl transition-all duration-300">
                                 <i class="fas fa-phone mr-3"></i>

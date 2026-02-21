@@ -73,6 +73,7 @@
                            id="achievement_order"
                            name="order"
                            min="0"
+                           value="0"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
@@ -82,6 +83,7 @@
                                id="achievement_is_active"
                                name="is_active"
                                value="1"
+                               checked
                                class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         <span class="ml-2 text-sm text-gray-600">Active</span>
                     </label>

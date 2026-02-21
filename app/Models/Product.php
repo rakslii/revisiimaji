@@ -10,6 +10,9 @@ class Product extends Model
 {
     use SoftDeletes;
 
+    // Konstanta untuk validasi ENUM
+    const CATEGORY_TYPES = ['instan', 'non-instan'];
+
     protected $fillable = [
         'name', 'description', 'short_description', 'price', 'base_discount_percent',
         'calculated_discount_percent', 'discount_override_percent', 'discount_calculation_type',
@@ -50,7 +53,6 @@ class Product extends Model
         'gallery_urls',
         'additional_images_urls',
         'primary_image_url',
-        // Appends untuk backward compatibility dan promo
         'discount_percent',
         'active_product_promotion',
         'product_promotion_discount',
@@ -63,43 +65,61 @@ class Product extends Model
         'discount_source'
     ];
 
-   // ============ RELATIONSHIPS ============
+    // ============ RELATIONSHIPS ============
 
-public function category()
+// Di app/Models/Product.php, cari method category()
+public function productCategory()
 {
     return $this->belongsTo(ProductCategory::class, 'category_id');
 }
 
-// Relasi dengan product_promotions
-public function productPromotions()
-{
-    return $this->hasMany(ProductPromotion::class);
-}
+    public function productPromotions()
+    {
+        return $this->hasMany(ProductPromotion::class);
+    }
 
-// Relasi dengan promo aktif - PERBAIKI NAMA METHOD!
-public function activeProductPromotion()
-{
-    return $this->belongsTo(ProductPromotion::class, 'active_product_promotion_id');
-}
+    public function activeProductPromotion()
+    {
+        return $this->belongsTo(ProductPromotion::class, 'active_product_promotion_id');
+    }
 
-// BISA JUGA TAMBAHKAN ALIAS UNTUK CONSISTENCY:
-public function activePromotion()
-{
-    return $this->activeProductPromotion();
-}
+    public function activePromotion()
+    {
+        return $this->activeProductPromotion();
+    }
 
-// Relasi dengan promo yang sedang aktif
-public function activePromotions()
-{
-    return $this->hasMany(ProductPromotion::class)
-        ->where('is_active', true)
-        ->where('valid_from', '<=', now())
-        ->where('valid_until', '>=', now())
-        ->where(function($query) {
-            $query->whereNull('quota')
-                ->orWhereRaw('used_count < quota');
-        });
-}
+    public function activePromotions()
+    {
+        return $this->hasMany(ProductPromotion::class)
+            ->where('is_active', true)
+            ->where('valid_from', '<=', now())
+            ->where('valid_until', '>=', now())
+            ->where(function($query) {
+                $query->whereNull('quota')
+                    ->orWhereRaw('used_count < quota');
+            });
+    }
+
+    // ============ MUTATORS UNTUK ENUM ============
+
+    public function setCategoryAttribute($value)
+    {
+        // Pastikan nilai sesuai ENUM
+        if (!in_array($value, self::CATEGORY_TYPES)) {
+            $value = 'instan';
+        }
+        $this->attributes['category'] = $value;
+    }
+
+    public function setCategoryTypeAttribute($value)
+    {
+        // Pastikan nilai sesuai ENUM
+        if (!in_array($value, self::CATEGORY_TYPES)) {
+            $value = 'instan';
+        }
+        $this->attributes['category_type'] = $value;
+    }
+
     // ============ ACCESSORS UTAMA ============
 
     public function getSpecificationsAttribute($value)
@@ -138,17 +158,11 @@ public function activePromotions()
         return 'Produk';
     }
 
-    /**
-     * Accessor untuk backward compatibility dengan discount_percent
-     */
     public function getDiscountPercentAttribute()
     {
         return (int) round($this->calculated_discount_percent);
     }
 
-    /**
-     * Final price dengan calculated_discount_percent
-     */
     public function getFinalPriceAttribute()
     {
         if ($this->calculated_discount_percent > 0) {
@@ -188,19 +202,14 @@ public function activePromotions()
 
     // ============ ACCESSORS UNTUK PRODUCT PROMOTIONS ============
 
-/**
- * Accessor untuk mendapatkan promo aktif
- */
-public function getActiveProductPromotionAttribute()
-{
-    // Gunakan eager loaded relation jika ada
-    if ($this->relationLoaded('activeProductPromotion') && $this->activeProductPromotion) {
-        return $this->activeProductPromotion;
+    public function getActiveProductPromotionAttribute()
+    {
+        if ($this->relationLoaded('activeProductPromotion') && $this->activeProductPromotion) {
+            return $this->activeProductPromotion;
+        }
+        
+        return $this->getBestActiveProductPromotion();
     }
-    
-    // Jika tidak, cari promo terbaik
-    return $this->getBestActiveProductPromotion();
-}
 
     public function getProductPromotionDiscountAttribute()
     {
@@ -556,61 +565,82 @@ public function getActiveProductPromotionAttribute()
     // ============ BOOT METHOD ============
 
     protected static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    static::saving(function ($product) {
-        if ($product->category_id) {
-            $category = ProductCategory::find($product->category_id);
-            if ($category) {
-                $product->category = $category->type;
+        static::saving(function ($product) {
+            // Set category and category_type from category relationship
+            if ($product->category_id) {
+                $category = ProductCategory::find($product->category_id);
+                if ($category) {
+                    // Pastikan nilai sesuai ENUM
+                    $type = $category->type;
+                    
+                    // Validasi nilai ENUM
+                    if (!in_array($type, self::CATEGORY_TYPES)) {
+                        $type = 'instan'; // default jika tidak valid
+                    }
+                    
+                    $product->category = $type;
+                    $product->category_type = $type;
+                    
+                    \Log::info('Product saving - Setting category fields:', [
+                        'category_id' => $product->category_id,
+                        'category_type_from_db' => $category->type,
+                        'category_field' => $product->category,
+                        'category_type_field' => $product->category_type
+                    ]);
+                }
             }
-        }
 
-        // Inisialisasi nilai default
-        if (is_null($product->discount_calculation_type)) {
-            $product->discount_calculation_type = 'auto';
-        }
-        
-        if (is_null($product->calculated_discount_percent)) {
-            $product->calculated_discount_percent = $product->base_discount_percent;
-        }
-        
-        // Set default untuk required fields
-        if (empty($product->description)) {
-            $product->description = 'Deskripsi produk';
-        }
-        
-        if (empty($product->category)) {
-            $product->category = 'instan';
-        }
-        
-        if (empty($product->category_type)) {
-            $product->category_type = 'instan';
-        }
-    });
+            // Inisialisasi nilai default
+            if (is_null($product->discount_calculation_type)) {
+                $product->discount_calculation_type = 'auto';
+            }
+            
+            if (is_null($product->calculated_discount_percent)) {
+                $product->calculated_discount_percent = $product->base_discount_percent ?? 0;
+            }
+            
+            // Set default untuk required fields
+            if (empty($product->description)) {
+                $product->description = 'Deskripsi produk';
+            }
+        });
 
-    static::creating(function ($product) {
-        if (is_null($product->stock)) {
-            $product->stock = 0;
-        }
-        if (is_null($product->sales_count)) {
-            $product->sales_count = 0;
-        }
-        if (is_null($product->min_order)) {
-            $product->min_order = 1;
-        }
-        if (is_null($product->base_discount_percent)) {
-            $product->base_discount_percent = 0;
-        }
-        if (is_null($product->rating)) {
-            $product->rating = 0;
-        }
-        if (is_null($product->is_active)) {
-            $product->is_active = true;
-        }
-    });
-}
+        static::creating(function ($product) {
+            if (is_null($product->stock)) {
+                $product->stock = 0;
+            }
+            if (is_null($product->sales_count)) {
+                $product->sales_count = 0;
+            }
+            if (is_null($product->min_order)) {
+                $product->min_order = 1;
+            }
+            if (is_null($product->base_discount_percent)) {
+                $product->base_discount_percent = 0;
+            }
+            if (is_null($product->calculated_discount_percent)) {
+                $product->calculated_discount_percent = 0;
+            }
+            if (is_null($product->rating)) {
+                $product->rating = 0;
+            }
+            if (is_null($product->is_active)) {
+                $product->is_active = true;
+            }
+            
+            // Set default untuk category fields jika masih kosong
+            if (empty($product->category)) {
+                $product->category = 'instan';
+            }
+            if (empty($product->category_type)) {
+                $product->category_type = 'instan';
+            }
+        });
+    }
+
     // ============ METHODS UTAMA ============
 
     public function isInStock()
@@ -639,9 +669,6 @@ public function getActiveProductPromotionAttribute()
 
     // ============ METHODS UNTUK DISCOUNT & PROMOTION ============
 
-    /**
-     * Refresh calculated discount berdasarkan promo terbaik
-     */
     public function refreshCalculatedDiscount()
     {
         if ($this->discount_calculation_type === 'manual') {
@@ -665,9 +692,6 @@ public function getActiveProductPromotionAttribute()
         $this->save();
     }
 
-    /**
-     * Dapatkan promo aktif terbaik
-     */
     public function getBestActiveProductPromotion()
     {
         return $this->activePromotions()
@@ -681,9 +705,6 @@ public function getActiveProductPromotionAttribute()
             ->first();
     }
 
-    /**
-     * Set diskon manual
-     */
     public function setManualDiscount($percent)
     {
         $this->discount_calculation_type = 'manual';
@@ -693,9 +714,6 @@ public function getActiveProductPromotionAttribute()
         $this->save();
     }
 
-    /**
-     * Kembali ke diskon otomatis
-     */
     public function setAutoDiscount()
     {
         $this->discount_calculation_type = 'auto';
@@ -703,9 +721,6 @@ public function getActiveProductPromotionAttribute()
         $this->refreshCalculatedDiscount();
     }
 
-    /**
-     * Dapatkan semua promo aktif dengan detail
-     */
     public function getActiveProductPromotionsWithDetails()
     {
         return $this->activePromotions()
@@ -742,9 +757,6 @@ public function getActiveProductPromotionAttribute()
             });
     }
 
-    /**
-     * Dapatkan diskon maksimal dari promo
-     */
     public function getMaxPromotionDiscount($quantity = 1)
     {
         $bestPromotion = $this->getBestActiveProductPromotion();
@@ -756,9 +768,6 @@ public function getActiveProductPromotionAttribute()
         return $bestPromotion->getDiscountAmount($this->price, $quantity);
     }
 
-    /**
-     * Ringkasan semua promosi
-     */
     public function getPromotionsSummary()
     {
         $productPromotions = $this->getActiveProductPromotionsWithDetails();
@@ -791,9 +800,6 @@ public function getActiveProductPromotionAttribute()
         ];
     }
 
-    /**
-     * Gunakan promo (increment used_count)
-     */
     public function usePromotion($promotionId, $quantity = 1)
     {
         $promotion = $this->productPromotions()
@@ -814,87 +820,75 @@ public function getActiveProductPromotionAttribute()
         
         return true;
     }
-    // Di model Product (app/Models/Product.php), tambahkan method berikut:
 
-// ============ METHODS UNTUK IMAGES ============
+    // ============ METHODS UNTUK IMAGES ============
 
-/**
- * Hitung total gambar produk
- */
-public function getTotalImagesCount()
-{
-    $count = 0;
-    
-    // Hitung gambar dari field individual
-    $individualFields = ['image', 'main_image', 'thumbnail', 'image_2', 'image_3', 'image_4', 'image_5'];
-    foreach ($individualFields as $field) {
-        if (!empty($this->$field)) {
-            $count++;
+    public function getTotalImagesCount()
+    {
+        $count = 0;
+        
+        $individualFields = ['image', 'main_image', 'thumbnail', 'image_2', 'image_3', 'image_4', 'image_5'];
+        foreach ($individualFields as $field) {
+            if (!empty($this->$field)) {
+                $count++;
+            }
         }
+        
+        if ($this->additional_images && is_array($this->additional_images)) {
+            $count += count(array_filter($this->additional_images));
+        }
+        
+        if ($this->gallery_images && is_array($this->gallery_images)) {
+            $count += count(array_filter($this->gallery_images));
+        }
+        
+        return $count;
     }
-    
-    // Hitung gambar dari array fields
-    if ($this->additional_images && is_array($this->additional_images)) {
-        $count += count(array_filter($this->additional_images));
-    }
-    
-    if ($this->gallery_images && is_array($this->gallery_images)) {
-        $count += count(array_filter($this->gallery_images));
-    }
-    
-    return $count;
-}
 
-/**
- * Get all image paths
- */
-public function getAllImagePaths()
-{
-    $paths = [];
-    
-    // Field individual
-    $individualFields = [
-        'image' => 'image',
-        'main_image' => 'main_image',
-        'thumbnail' => 'thumbnail',
-        'image_2' => 'image_2',
-        'image_3' => 'image_3',
-        'image_4' => 'image_4',
-        'image_5' => 'image_5'
-    ];
-    
-    foreach ($individualFields as $field => $type) {
-        if (!empty($this->$field)) {
-            $paths[] = [
-                'path' => $this->$field,
-                'type' => $type,
-                'url' => $this->getImageUrl($this->$field)
-            ];
+    public function getAllImagePaths()
+    {
+        $paths = [];
+        
+        $individualFields = [
+            'image' => 'image',
+            'main_image' => 'main_image',
+            'thumbnail' => 'thumbnail',
+            'image_2' => 'image_2',
+            'image_3' => 'image_3',
+            'image_4' => 'image_4',
+            'image_5' => 'image_5'
+        ];
+        
+        foreach ($individualFields as $field => $type) {
+            if (!empty($this->$field)) {
+                $paths[] = [
+                    'path' => $this->$field,
+                    'type' => $type,
+                    'url' => $this->getImageUrl($this->$field)
+                ];
+            }
         }
-    }
-    
-    // Additional images
-    if ($this->additional_images && is_array($this->additional_images)) {
-        foreach (array_filter($this->additional_images) as $path) {
-            $paths[] = [
-                'path' => $path,
-                'type' => 'additional',
-                'url' => $this->getImageUrl($path)
-            ];
+        
+        if ($this->additional_images && is_array($this->additional_images)) {
+            foreach (array_filter($this->additional_images) as $path) {
+                $paths[] = [
+                    'path' => $path,
+                    'type' => 'additional',
+                    'url' => $this->getImageUrl($path)
+                ];
+            }
         }
-    }
-    
-    // Gallery images
-    if ($this->gallery_images && is_array($this->gallery_images)) {
-        foreach (array_filter($this->gallery_images) as $path) {
-            $paths[] = [
-                'path' => $path,
-                'type' => 'gallery',
-                'url' => $this->getImageUrl($path)
-            ];
+        
+        if ($this->gallery_images && is_array($this->gallery_images)) {
+            foreach (array_filter($this->gallery_images) as $path) {
+                $paths[] = [
+                    'path' => $path,
+                    'type' => 'gallery',
+                    'url' => $this->getImageUrl($path)
+                ];
+            }
         }
+        
+        return $paths;
     }
-    
-    return $paths;
-}
 }

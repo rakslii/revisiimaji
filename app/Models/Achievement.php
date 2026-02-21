@@ -24,6 +24,11 @@ class Achievement extends Model
         'order' => 'integer'
     ];
 
+    protected $attributes = [
+        'order' => 0,
+        'is_active' => true
+    ];
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

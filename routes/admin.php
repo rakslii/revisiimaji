@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\OnlineStoreController;
 use App\Http\Controllers\Admin\AboutUsController;
+use App\Http\Controllers\Admin\ConsultationController; // <-- TAMBAHKAN INI
 
 /*
 |--------------------------------------------------------------------------
@@ -42,59 +43,68 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('destroy');
         });
 
-// ONLINE STORES (Pindahkan dari SettingController ke OnlineStoreController)
-Route::prefix('online-stores')->name('online-stores.')->group(function () {
-    Route::get('/', [OnlineStoreController::class, 'index'])->name('index');
-    Route::get('/create', [OnlineStoreController::class, 'create'])->name('create');
-    Route::post('/', [OnlineStoreController::class, 'store'])->name('store');
-    Route::get('/{id}/edit', [OnlineStoreController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [OnlineStoreController::class, 'update'])->name('update');
-    Route::delete('/{id}', [OnlineStoreController::class, 'destroy'])->name('destroy');
-    Route::post('/{id}/toggle-status', [OnlineStoreController::class, 'toggleStatus'])->name('toggle-status');
-    Route::post('/{id}/reorder', [OnlineStoreController::class, 'reorder'])->name('reorder');
-    Route::post('/update-order', [OnlineStoreController::class, 'updateOrder'])->name('update-order');
-});
+        // ONLINE STORES
+        Route::prefix('online-stores')->name('online-stores.')->group(function () {
+            Route::get('/', [OnlineStoreController::class, 'index'])->name('index');
+            Route::get('/create', [OnlineStoreController::class, 'create'])->name('create');
+            Route::post('/', [OnlineStoreController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [OnlineStoreController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [OnlineStoreController::class, 'update'])->name('update');
+            Route::delete('/{id}', [OnlineStoreController::class, 'destroy'])->name('destroy');
+            Route::post('/{id}/toggle-status', [OnlineStoreController::class, 'toggleStatus'])->name('toggle-status');
+            Route::post('/{id}/reorder', [OnlineStoreController::class, 'reorder'])->name('reorder');
+            Route::post('/update-order', [OnlineStoreController::class, 'updateOrder'])->name('update-order');
+        });
         
-// ABOUT US (CRUD yang lengkap)
-Route::prefix('about-us')->name('about-us.')->group(function () {
-    Route::get('/', [AboutUsController::class, 'index'])->name('index');
-    
-    // Sections CRUD
-    Route::post('/sections', [AboutUsController::class, 'storeSection'])->name('sections.store');
-    Route::put('/sections/{id}', [AboutUsController::class, 'updateSection'])->name('sections.update');
-    Route::delete('/sections/{id}', [AboutUsController::class, 'destroySection'])->name('sections.destroy');
-    Route::post('/sections/{id}/toggle-status', [AboutUsController::class, 'toggleSectionStatus'])->name('sections.toggle-status');
-    Route::post('/sections/reorder', [AboutUsController::class, 'reorderSections'])->name('sections.reorder');
-    
-    // Team Members CRUD
-    Route::post('/team-members', [AboutUsController::class, 'storeTeamMember'])->name('team-members.store');
-    Route::put('/team-members/{id}', [AboutUsController::class, 'updateTeamMember'])->name('team-members.update');
-    Route::delete('/team-members/{id}', [AboutUsController::class, 'destroyTeamMember'])->name('team-members.destroy');
-    Route::post('/team-members/reorder', [AboutUsController::class, 'reorderTeam'])->name('team-members.reorder');
-    
-    // Achievements CRUD
-    Route::post('/achievements', [AboutUsController::class, 'storeAchievement'])->name('achievements.store');
-    Route::put('/achievements/{id}', [AboutUsController::class, 'updateAchievement'])->name('achievements.update');
-    Route::delete('/achievements/{id}', [AboutUsController::class, 'destroyAchievement'])->name('achievements.destroy');
-    Route::post('/achievements/reorder', [AboutUsController::class, 'reorderAchievements'])->name('achievements.reorder');
-    
-    // Core Values CRUD
-    Route::post('/core-values', [AboutUsController::class, 'storeCoreValue'])->name('core-values.store');
-    Route::put('/core-values/{id}', [AboutUsController::class, 'updateCoreValue'])->name('core-values.update');
-    Route::delete('/core-values/{id}', [AboutUsController::class, 'destroyCoreValue'])->name('core-values.destroy');
-    Route::post('/core-values/reorder', [AboutUsController::class, 'reorderValues'])->name('core-values.reorder');
-});
+        // ABOUT US
+        Route::prefix('about-us')->name('about-us.')->group(function () {
+            Route::get('/', [AboutUsController::class, 'index'])->name('index');
+            
+            // Sections CRUD
+            Route::post('/sections', [AboutUsController::class, 'storeSection'])->name('sections.store');
+            Route::put('/sections/{id}', [AboutUsController::class, 'updateSection'])->name('sections.update');
+            Route::delete('/sections/{id}', [AboutUsController::class, 'destroySection'])->name('sections.destroy');
+            Route::post('/sections/{id}/toggle-status', [AboutUsController::class, 'toggleSectionStatus'])->name('sections.toggle-status');
+            Route::post('/sections/reorder', [AboutUsController::class, 'reorderSections'])->name('sections.reorder');
+            
+            // Team Members CRUD
+            Route::post('/team-members', [AboutUsController::class, 'storeTeamMember'])->name('team-members.store');
+            Route::put('/team-members/{id}', [AboutUsController::class, 'updateTeamMember'])->name('team-members.update');
+            Route::delete('/team-members/{id}', [AboutUsController::class, 'destroyTeamMember'])->name('team-members.destroy');
+            Route::post('/team-members/reorder', [AboutUsController::class, 'reorderTeam'])->name('team-members.reorder');
+            
+            // Achievements CRUD
+            Route::post('/achievements', [AboutUsController::class, 'storeAchievement'])->name('achievements.store');
+            Route::put('/achievements/{id}', [AboutUsController::class, 'updateAchievement'])->name('achievements.update');
+            Route::delete('/achievements/{id}', [AboutUsController::class, 'destroyAchievement'])->name('achievements.destroy');
+            Route::post('/achievements/reorder', [AboutUsController::class, 'reorderAchievements'])->name('achievements.reorder');
+            
+            // Core Values CRUD
+            Route::post('/core-values', [AboutUsController::class, 'storeCoreValue'])->name('core-values.store');
+            Route::put('/core-values/{id}', [AboutUsController::class, 'updateCoreValue'])->name('core-values.update');
+            Route::delete('/core-values/{id}', [AboutUsController::class, 'destroyCoreValue'])->name('core-values.destroy');
+            Route::post('/core-values/reorder', [AboutUsController::class, 'reorderValues'])->name('core-values.reorder');
+        });
         
         // BANNERS
         Route::prefix('banners')->name('banners.')->group(function () {
             Route::get('/', [SettingController::class, 'banners'])->name('index');
         });
         
-        // CONSULTATIONS
-        Route::prefix('consultations')->name('consultations.')->group(function () {
-            Route::get('/', [SettingController::class, 'consultations'])->name('index');
-        });
-        
+      // ============ CONSULTATIONS - SEDERHANA ============
+Route::prefix('consultations')->name('consultations.')->group(function () {
+    // Halaman settings
+    Route::get('/', [ConsultationController::class, 'index'])->name('index');
+    
+    // Update General
+    Route::put('/general/{id}', [ConsultationController::class, 'updateGeneral'])->name('general.update');
+    
+    // Update Product
+    Route::put('/product/{id}', [ConsultationController::class, 'updateProduct'])->name('product.update');
+    
+    // Update Custom
+    Route::put('/custom/{id}', [ConsultationController::class, 'updateCustom'])->name('custom.update');
+});  
         // GENERAL SETTINGS
         Route::prefix('general')->name('general.')->group(function () {
             Route::get('/', [SettingController::class, 'generalSettings'])->name('index');
@@ -141,20 +151,23 @@ Route::prefix('about-us')->name('about-us.')->group(function () {
         Route::post('/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('mark-completed');
     });
 
-    // ============ PRODUCTS ============
-    Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', [AdminProductController::class, 'index'])->name('index');
-        Route::get('/create', [AdminProductController::class, 'create'])->name('create');
-        Route::post('/', [AdminProductController::class, 'store'])->name('store');
-        Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
-        Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
+// ============ PRODUCTS ============
+Route::prefix('products')->name('products.')->group(function () {
+    Route::get('/', [AdminProductController::class, 'index'])->name('index');
+    Route::get('/create', [AdminProductController::class, 'create'])->name('create');
+    Route::post('/', [AdminProductController::class, 'store'])->name('store');
+    Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
 
-        // API routes untuk image handling
-        Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
-        Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
-    });
+    // Route untuk quick add category (dari form product)
+    Route::post('/quick-add-category', [AdminProductController::class, 'quickAddCategory'])->name('quick-add-category');
+
+    // API routes untuk image handling
+    Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
+    Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
+});
 
     // ============ PROMO CODES ============
     Route::prefix('promos')->name('promos.')->group(function () {

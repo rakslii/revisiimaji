@@ -66,57 +66,16 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Order</label>
                     <input type="number" 
                            id="section_order"
                            name="order"
                            min="0"
+                           value="0"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
-                    <div class="flex">
-                        <input type="color" 
-                               id="section_bg_color_picker"
-                               class="w-10 h-10 cursor-pointer"
-                               onchange="document.getElementById('section_background_color').value = this.value">
-                        <input type="text" 
-                               id="section_background_color"
-                               name="background_color"
-                               placeholder="#FFFFFF"
-                               class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
-                    <div class="flex">
-                        <input type="color" 
-                               id="section_text_color_picker"
-                               class="w-10 h-10 cursor-pointer"
-                               onchange="document.getElementById('section_text_color').value = this.value">
-                        <input type="text" 
-                               id="section_text_color"
-                               name="text_color"
-                               placeholder="#000000"
-                               class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Icon</label>
-                <select id="section_icon"
-                        name="icon"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">No Icon</option>
-                    <?php $__currentLoopData = $iconOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($key); ?>"><?php echo e($label); ?> (<?php echo e($key); ?>)</option>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </select>
             </div>
             
             <div class="mb-6">
@@ -125,6 +84,7 @@
                            id="section_is_active"
                            name="is_active"
                            value="1"
+                           checked
                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <span class="ml-2 text-sm text-gray-600">Active (visible on website)</span>
                 </label>
