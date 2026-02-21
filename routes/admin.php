@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\OnlineStoreController;
 use App\Http\Controllers\Admin\AboutUsController;
 use App\Http\Controllers\Admin\ConsultationController; // <-- TAMBAHKAN INI
+use App\Http\Controllers\Admin\CustomerExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,17 +123,24 @@ Route::prefix('consultations')->name('consultations.')->group(function () {
         });
     });
 
-    // ============ CUSTOMERS ============
-    Route::prefix('customers')->name('customers.')->group(function () {
-        Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
-        Route::get('/create', [AdminCustomerController::class, 'create'])->name('create');
-        Route::post('/', [AdminCustomerController::class, 'store'])->name('store');
-        Route::get('/{id}', [AdminCustomerController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [AdminCustomerController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [AdminCustomerController::class, 'update'])->name('update');
-        Route::delete('/{id}', [AdminCustomerController::class, 'destroy'])->name('destroy');
-        Route::put('/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('status.update');
-    });
+  // ============ CUSTOMERS ============
+Route::prefix('customers')->name('customers.')->group(function () {
+    Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
+    Route::get('/create', [AdminCustomerController::class, 'create'])->name('create');
+    Route::post('/', [AdminCustomerController::class, 'store'])->name('store');
+    Route::get('/{id}', [AdminCustomerController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [AdminCustomerController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [AdminCustomerController::class, 'update'])->name('update');
+    Route::delete('/{id}', [AdminCustomerController::class, 'destroy'])->name('destroy');
+    Route::put('/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('status.update');
+    
+    // ============ TAMBAHKAN ROUTES EXPORT DI SINI ============
+    // Export routes
+    Route::get('/export/csv', [AdminCustomerController::class, 'exportCsv'])->name('export.csv');
+    Route::get('/export/excel', [AdminCustomerController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export/pdf', [AdminCustomerController::class, 'exportPdf'])->name('export.pdf');
+    Route::post('/export/selected', [AdminCustomerController::class, 'exportSelected'])->name('export.selected');
+});
 
     // ============ ORDERS ============
     Route::prefix('orders')->name('orders.')->group(function () {

@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CustomersExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CustomerController extends Controller
 {
@@ -46,28 +49,25 @@ class CustomerController extends Controller
     /**
      * Display customer details.
      */
-  /**
- * Display customer details.
- */
-public function show($id)
-{
-    $customer = User::with(['orders' => function($query) {
-        $query->latest()->limit(10);
-    }, 'locations'])
-        ->withCount('orders')
-        ->findOrFail($id);
+    public function show($id)
+    {
+        $customer = User::with(['orders' => function($query) {
+            $query->latest()->limit(10);
+        }, 'locations'])
+            ->withCount('orders')
+            ->findOrFail($id);
 
-    // Calculate total spent - PERBAIKAN DI SINI
-    $totalSpent = Order::where('user_id', $id)
-        ->where('status', 'completed')
-        ->sum('total'); // Ubah dari 'total_amount' menjadi 'total'
+        // Calculate total spent
+        $totalSpent = Order::where('user_id', $id)
+            ->where('status', 'completed')
+            ->sum('total');
 
-    $avgOrderValue = $customer->orders_count > 0 
-        ? $totalSpent / $customer->orders_count 
-        : 0;
+        $avgOrderValue = $customer->orders_count > 0 
+            ? $totalSpent / $customer->orders_count 
+            : 0;
 
-    return view('pages.admin.customers.show', compact('customer', 'totalSpent', 'avgOrderValue'));
-}
+        return view('pages.admin.customers.show', compact('customer', 'totalSpent', 'avgOrderValue'));
+    }
 
     /**
      * Show create customer form.
@@ -235,6 +235,141 @@ public function show($id)
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update status: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ============ EXPORT METHODS ============
+
+    /**
+     * Export customers as CSV
+     */
+    public function exportCsv(Request $request)
+    {
+        try {
+            $query = User::withCount('orders')
+                ->with('orders', 'locations')
+                ->where('role', 'customer');
+            
+            // Apply filters if any
+            if ($request->has('status') && $request->status) {
+                if (Schema::hasColumn('users', 'status')) {
+                    $query->where('status', $request->status);
+                }
+            }
+            
+            if ($request->has('period')) {
+                if ($request->period === 'this_month') {
+                    $query->whereMonth('created_at', now()->month);
+                } elseif ($request->period === 'this_week') {
+                    $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                } elseif ($request->period === 'today') {
+                    $query->whereDate('created_at', now()->today());
+                }
+            }
+            
+            $customers = $query->get();
+            
+            return Excel::download(
+                new CustomersExport($customers), 
+                'customers_' . date('Y-m-d_His') . '.csv', 
+                \Maatwebsite\Excel\Excel::CSV
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to export CSV: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Export customers as Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        try {
+            $query = User::withCount('orders')
+                ->with('orders', 'locations')
+                ->where('role', 'customer');
+            
+            // Apply filters
+            if ($request->has('status') && $request->status) {
+                if (Schema::hasColumn('users', 'status')) {
+                    $query->where('status', $request->status);
+                }
+            }
+            
+            if ($request->has('period')) {
+                if ($request->period === 'this_month') {
+                    $query->whereMonth('created_at', now()->month);
+                }
+            }
+            
+            $customers = $query->get();
+            
+            return Excel::download(
+                new CustomersExport($customers), 
+                'customers_' . date('Y-m-d_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to export Excel: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Export customers as PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        try {
+            $query = User::withCount('orders')
+                ->with('orders')
+                ->where('role', 'customer');
+            
+            // Apply filters
+            if ($request->has('status') && $request->status) {
+                if (Schema::hasColumn('users', 'status')) {
+                    $query->where('status', $request->status);
+                }
+            }
+            
+            $customers = $query->get();
+            
+            $pdf = Pdf::loadView('pages.admin.customers.export-pdf', compact('customers'));
+            
+            return $pdf->download('customers_' . date('Y-m-d_His') . '.pdf');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to export PDF: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Export selected customers
+     */
+    public function exportSelected(Request $request)
+    {
+        try {
+            $request->validate([
+                'selected_ids' => 'required|array',
+                'selected_ids.*' => 'exists:users,id'
+            ]);
+            
+            $customers = User::withCount('orders')
+                ->with('orders', 'locations')
+                ->where('role', 'customer')
+                ->whereIn('id', $request->selected_ids)
+                ->get();
+            
+            return Excel::download(
+                new CustomersExport($customers, true), 
+                'selected_customers_' . date('Y-m-d_His') . '.csv', 
+                \Maatwebsite\Excel\Excel::CSV
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to export selected customers: ' . $e->getMessage()
             ], 500);
         }
     }
