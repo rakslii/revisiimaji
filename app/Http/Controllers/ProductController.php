@@ -53,7 +53,7 @@ class ProductController extends Controller
                 $query->orderByDesc('sales_count');
                 break;
             case 'discount':
-                $query->orderByDesc('discount_percent');
+                $query->orderByDesc('calculated_discount_percent'); // FIXED
                 break;
             default:
                 $query->latest();
@@ -135,7 +135,7 @@ class ProductController extends Controller
                     $query->orderByDesc('sales_count');
                     break;
                 case 'discount':
-                    $query->orderByDesc('discount_percent');
+                    $query->orderByDesc('calculated_discount_percent'); // FIXED
                     break;
                 default:
                     $query->latest();

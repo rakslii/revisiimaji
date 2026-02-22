@@ -12,8 +12,9 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\OnlineStoreController;
 use App\Http\Controllers\Admin\AboutUsController;
-use App\Http\Controllers\Admin\ConsultationController; // <-- TAMBAHKAN INI
-use App\Http\Controllers\Admin\CustomerExportController;
+use App\Http\Controllers\Admin\ConsultationController;
+// use App\Http\Controllers\Admin\CustomerExportController;
+use App\Http\Controllers\Admin\BannerController; // <-- TAMBAHKAN INI
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +35,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingController::class, 'index'])->name('index');
         
-        // ADMIN USERS - HANYA SATU DI SINI
+        // ADMIN USERS
         Route::prefix('admin-users')->name('admin-users.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
             Route::get('/create', [AdminUserController::class, 'create'])->name('create');
@@ -61,51 +62,49 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('about-us')->name('about-us.')->group(function () {
             Route::get('/', [AboutUsController::class, 'index'])->name('index');
             
-            // Sections CRUD
             Route::post('/sections', [AboutUsController::class, 'storeSection'])->name('sections.store');
             Route::put('/sections/{id}', [AboutUsController::class, 'updateSection'])->name('sections.update');
             Route::delete('/sections/{id}', [AboutUsController::class, 'destroySection'])->name('sections.destroy');
             Route::post('/sections/{id}/toggle-status', [AboutUsController::class, 'toggleSectionStatus'])->name('sections.toggle-status');
             Route::post('/sections/reorder', [AboutUsController::class, 'reorderSections'])->name('sections.reorder');
             
-            // Team Members CRUD
             Route::post('/team-members', [AboutUsController::class, 'storeTeamMember'])->name('team-members.store');
             Route::put('/team-members/{id}', [AboutUsController::class, 'updateTeamMember'])->name('team-members.update');
             Route::delete('/team-members/{id}', [AboutUsController::class, 'destroyTeamMember'])->name('team-members.destroy');
             Route::post('/team-members/reorder', [AboutUsController::class, 'reorderTeam'])->name('team-members.reorder');
             
-            // Achievements CRUD
             Route::post('/achievements', [AboutUsController::class, 'storeAchievement'])->name('achievements.store');
             Route::put('/achievements/{id}', [AboutUsController::class, 'updateAchievement'])->name('achievements.update');
             Route::delete('/achievements/{id}', [AboutUsController::class, 'destroyAchievement'])->name('achievements.destroy');
             Route::post('/achievements/reorder', [AboutUsController::class, 'reorderAchievements'])->name('achievements.reorder');
             
-            // Core Values CRUD
             Route::post('/core-values', [AboutUsController::class, 'storeCoreValue'])->name('core-values.store');
             Route::put('/core-values/{id}', [AboutUsController::class, 'updateCoreValue'])->name('core-values.update');
             Route::delete('/core-values/{id}', [AboutUsController::class, 'destroyCoreValue'])->name('core-values.destroy');
             Route::post('/core-values/reorder', [AboutUsController::class, 'reorderValues'])->name('core-values.reorder');
         });
         
-        // BANNERS
+        // ============ BANNERS - DI SINI (DI DALAM SETTINGS) ============
         Route::prefix('banners')->name('banners.')->group(function () {
-            Route::get('/', [SettingController::class, 'banners'])->name('index');
+            Route::get('/', [BannerController::class, 'index'])->name('index');
+            Route::get('/create', [BannerController::class, 'create'])->name('create');
+            Route::post('/', [BannerController::class, 'store'])->name('store');
+            Route::get('/{banner}/edit', [BannerController::class, 'edit'])->name('edit');
+            Route::put('/{banner}', [BannerController::class, 'update'])->name('update');
+            Route::delete('/{banner}', [BannerController::class, 'destroy'])->name('destroy');
+            Route::post('/update-order', [BannerController::class, 'updateOrder'])->name('update-order');
+            Route::post('/{banner}/toggle-active', [BannerController::class, 'toggleActive'])->name('toggle-active');
+            Route::get('/{banner}/statistics', [BannerController::class, 'statistics'])->name('statistics');
         });
         
-      // ============ CONSULTATIONS - SEDERHANA ============
-Route::prefix('consultations')->name('consultations.')->group(function () {
-    // Halaman settings
-    Route::get('/', [ConsultationController::class, 'index'])->name('index');
-    
-    // Update General
-    Route::put('/general/{id}', [ConsultationController::class, 'updateGeneral'])->name('general.update');
-    
-    // Update Product
-    Route::put('/product/{id}', [ConsultationController::class, 'updateProduct'])->name('product.update');
-    
-    // Update Custom
-    Route::put('/custom/{id}', [ConsultationController::class, 'updateCustom'])->name('custom.update');
-});  
+        // CONSULTATIONS
+        Route::prefix('consultations')->name('consultations.')->group(function () {
+            Route::get('/', [ConsultationController::class, 'index'])->name('index');
+            Route::put('/general/{id}', [ConsultationController::class, 'updateGeneral'])->name('general.update');
+            Route::put('/product/{id}', [ConsultationController::class, 'updateProduct'])->name('product.update');
+            Route::put('/custom/{id}', [ConsultationController::class, 'updateCustom'])->name('custom.update');
+        });  
+        
         // GENERAL SETTINGS
         Route::prefix('general')->name('general.')->group(function () {
             Route::get('/', [SettingController::class, 'generalSettings'])->name('index');
@@ -123,24 +122,22 @@ Route::prefix('consultations')->name('consultations.')->group(function () {
         });
     });
 
-  // ============ CUSTOMERS ============
-Route::prefix('customers')->name('customers.')->group(function () {
-    Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
-    Route::get('/create', [AdminCustomerController::class, 'create'])->name('create');
-    Route::post('/', [AdminCustomerController::class, 'store'])->name('store');
-    Route::get('/{id}', [AdminCustomerController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [AdminCustomerController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [AdminCustomerController::class, 'update'])->name('update');
-    Route::delete('/{id}', [AdminCustomerController::class, 'destroy'])->name('destroy');
-    Route::put('/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('status.update');
-    
-    // ============ TAMBAHKAN ROUTES EXPORT DI SINI ============
-    // Export routes
-    Route::get('/export/csv', [AdminCustomerController::class, 'exportCsv'])->name('export.csv');
-    Route::get('/export/excel', [AdminCustomerController::class, 'exportExcel'])->name('export.excel');
-    Route::get('/export/pdf', [AdminCustomerController::class, 'exportPdf'])->name('export.pdf');
-    Route::post('/export/selected', [AdminCustomerController::class, 'exportSelected'])->name('export.selected');
-});
+    // ============ CUSTOMERS ============
+    Route::prefix('customers')->name('customers.')->group(function () {
+        Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
+        Route::get('/create', [AdminCustomerController::class, 'create'])->name('create');
+        Route::post('/', [AdminCustomerController::class, 'store'])->name('store');
+        Route::get('/{id}', [AdminCustomerController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminCustomerController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminCustomerController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminCustomerController::class, 'destroy'])->name('destroy');
+        Route::put('/{id}/status', [AdminCustomerController::class, 'updateStatus'])->name('status.update');
+        
+        Route::get('/export/csv', [AdminCustomerController::class, 'exportCsv'])->name('export.csv');
+        Route::get('/export/excel', [AdminCustomerController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/export/pdf', [AdminCustomerController::class, 'exportPdf'])->name('export.pdf');
+        Route::post('/export/selected', [AdminCustomerController::class, 'exportSelected'])->name('export.selected');
+    });
 
     // ============ ORDERS ============
     Route::prefix('orders')->name('orders.')->group(function () {
@@ -152,30 +149,26 @@ Route::prefix('customers')->name('customers.')->group(function () {
         Route::put('/{id}', [AdminOrderController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminOrderController::class, 'destroy'])->name('destroy');
 
-        // Order Status Routes
         Route::post('/{id}/update-status', [AdminOrderController::class, 'updateOrderStatus'])->name('update-status');
         Route::post('/{id}/confirm-payment', [AdminOrderController::class, 'confirmPayment'])->name('confirm-payment');
         Route::post('/{id}/mark-processing', [AdminOrderController::class, 'markAsProcessing'])->name('mark-processing');
         Route::post('/{id}/mark-completed', [AdminOrderController::class, 'markAsCompleted'])->name('mark-completed');
     });
 
-// ============ PRODUCTS ============
-Route::prefix('products')->name('products.')->group(function () {
-    Route::get('/', [AdminProductController::class, 'index'])->name('index');
-    Route::get('/create', [AdminProductController::class, 'create'])->name('create');
-    Route::post('/', [AdminProductController::class, 'store'])->name('store');
-    Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
-    Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
+    // ============ PRODUCTS ============
+    Route::prefix('products')->name('products.')->group(function () {
+        Route::get('/', [AdminProductController::class, 'index'])->name('index');
+        Route::get('/create', [AdminProductController::class, 'create'])->name('create');
+        Route::post('/', [AdminProductController::class, 'store'])->name('store');
+        Route::get('/{id}', [AdminProductController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [AdminProductController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [AdminProductController::class, 'update'])->name('update');
+        Route::delete('/{id}', [AdminProductController::class, 'destroy'])->name('destroy');
 
-    // Route untuk quick add category (dari form product)
-    Route::post('/quick-add-category', [AdminProductController::class, 'quickAddCategory'])->name('quick-add-category');
-
-    // API routes untuk image handling
-    Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
-    Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
-});
+        Route::post('/quick-add-category', [AdminProductController::class, 'quickAddCategory'])->name('quick-add-category');
+        Route::post('/{id}/upload-image', [AdminProductController::class, 'uploadImage'])->name('upload-image');
+        Route::delete('/{id}/delete-image', [AdminProductController::class, 'deleteImage'])->name('delete-image');
+    });
 
     // ============ PROMO CODES ============
     Route::prefix('promos')->name('promos.')->group(function () {

@@ -29,10 +29,10 @@
                         Mulai Sekarang
                         <i class="fas fa-arrow-right ml-3"></i>
                     </a>
-             <a href="{{ route('whatsapp.chat') }}" target="_blank" 
-   class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition duration-300 flex items-center text-lg">
-    <i class="fab fa-whatsapp mr-3"></i> Konsultasi
-</a>
+                    <a href="{{ route('whatsapp.chat') }}" target="_blank" 
+                       class="bg-white/10 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white/20 transition duration-300 flex items-center text-lg">
+                        <i class="fab fa-whatsapp mr-3"></i> Konsultasi
+                    </a>
                 </div>
 
                 <!-- Stats Row -->
@@ -113,8 +113,261 @@
     </div>
 </section>
 
+<!-- ===== BANNER PROMO SECTION - DINAMIS ===== -->
+@if(isset($homeBanners) && $homeBanners->count() > 0)
+<section class="py-12 bg-gradient-to-r from-[#193497]/5 to-[#720e87]/5">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-bold mb-3">
+                Promo <span class="text-[#193497]">Spesial</span>
+            </h2>
+            <p class="text-gray-700 max-w-2xl mx-auto">
+                Dapatkan penawaran menarik dari kami
+            </p>
+        </div>
+        
+        @php
+            $bannerCount = $homeBanners->count();
+        @endphp
+        
+        <!-- Layout berdasarkan jumlah banner -->
+        @if($bannerCount == 1)
+            <!-- Single Banner - Full Width -->
+            @foreach($homeBanners as $banner)
+            <div class="max-w-6xl mx-auto">
+                <div class="group relative overflow-hidden rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-700 hover:-translate-y-2 cursor-pointer" 
+                     onclick="location='/products?sort=discount&page=1'"
+                     data-banner-id="{{ $banner->id }}">
+                    
+                    <!-- Background Image dengan overlay gradient -->
+                    @if($banner->image_url)
+                    <div class="relative h-[400px] md:h-[500px] overflow-hidden">
+                        <img src="{{ $banner->image_url }}" 
+                             alt="{{ $banner->title }}"
+                             class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000">
+                        
+                        <!-- Overlay Gradient dinamis -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+                        
+                        <!-- Content dengan animasi -->
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="container mx-auto px-8">
+                                <div class="max-w-2xl">
+                                    @if($banner->subtitle)
+                                    <p class="text-[#c0f820] font-semibold text-lg mb-3 transform group-hover:translate-x-2 transition-transform duration-500">
+                                        {{ $banner->subtitle }}
+                                    </p>
+                                    @endif
+                                    
+                                    @if($banner->title)
+                                    <h3 class="text-4xl md:text-5xl font-bold text-white mb-4 transform group-hover:translate-x-2 transition-transform duration-700">
+                                        {{ $banner->title }}
+                                    </h3>
+                                    @endif
+                                    
+                                    @if($banner->description)
+                                    <p class="text-white/90 text-lg mb-6 max-w-xl transform group-hover:translate-x-2 transition-transform duration-900">
+                                        {{ $banner->description }}
+                                    </p>
+                                    @endif
+                                    
+                                    @if($banner->link)
+                                    <div class="transform group-hover:translate-x-2 transition-transform duration-1000">
+                                        <span class="inline-flex items-center bg-[#c0f820] text-[#193497] px-8 py-4 rounded-full font-bold text-lg hover:bg-[#d4ff40] transition-all duration-300 shadow-xl">
+                                            {{ $banner->button_text ?? 'Lihat Promo' }}
+                                            <i class="fas fa-arrow-right ml-3"></i>
+                                        </span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @else
+                    <!-- Fallback jika tidak ada gambar -->
+                    <div class="h-[400px] md:h-[500px] bg-gradient-to-r from-[#193497] to-[#720e87] flex items-center">
+                        <div class="container mx-auto px-8">
+                            <div class="max-w-2xl">
+                                @if($banner->subtitle)
+                                <p class="text-[#c0f820] font-semibold text-lg mb-3">{{ $banner->subtitle }}</p>
+                                @endif
+                                @if($banner->title)
+                                <h3 class="text-4xl md:text-5xl font-bold text-white mb-4">{{ $banner->title }}</h3>
+                                @endif
+                                @if($banner->description)
+                                <p class="text-white/90 text-lg mb-6">{{ $banner->description }}</p>
+                                @endif
+                                @if($banner->link)
+                                <span class="inline-flex items-center bg-white text-[#193497] px-8 py-4 rounded-full font-bold text-lg">
+                                    {{ $banner->button_text ?? 'Lihat Promo' }}
+                                    <i class="fas fa-arrow-right ml-3"></i>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    <!-- Badge Promo -->
+                    <div class="absolute top-6 right-6 bg-red-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl transform rotate-12">
+                        PROMO SPESIAL
+                    </div>
+                    
+                    <!-- Badge Waktu -->
+                    @if($banner->end_date && $banner->end_date->isFuture())
+                    <div class="absolute bottom-6 left-6 bg-black/50 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm">
+                        <i class="far fa-clock mr-2"></i>
+                        Berakhir: {{ $banner->end_date->format('d M Y') }}
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+            
+        @elseif($bannerCount == 2)
+            <!-- Two Banners - Grid 2 kolom -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @foreach($homeBanners as $banner)
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer h-[350px]"
+                     onclick="location='/products?sort=discount&page=1'"
+                     data-banner-id="{{ $banner->id }}">
+                    
+                    @if($banner->image_url)
+                    <img src="{{ $banner->image_url }}" 
+                         alt="{{ $banner->title }}"
+                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    @else
+                    <div class="w-full h-full bg-gradient-to-br from-[#193497] to-[#720e87]"></div>
+                    @endif
+                    
+                    <!-- Content -->
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        @if($banner->subtitle)
+                        <p class="text-sm text-[#c0f820] font-semibold mb-2">{{ $banner->subtitle }}</p>
+                        @endif
+                        @if($banner->title)
+                        <h3 class="text-2xl font-bold mb-2">{{ $banner->title }}</h3>
+                        @endif
+                        @if($banner->description)
+                        <p class="text-sm text-white/90 mb-3 line-clamp-2">{{ $banner->description }}</p>
+                        @endif
+                        <span class="inline-flex items-center text-[#c0f820] text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            {{ $banner->button_text ?? 'Lihat Promo' }} 
+                            <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </span>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            
+        @elseif($bannerCount == 3)
+            <!-- Three Banners - Layout spesial: 1 besar, 2 kecil -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @foreach($homeBanners as $index => $banner)
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer {{ $index == 0 ? 'md:col-span-2 md:row-span-1 h-[350px] md:h-[400px]' : 'h-[250px] md:h-[190px]' }}"
+                     onclick="location='/products?sort=discount&page=1'"
+                     data-banner-id="{{ $banner->id }}">
+                    
+                    @if($banner->image_url)
+                    <img src="{{ $banner->image_url }}" 
+                         alt="{{ $banner->title }}"
+                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    @else
+                    <div class="w-full h-full bg-gradient-to-br from-[#193497] to-[#720e87]"></div>
+                    @endif
+                    
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        @if($banner->subtitle)
+                        <p class="text-xs text-[#c0f820] font-semibold mb-1">{{ $banner->subtitle }}</p>
+                        @endif
+                        <h3 class="font-bold {{ $index == 0 ? 'text-2xl' : 'text-xl' }} mb-2">{{ $banner->title }}</h3>
+                        @if($index == 0 && $banner->description)
+                        <p class="text-sm text-white/90 mb-3 line-clamp-2">{{ $banner->description }}</p>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            
+        @else
+            <!-- More than 3 Banners - Carousel Slider dengan Alpine.js -->
+            <div class="relative" x-data="{ currentSlide: 0 }" x-init="setInterval(() => { currentSlide = (currentSlide + 1) % {{ $bannerCount }} }, 5000)">
+                <!-- Slides -->
+                <div class="overflow-hidden rounded-2xl">
+                    <div class="flex transition-transform duration-500 ease-out" 
+                         :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+                        @foreach($homeBanners as $banner)
+                        <div class="w-full flex-shrink-0">
+                            <div class="group relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer h-[400px] md:h-[500px]"
+                                 onclick="location='/products?sort=discount&page=1'"
+                                 data-banner-id="{{ $banner->id }}">
+                                
+                                @if($banner->image_url)
+                                <img src="{{ $banner->image_url }}" 
+                                     alt="{{ $banner->title }}"
+                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000">
+                                <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
+                                @else
+                                <div class="w-full h-full bg-gradient-to-br from-[#193497] to-[#720e87]"></div>
+                                @endif
+                                
+                                <!-- Content -->
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="container mx-auto px-8">
+                                        <div class="max-w-2xl">
+                                            @if($banner->subtitle)
+                                            <p class="text-[#c0f820] font-semibold text-lg mb-3">{{ $banner->subtitle }}</p>
+                                            @endif
+                                            @if($banner->title)
+                                            <h3 class="text-4xl md:text-5xl font-bold text-white mb-4">{{ $banner->title }}</h3>
+                                            @endif
+                                            @if($banner->description)
+                                            <p class="text-white/90 text-lg mb-6 max-w-xl">{{ $banner->description }}</p>
+                                            @endif
+                                            @if($banner->link)
+                                            <span class="inline-flex items-center bg-[#c0f820] text-[#193497] px-8 py-4 rounded-full font-bold text-lg">
+                                                {{ $banner->button_text ?? 'Lihat Promo' }}
+                                                <i class="fas fa-arrow-right ml-3"></i>
+                                            </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                
+                <!-- Navigation Dots -->
+                <div class="flex justify-center mt-4 space-x-2">
+                    @foreach($homeBanners as $index => $banner)
+                    <button @click="currentSlide = {{ $index }}"
+                            class="w-2 h-2 rounded-full transition-all duration-300"
+                            :class="{ 'w-8 bg-[#193497]' : currentSlide === {{ $index }}, 'bg-gray-300' : currentSlide !== {{ $index }} }">
+                    </button>
+                    @endforeach
+                </div>
+                
+                <!-- Navigation Arrows -->
+                <button @click="currentSlide = (currentSlide - 1 + {{ $bannerCount }}) % {{ $bannerCount }}"
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors flex items-center justify-center">
+                    <i class="fas fa-chevron-left text-[#193497]"></i>
+                </button>
+                <button @click="currentSlide = (currentSlide + 1) % {{ $bannerCount }}"
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/90 rounded-full shadow-lg hover:bg-white transition-colors flex items-center justify-center">
+                    <i class="fas fa-chevron-right text-[#193497]"></i>
+                </button>
+            </div>
+        @endif
+    </div>
+</section>
+@endif
+
 <!-- Best Selling Products -->
-@if($products->isNotEmpty())
+@if(isset($products) && $products->isNotEmpty())
 <section class="py-20 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="text-center mb-16">
@@ -141,6 +394,12 @@
                         TERLARIS
                     </div>
                     @endif
+                    
+                    @if($product->has_discount)
+                    <div class="absolute top-4 right-4 bg-[#c0f820] text-[#193497] px-3 py-1 rounded-full text-xs font-bold">
+                        -{{ $product->discount_percent }}%
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Content -->
@@ -162,9 +421,18 @@
                     <!-- Price & Button -->
                     <div class="flex items-center justify-between">
                         <div>
+                            @if($product->has_discount)
+                            <div class="text-sm text-gray-500 line-through">
+                                {{ number_format($product->price / 1000, 0) }}K
+                            </div>
+                            <div class="font-bold text-2xl text-[#193497]">
+                                {{ number_format($product->final_price / 1000, 0) }}K
+                            </div>
+                            @else
                             <div class="font-bold text-2xl text-[#193497]">
                                 {{ number_format($product->price / 1000, 0) }}K
                             </div>
+                            @endif
                             <div class="text-xs text-gray-600">per item</div>
                         </div>
                         <a href="{{ route('products.show', $product->id) }}" 
@@ -176,10 +444,19 @@
             </div>
             @endforeach
         </div>
+        
+        <div class="text-center mt-12">
+            <a href="{{ route('products.index') }}" 
+               class="inline-flex items-center bg-[#193497] text-white px-8 py-3 rounded-full font-semibold hover:bg-[#1e40af] transition-colors">
+                Lihat Semua Produk
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
     </div>
 </section>
 @endif
-<!-- Creative Categories Section - COMPACT VERSION -->
+
+<!-- Creative Categories Section -->
 <section class="py-16 bg-white relative overflow-hidden">
     <!-- Decorative Background -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-[#193497] opacity-5 blur-3xl"></div>
@@ -199,14 +476,11 @@
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             @foreach($categories as $category)
             <div class="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-transparent overflow-hidden">
-                <!-- Image Container - Persegi Panjang -->
+                <!-- Image Container -->
                 <div class="relative h-48 overflow-hidden">
-                    <!-- Main Image -->
                     @php
-                        // Gunakan main_image_url dari accessor atau cek langsung
                         $mainImage = $category->main_image_url ?? null;
                         
-                        // Fallback: cek apakah file ada di storage
                         if (!$mainImage && isset($category->featured_image_1) && !empty($category->featured_image_1)) {
                             $imagePath = $category->featured_image_1;
                             $storagePath = storage_path('app/public/' . $imagePath);
@@ -226,7 +500,7 @@
                     </div>
                     @endif
                     
-                    <!-- Small Thumbnail Images (3 kecil di atas gambar utama) -->
+                    <!-- Small Thumbnail Images -->
                     <div class="absolute top-3 right-3 flex space-x-1">
                         @for($i = 2; $i <= 4; $i++)
                             @php 
@@ -300,7 +574,7 @@
             @endforeach
         </div>
         
-        <!-- View All Button (HANYA JIKA ADA KATEGORI) -->
+        <!-- View All Button -->
         <div class="text-center mt-10">
             <a href="{{ route('products.index') }}" 
                class="inline-flex items-center bg-white border border-[#193497] text-[#193497] hover:bg-[#193497] hover:text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm hover:shadow-md">
@@ -310,7 +584,7 @@
         </div>
         
         @else
-        <!-- TAMPILAN JIKA TIDAK ADA KATEGORI -->
+        <!-- Tampilan jika tidak ada kategori -->
         <div class="text-center py-12">
             <div class="inline-block p-6 bg-gray-50 rounded-2xl">
                 <i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i>
@@ -321,8 +595,9 @@
         @endif
     </div>
 </section>
+
 <!-- Process Steps -->
-<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white">
+<section class="py-24 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
     <!-- Decorative Background -->
     <div class="absolute top-0 left-0 w-full h-full opacity-5">
         <div class="absolute top-20 left-20 w-72 h-72 bg-[#193497] rounded-full blur-3xl animate-pulse"></div>
@@ -498,7 +773,6 @@
                 Kepercayaan pelanggan adalah prioritas kami
             </p>
         </div>
-        </div>
 
         <div class="max-w-6xl mx-auto">
             @php
@@ -579,8 +853,6 @@
     </div>
 </section>
 
-
-
 <!-- CTA Section -->
 <section class="py-24 bg-gradient-to-br from-[#193497] to-[#1e40af] text-white relative overflow-hidden">
     <!-- Background Blur -->
@@ -631,9 +903,6 @@
         </div>
     </div>
 </section>
-
-
-
 @endsection
 
 @push('styles')
@@ -672,9 +941,53 @@
     animation: float-slow 5s ease-in-out infinite;
 }
 
-/* Custom styles untuk categories section */
-.grid-rows-3 {
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+/* Custom scrollbar untuk slider */
+.overflow-hidden::-webkit-scrollbar {
+    display: none;
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+// Track banner clicks
+function trackBannerClick(id) {
+    fetch('/api/banners/' + id + '/click', { 
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    }).catch(error => console.error('Error tracking click:', error));
+}
+
+// Auto track banner view saat banner terlihat
+document.addEventListener('DOMContentLoaded', function() {
+    // Intersection Observer untuk track view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const banner = entry.target;
+                const bannerId = banner.dataset.bannerId;
+                
+                if (bannerId) {
+                    fetch('/api/banners/' + bannerId + '/view', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    }).catch(error => console.error('Error tracking view:', error));
+                    
+                    // Unobserve setelah track
+                    observer.unobserve(banner);
+                }
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    // Observe semua banner
+    document.querySelectorAll('[data-banner-id]').forEach(banner => {
+        observer.observe(banner);
+    });
+});
+</script>
 @endpush
